@@ -30,4 +30,10 @@ public class ResultadoBiometriaBean {
 		this.codigoError = codigoError;
 	}
 
+	@Override
+	public String toString() {
+		return "ResultadoBiometriaBean [resultado=" + resultado + ", mensajeResultado=" + mensajeResultado
+				+ ", codigoError=" + codigoError + "]";
+	}
+
 }

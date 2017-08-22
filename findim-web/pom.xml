@@ -142,6 +142,7 @@
 		</dependency>
 	</dependencies>
 	<build>
+	<finalName>findim-web</finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>

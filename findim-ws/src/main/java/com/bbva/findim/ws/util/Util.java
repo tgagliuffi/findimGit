@@ -269,7 +269,7 @@ public class Util {
 		try{
 			files=Util.obtenerArchivosEnCarpeta(path);			
 			for (File f:files) {
-				if (f.isFile() && f.exists() && f.getPath().contains(prefix)) { 
+				if (f.isFile() && f.exists() && f.getPath().contains(prefix) && !f.getName().contains(Constantes.DOCUMENTO_ACE)) { 
 					f.delete();
 				} 
 			}			

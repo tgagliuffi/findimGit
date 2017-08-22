@@ -8,6 +8,16 @@ public class BiometriaValidaMaxIntentosBean implements Serializable {
 
 	private boolean resultado;
 	private String mensaje;
+	private String mensajeTecnico;
+	
+	
+	public String getMensajeTecnico() {
+		return mensajeTecnico;
+	}
+
+	public void setMensajeTecnico(String mensajeTecnico) {
+		this.mensajeTecnico = mensajeTecnico;
+	}
 
 	public boolean isResultado() {
 		return resultado;
@@ -25,4 +35,10 @@ public class BiometriaValidaMaxIntentosBean implements Serializable {
 		this.mensaje = mensaje;
 	}
 
+	@Override
+	public String toString() {
+		return "BiometriaValidaMaxIntentosBean [resultado=" + resultado + ", mensaje=" + mensaje + ", mensajeTecnico="
+				+ mensajeTecnico + "]";
+	}	
+	
 }
