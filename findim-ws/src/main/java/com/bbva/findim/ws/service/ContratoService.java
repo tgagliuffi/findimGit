@@ -1,5 +1,12 @@
 package com.bbva.findim.ws.service;
 
-public interface ContratoService {
+import java.text.ParseException;
 
+import com.bbva.findim.dom.ClienteBean;
+import com.bbva.findim.dom.FirmaContratoBean;
+
+public interface ContratoService {
+	
+	public ClienteBean guardarDatosComplementarios(ClienteBean clienteBean) throws ParseException, Exception;
+	public int  firmarContrato(FirmaContratoBean firmaContratoBean);
 }
