@@ -21,6 +21,7 @@
 	<!-- datasource config -->
 	<context:property-placeholder
 		location="file:${findim-ws.config.path}/findim-ws.properties" />
+	
 	<bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSourceFindim" />
