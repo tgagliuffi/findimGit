@@ -1,0 +1,5 @@
+package com.bbva.findim.back.domain.gt;
+
+public class Parametro {
+
+}

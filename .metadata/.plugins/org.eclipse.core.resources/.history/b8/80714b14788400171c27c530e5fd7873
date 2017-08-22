@@ -1,0 +1,30 @@
+package com.bbva.findim.sql.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bbva.client.bean.DatosReniecBean;
+import com.bbva.findim.service.DatoReniecService;
+import com.bbva.findim.sql.dao.DatoReniecDao;
+
+@Service("datoReniecService")
+public class DatoReniecServiceImpl implements DatoReniecService{
+
+	@Autowired
+	DatoReniecDao datoReniecDao;
+
+	
+	public DatosReniecBean obtenerDatosReniecPersona(String numeroDni) {
+		// TODO Auto-generated method stub
+		return datoReniecDao.obtenerDatosReniec(numeroDni);
+	}
+
+
+	public void guardarDatoReniecPersona(DatosReniecBean datosReniecBean) {
+		// TODO Auto-generated method stub
+		datoReniecDao.guardarDatoReniec(datosReniecBean);
+	}
+	
+	
+	
+}

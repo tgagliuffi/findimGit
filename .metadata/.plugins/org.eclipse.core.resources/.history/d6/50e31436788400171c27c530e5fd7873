@@ -1,0 +1,16 @@
+package com.bbva.server.service;
+
+import java.util.Map;
+
+import com.bbva.findim.sql.dom.ClienteBean;
+import com.bbva.findim.sql.dom.ComprobantePrepago;
+import com.bbva.findim.sql.dom.ContratoBean;
+import com.bbva.findim.sql.dom.DatosPdfBean;
+import com.bbva.findim.sql.dom.RutasPdfBean;
+
+public interface PdfService {
+	
+	String generacionPDF(ClienteBean clienteBean, ContratoBean contratoBean);
+
+	
+}

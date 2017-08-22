@@ -1,0 +1,9 @@
+package com.bbva.findim.sql.dao;
+
+import com.bbva.client.bean.EventoContratoBean;
+
+public interface LogContratoEventoDao {
+
+	Integer registrarEventoContrato(EventoContratoBean eventoContratoBean);
+
+}

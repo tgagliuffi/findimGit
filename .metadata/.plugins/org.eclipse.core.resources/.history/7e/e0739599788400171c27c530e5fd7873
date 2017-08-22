@@ -1,0 +1,18 @@
+package com.bbva.client.service;
+
+import java.math.BigDecimal;
+
+import com.bbva.findim.dom.SimulacionBean;
+import com.bbva.findim.doms.EmpresaBean;;
+
+public interface SimulacionPagoService {
+	
+	public String fecha();
+	public String fechaVencimiento();	
+	public SimulacionBean datosInicialesSimulacion(Integer idPadre,EmpresaBean empresa);
+	public String cargoFijoMaximo(BigDecimal cargoFijo ,BigDecimal valorCuota );
+//	public String calcularTcea(SimulacionBean sinulacion);
+	
+		
+
+}

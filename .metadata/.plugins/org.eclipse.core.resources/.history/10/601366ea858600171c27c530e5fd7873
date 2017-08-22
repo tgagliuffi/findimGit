@@ -1,0 +1,11 @@
+package com.bbva.findim.bck.service;
+
+
+import com.bbva.findim.doms.CalificacionClienteBean;
+
+
+public interface ApprovalsService {
+	
+  CalificacionClienteBean evaluarCliente(String tipoDocumento, String numDocumento, String tSec)throws Exception ;
+
+}

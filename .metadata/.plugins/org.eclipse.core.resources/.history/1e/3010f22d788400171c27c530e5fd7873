@@ -1,0 +1,16 @@
+package com.bbva.server.service;
+
+import java.util.Map;
+
+import com.bbva.client.bean.ClienteBean;
+import com.bbva.client.bean.ComprobantePrepago;
+import com.bbva.client.bean.ContratoBean;
+import com.bbva.client.bean.DatosPdfBean;
+import com.bbva.client.bean.RutasPdfBean;
+
+public interface PdfService {
+	
+	String generacionPDF(ClienteBean clienteBean, ContratoBean contratoBean);
+
+	
+}
