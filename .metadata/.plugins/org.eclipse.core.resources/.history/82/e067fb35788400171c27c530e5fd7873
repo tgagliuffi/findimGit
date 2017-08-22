@@ -1,9 +1,0 @@
-package com.bbva.findim.sql.service;
-
-import com.bbva.findim.sql.dom.EventoContratoBean;
-
-public interface LogContratoEventoService {
-
-	public Integer registrarEventoContrato(EventoContratoBean eventoContratoBean);
-	
-}

@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Rename resource &apos;findim-ws_tdp&apos; to &apos;findim-ws-tdp&apos;" description="Rename resource &apos;findim-ws_tdp&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/findim-ws_tdp" name="findim-ws-tdp" stamp="1503102195161" updateReferences="true"/>
-</session>

@@ -1,9 +1,0 @@
-package com.bbva.server.service;
-
-import com.bbva.client.bean.FirmaContratoBean;
-import com.bbva.server.util.Enumeradores.EnumRespuestaSignBox;
-
-public interface FirmaContratoService {
-
-	EnumRespuestaSignBox firmaDocumentoContrato(FirmaContratoBean firmaContratoBean) throws Exception;
-}

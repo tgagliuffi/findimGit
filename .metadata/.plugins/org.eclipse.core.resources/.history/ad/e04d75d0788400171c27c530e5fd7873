@@ -1,5 +1,0 @@
-package com.bbva.server.service;
-
-public interface ContratoService {
-
-}
