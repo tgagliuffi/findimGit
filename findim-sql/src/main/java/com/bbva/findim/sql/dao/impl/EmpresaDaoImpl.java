@@ -21,7 +21,7 @@ import com.bbva.findim.sql.dao.EmpresaDao;
 @Repository
 public class EmpresaDaoImpl implements EmpresaDao {
 
-	private static final Logger logger = LogManager.getLogger(ParametroDaoImpl.class);
+	private static final Logger logger = LogManager.getLogger(EmpresaDaoImpl.class);
 	private JdbcTemplate jdbcTemplate;
 	
 	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {  

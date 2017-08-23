@@ -29,3 +29,5 @@
 /findim-web/target
 /findim-ws/target
 /findim-ws-tdp/target
+/findim-sql/.settings/*.prefs
+/findim-sql/.settings/*.component

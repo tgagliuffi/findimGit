@@ -8,6 +8,7 @@
  
 	<!-- DispatcherServlet Context: defines this servlet's request-processing 
 		infrastructure -->
+	<context:property-placeholder location="file:${findim-web.config.path}/findim-web.properties" />
 
 	<!-- Enables the Spring MVC @Controller programming model -->
 	<annotation-driven ignore-default-model-on-redirect="true" />

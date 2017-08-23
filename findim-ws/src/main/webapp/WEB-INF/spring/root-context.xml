@@ -10,7 +10,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
 
-	<context:component-scan base-package="com.bbva.fimdim.ws" />
+	<context:component-scan base-package="com.bbva.findim.ws" />
 	<!-- ppazos: scan Oracle -->
 	<context:component-scan base-package="com.bbva.findim.sql.service" />
 	<context:component-scan base-package="com.bbva.findim.sql.dao" />
@@ -21,6 +21,7 @@
 	<!-- datasource config -->
 	<context:property-placeholder
 		location="file:${findim-ws.config.path}/findim-ws.properties" />
+	
 	<bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSourceFindim" />

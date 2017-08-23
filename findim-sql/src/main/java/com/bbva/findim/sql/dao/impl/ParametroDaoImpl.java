@@ -36,8 +36,6 @@ public class ParametroDaoImpl implements ParametroDao {
 	
 	private JdbcTemplate jdbcTemplate;
 	
-//	@Autowired
-//	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {  
 	    this.jdbcTemplate = jdbcTemplate;  
 	    jdbcTemplate.setResultsMapCaseInsensitive(true);

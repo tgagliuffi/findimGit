@@ -17,7 +17,7 @@ import com.bbva.findim.sql.dao.DatoReniecDao;
 @Repository
 public class DatoReniecDaoImpl implements DatoReniecDao{
 	
-	private static final Logger logger = LogManager.getLogger(ParametroDaoImpl.class);
+	private static final Logger logger = LogManager.getLogger(DatoReniecDaoImpl.class);
 	
 	private JdbcTemplate jdbcTemplate;
 	
