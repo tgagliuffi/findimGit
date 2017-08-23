@@ -217,7 +217,7 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 						contrato.setCodigoContrato(proposalResult.getData().get(i).getId());
 						contrato.setFechaCreacion(proposalResult.getData().get(i).getRequestDate());
 						contrato.setTipoMoneda(proposalResult.getData().get(i).getCurrency());
-						contrato.setNombreArchivo(Constantes.DOCUMENTO_ACE + contrato.getCodigoContrato() + Constantes.EXTENSION_PDF);//Util.generarNombreConsolidadoPDF(nroDocumento,proposalResult.getData().get(i).getId()));
+						contrato.setNombreArchivo(Util.generarNombreConsolidadoPDF(nroDocumento,proposalResult.getData().get(i).getId()));
 						
 						if(proposalResult.getData().get(i).getDelivery()!=null){
 							contrato.setCorreo(proposalResult.getData().get(i).getDelivery().getEmail());
@@ -268,9 +268,8 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 							String estado = proposalResult.getData().get(i).getStatus().getId();
 							contrato.setEstadoContrato(estado);
 							
-							if(estado.equals(Estado.ESTADO_FIRMADO.name()))
+							if(estado.equals(Estado.FIRMADO.name()))
 								contrato.setNombreArchivo(Constantes.DOCUMENTO_ACE + contrato.getCodigoContrato() + Constantes.EXTENSION_PDF);
-							
 						}
 						lstContratos.add(contrato);
 					}
@@ -301,7 +300,7 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 			}
 			proposal.setStatus(new Status());
 			if(contrato.getEstadoContrato()!=null && !contrato.getEstadoContrato().equals("")){
-				proposal.getStatus().setId(determinarEstado(contrato.getEstadoContrato()).getId());
+				proposal.getStatus().setId(determinarEstado(contrato.getEstadoContrato().replace(" ", "_"), 1).replace(" ", "_"));
 			}else{
 				return null;
 			}
@@ -385,33 +384,39 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 		return initialAmount;
 	}
 	
-//	private Value determinarTipoDocumento(int tipoDocumento) {
-//		Value tipoDocumentoValue = null;//TODO REVISAR NULL
-//		if (tipoDocumento == 1) {
-//			tipoDocumentoValue = new Value(ProposalService.TipoDocumento.DNI.getTipoDocumento());
-//		}else if(tipoDocumento == 2){
-//			tipoDocumentoValue = new Value(ProposalService.TipoDocumento.RUC.getTipoDocumento());
-//		}else if(tipoDocumento == 3){
-//			tipoDocumentoValue = new Value(ProposalService.TipoDocumento.CE.getTipoDocumento());
-//		}
-//		return tipoDocumentoValue;
-//	}
-	
-	private Value determinarEstado(String estado) {
-		Value estadoValue = null;//TODO REVISAR NULL
-		if (estado.equals(ProposalService.Estado.ESTADO_PENDIENTE.name())) {//pendiente
-			estadoValue = new Value(ProposalService.Estado.ESTADO_PENDIENTE.getEstado());
-		}else if(estado.equals(ProposalService.Estado.ESTADO_DESEMBOLSADO.name())){//desembolsado
-			estadoValue = new Value(ProposalService.Estado.ESTADO_DESEMBOLSADO.getEstado());
-		}else if(estado.equals(ProposalService.Estado.ESTADO_ANULADO.name())){//Anulado
-			estadoValue = new Value(ProposalService.Estado.ESTADO_ANULADO.getEstado());
-		}else if(estado.equals(ProposalService.Estado.ESTADO_FIRMADO.name())){
-			estadoValue = new Value(ProposalService.Estado.ESTADO_FIRMADO.getEstado());
-		}else if(estado.equals(ProposalService.Estado.ESTADO_TRAMITE.name())){
-			estadoValue = new Value(ProposalService.Estado.ESTADO_TRAMITE.getEstado());
+	private String determinarEstado(String estado, int indicador) {// 0 de ServAFront 1 de FrontAServ
+		Value estadoValue = null;
+		if(indicador==0){
+			if (estado.equals(ProposalService.EstadoHost.PENDING_SIGNATURE.name())) {//pendiente
+				estadoValue = new Value(ProposalService.EstadoHost.PENDING_SIGNATURE.getEstado());
+			}else if(estado.equals(ProposalService.EstadoHost.DISBURSED.name())){//desembolsado
+				estadoValue = new Value(ProposalService.EstadoHost.DISBURSED.getEstado());
+			}else if(estado.equals(ProposalService.EstadoHost.ANNULLED.name())){//Anulado
+				estadoValue = new Value(ProposalService.EstadoHost.ANNULLED.getEstado());
+			}else if(estado.equals(ProposalService.EstadoHost.SIGNED.name())){
+				estadoValue = new Value(ProposalService.EstadoHost.SIGNED.getEstado());
+			}else if(estado.equals(ProposalService.EstadoHost.PENDING_COMPLETION_DATA.name())){
+				estadoValue = new Value(ProposalService.EstadoHost.PENDING_COMPLETION_DATA.getEstado());
+			}
+		}else{
+			if (estado.equals(ProposalService.Estado.PENDIENTE_FIRMA.name())) {//pendiente
+				estadoValue = new Value(ProposalService.Estado.PENDIENTE_FIRMA.getEstado());
+			}else if(estado.equals(ProposalService.Estado.DESEMBOLSADO.name())){//desembolsado
+				estadoValue = new Value(ProposalService.Estado.DESEMBOLSADO.getEstado());
+			}else if(estado.equals(ProposalService.Estado.ANULADO.name())){//Anulado
+				estadoValue = new Value(ProposalService.Estado.ANULADO.getEstado());
+			}else if(estado.equals(ProposalService.Estado.FIRMADO.name())){
+				estadoValue = new Value(ProposalService.Estado.FIRMADO.getEstado());
+			}else if(estado.equals(ProposalService.Estado.EN_TRAMITE.name())){
+				estadoValue = new Value(ProposalService.Estado.EN_TRAMITE.getEstado());
+			}
 		}
 		
-		return estadoValue;
+		if(estadoValue !=null){
+			return estadoValue.getId().replace("_", " ");
+		}else{
+			return "";
+		}
 	}
 	
 	

@@ -75,7 +75,6 @@ public class CatalogServiceImpl extends BaseServiceBackImpl implements CatalogSe
 					beanFrom.setIdCatalogo(beanBack.getCatalogId());
 					for (int j = 0; j < beanBack.getValues().size(); j++) {
 						beanFrom.setStValue(beanBack.getValues().get(j).getDescriptions().get(0).getValue());
-						System.out.println("value  : " + beanBack.getValues().get(j).getDescriptions().get(0).getValue());
 					}
 					lstCatalogoBean.add(beanFrom);
 				}
