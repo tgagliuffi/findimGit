@@ -265,9 +265,9 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 						}
 						
 						if(proposalResult.getData().get(i).getStatus()!=null){
-							String estado = proposalResult.getData().get(i).getStatus().getId();
+							String estado = determinarEstado(proposalResult.getData().get(i).getStatus().getId(),0);
 							contrato.setEstadoContrato(estado);
-							
+
 							if(estado.equals(Estado.FIRMADO.name()))
 								contrato.setNombreArchivo(Constantes.DOCUMENTO_ACE + contrato.getCodigoContrato() + Constantes.EXTENSION_PDF);
 						}
