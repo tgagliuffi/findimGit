@@ -789,7 +789,14 @@ public class Inicio {
 
 	@RequestMapping(value = "/contrato/pdf/{filename}/view")
 	public void getPdfPath(@PathVariable("filename") String filename, HttpServletResponse response) throws IOException {
-		String baseDirectory = prop.getString("sistema.ruta.contrato.consolidado");
+		
+		String baseDirectory = "";
+		String uriServicio = prop.getString("sistema.uriservicio");
+		if(filename.startsWith(com.bbva.findim.dom.common.Constantes.DOCUMENTO_ACE))
+			baseDirectory = prop.getString("sistema.ruta.generacion.contrato");
+		else
+			baseDirectory = prop.getString("sistema.ruta.contrato.consolidado");
+		
 		String path = baseDirectory + filename;
 
 		try (InputStream is = new FileInputStream(new File(path))) {

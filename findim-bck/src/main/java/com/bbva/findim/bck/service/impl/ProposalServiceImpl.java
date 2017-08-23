@@ -61,6 +61,7 @@ import com.bbva.findim.bck.util.ConstantesConection.Parametro.PropuestaConstant;
 import com.bbva.findim.dom.ClienteBean;
 import com.bbva.findim.dom.ContratoAltaBean;
 import com.bbva.findim.dom.ContratoBean;
+import com.bbva.findim.dom.common.Constantes;
 import com.bbva.findim.dom.util.DateUtil;
 import com.google.gson.Gson;
 
@@ -216,7 +217,7 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 						contrato.setCodigoContrato(proposalResult.getData().get(i).getId());
 						contrato.setFechaCreacion(proposalResult.getData().get(i).getRequestDate());
 						contrato.setTipoMoneda(proposalResult.getData().get(i).getCurrency());
-						contrato.setNombreArchivo(Util.generarNombreConsolidadoPDF(nroDocumento,proposalResult.getData().get(i).getId()));
+						contrato.setNombreArchivo(Constantes.DOCUMENTO_ACE + contrato.getCodigoContrato() + Constantes.EXTENSION_PDF);//Util.generarNombreConsolidadoPDF(nroDocumento,proposalResult.getData().get(i).getId()));
 						
 						if(proposalResult.getData().get(i).getDelivery()!=null){
 							contrato.setCorreo(proposalResult.getData().get(i).getDelivery().getEmail());
@@ -264,7 +265,12 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 						}
 						
 						if(proposalResult.getData().get(i).getStatus()!=null){
-							contrato.setEstadoContrato(proposalResult.getData().get(i).getStatus().getId());
+							String estado = proposalResult.getData().get(i).getStatus().getId();
+							contrato.setEstadoContrato(estado);
+							
+							if(estado.equals(Estado.ESTADO_FIRMADO.name()))
+								contrato.setNombreArchivo(Constantes.DOCUMENTO_ACE + contrato.getCodigoContrato() + Constantes.EXTENSION_PDF);
+							
 						}
 						lstContratos.add(contrato);
 					}
