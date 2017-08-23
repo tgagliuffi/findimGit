@@ -279,7 +279,6 @@ public class Inicio {
 					if (datosNoClienteReniec == null) {
 						// TODO PENDIENTE LLAMADA A RENIEC(SOLO EN CASO ESPECIAL
 						// QUE EL NO CLIENTE YA EXISITIA
-
 						datosNoClienteReniec = new DatosReniecBean();
 						datosNoClienteReniec.setDireccionAmdocs(
 								"AV(|)Caminos del Inca(|)Nro. 3755(|)Mz.W4/ Lt.19(|)Piso 10(|)Dpto./Int. 101(|)URB(|)LOS ROSALES(|)");
@@ -333,7 +332,9 @@ public class Inicio {
 					contratoUpdate.setCodigoContrato(contratoBean.getCodigoContrato());
 					contratoUpdate.setTipoEnvio(contratoBean.getNombreEnvio());
 					contratoUpdate.setCorreo(contratoBean.getCorreo());
-					contratoUpdate.setEstadoContrato(obtenerEstado(contratoBean.getEstadoContrato()));
+					
+					if(contratoBean.getEstadoContrato()!=null)
+					contratoUpdate.setEstadoContrato(contratoBean.getEstadoContrato());
 
 					ClienteBean clienteBeanPDF = generarPDF(clienteBean, contratoBean);
 					if (clienteBeanPDF != null) {
@@ -469,7 +470,7 @@ public class Inicio {
 						logger.error(e.getMessage(), e);
 						System.out.println(e.getMessage());
 					}
-					if (lista.get(0).getEstadoContrato().equals("PENDING_SIGNATURE")) {// ESTADO
+					if (lista.get(0).getEstadoContrato().equals("PENDIENTE FIRMA")) {// ESTADO
 																						// 8
 																						// ES
 																						// CLIENTE
@@ -507,49 +508,16 @@ public class Inicio {
 
 								}
 
-								//
-								// List<GrupoGeografico> gruposGeos =
-								// customerEnvio.getLstGrupoGeografico();
-								//
-								// for (GrupoGeografico grupoGeografico :
-								// gruposGeos) {
-								// if(codigos.contains(grupoGeografico.getId())){//TODO
-								// Armar mejor direccion
-								// direccion.setNombreCalle(grupoGeografico.getNombre());
-								// }
-								// if(grupoGeografico.getId().equals("EXTERIOR_NUMBER")){
-								// direccion.setNumeroExterno(grupoGeografico.getNombre());
-								// }else
-								// if(grupoGeografico.getId().equals("BLOCK")){
-								// direccion.setNumeroExterno("BLOQUE" +
-								// grupoGeografico.getNombre());
-								// }else
-								// if(grupoGeografico.getId().equals("QUINTA")){
-								// direccion.setNumeroExterno("QUINTA" +
-								// grupoGeografico.getNombre());
-								// }
-								// }
-								// customerEnvio.setLstDireccionBean(direcciones);
-								// customerEnvio.setDireccion(obtenerDireccionCompleta(customerEnvio.getLstGrupoGeografico()));
-								// customerEnvio.setDireccion((direccion.getNombreCalle()!=null?direccion.getNombreCalle():"")+
-								// " " +
-								// (direccion.getNumeroExterno()!=null?direccion.getNumeroExterno():"")
-								// + " ");
 							} else {
 								customerEnvio = new ClienteBean();
-								customerEnvio.setTipoRespuesta(0);// EN CASO NO
-																	// SEA
-																	// CLIENTE
-																	// (ESTO NO
-																	// DEBERIA
-																	// PASAR)
+								customerEnvio.setTipoRespuesta(0);// EN CASO NO// SEA  CLIENTE  (ESTO NO DEBERIA PASAR)
 							}
 							System.out.println("FIN LLAMADO CUSTOMER");
 						} catch (Exception ep) {
 							logger.error(ep.getMessage(), ep);
 						}
 					}
-					if (lista.get(0).getEstadoContrato().equals("PENDING_COMPLETION_DATA")) {
+					if (lista.get(0).getEstadoContrato().equals("EN TRAMITE")) {
 						PersonaBean persona = null;
 						try {
 							persona = personService.buscarNoCliente(tipoDocws, numeroDocumento, "2",seguridad.generarTSec(3));// OBTENIENDO INFORMACION DEL NO CLIENTE

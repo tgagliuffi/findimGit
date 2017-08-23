@@ -74,7 +74,7 @@ function actualizarContenidos(){
 
         datosCliente.text(objetoContenedor.nombreCompleto);
         tablaContenidoBody.children().remove();
-            
+        debugger;    
         for(var i = 0; i < totalArrayTabla ; i++) {
             var btnHolderContrato = "",
             	destinoModal ="",
@@ -130,7 +130,7 @@ function actualizarContenidos(){
 	        		break;
 	        }
             
-            if(listaContrato[i].estadoContrato=="PENDING_COMPLETION_DATA"){
+            if(listaContrato[i].estadoContrato=="EN TRAMITE"){
             	destinoModal = "#modalInformacion";
         		textoBoton = "Completar datos";
         	}
@@ -490,7 +490,6 @@ function actualizarModalContratos(i){
   completarInfoEmail.val($.trim(objetoContenedor.listaContrato[i].correo));
   completarInfoDireccion.val(objetoContenedor.direccion);
   estadoContratoUpdate = objetoContenedor.listaContrato[i].estadoContrato;
-//  completarInfoDirNum.val(objetoContenedor.lstDireccionBean[0].numeroExterno);
   completarInfoEmpresa.val(objetoContenedor.centroTrabajo);
   
   if(objetoContenedor.esCliente){
