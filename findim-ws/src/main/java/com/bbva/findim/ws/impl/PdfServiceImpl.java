@@ -75,7 +75,7 @@ public class PdfServiceImpl implements PdfService{
 			ParametroBean parametroTipoPrestamo = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_22,Constantes.CD_DETALLE_1);			
 			ParametroBean parametroPenalidad = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_25,Constantes.CD_DETALLE_1);
 			
-			List<ParametroBean> listDireccion = parametroDao.listarParametrosDetalle(Constantes.CD_CABECERA_64);
+			
 			
 //			Optional<GrupoGeografico> resultDistrito = clienteBean.getLstGrupoGeografico().stream().filter(x->x.getId().equals(Constantes.UBIGEO_DISTRITO)).findFirst();
 //			Optional<GrupoGeografico> resultProvincia = clienteBean.getLstGrupoGeografico().stream().filter(x->x.getId().equals(Constantes.UBIGEO_PROVINCIA)).findFirst();
@@ -110,7 +110,7 @@ public class PdfServiceImpl implements PdfService{
 			 datosPdfBeanAux.setEstadoCivil(clienteBean.getEstadoCivil()+"");
 			 datosPdfBeanAux.setTipoDocumento(clienteBean.getTipoDocumento());
 			 datosPdfBeanAux.setNumeroDocumentoPdf(clienteBean.getNumeroDocumento());
-			 //TODO: datosPdfBeanAux.setDireccion(direccion);
+			 datosPdfBeanAux.setDireccion(clienteBean.getDireccionCliente().getUbicacion().getDsDireccionCompleta());
 			 datosPdfBeanAux.setDistrito(distrito);
 			 datosPdfBeanAux.setProvincia(provincia);
 			 datosPdfBeanAux.setDepartamento(departamento);

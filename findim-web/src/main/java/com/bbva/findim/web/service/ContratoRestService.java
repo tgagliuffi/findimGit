@@ -11,7 +11,7 @@ public interface ContratoRestService {
 
 	ClienteBean filtroCliente(ClienteBean clienteBean);
 
-	ClienteBean guardarDatosComplementarios(ClienteBean clienteBean);
+	ClienteBean generarPDF(ClienteBean clienteBean);
 
 	Integer registrarLogContrato(LogContratoBean logContratoBean);
 

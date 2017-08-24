@@ -91,9 +91,9 @@ public class ContratoRestServiceImpl implements ContratoRestService {
 		return clienteBean;
 	}
 	
-	public ClienteBean guardarDatosComplementarios(ClienteBean clienteBean) {
+	public ClienteBean generarPDF(ClienteBean clienteBean) {
 		try {
-			String uri = clienteBean.getRutaServicioRest() + "guardarDatosComplementarios";
+			String uri = clienteBean.getRutaServicioRest() + "generarPDF";
 
 			ResponseEntity<ClienteBean> responseEntity = restTemplate.postForEntity(uri, RestUtil.getHttpEntity(clienteBean), ClienteBean.class);
 			clienteBean = responseEntity.getBody();

@@ -393,7 +393,7 @@ public class Inicio {
 			String rutaServicioRest = prop.getString("sistema.uriservicio");
 			clienteBean.setRutaServicioRest(rutaServicioRest);
 
-			response = contratoRestService.guardarDatosComplementarios(clienteBean);
+			response = contratoRestService.generarPDF(clienteBean);
 		} catch (Exception e) {
 			response = null;
 			logger.error("Sucedío un error en el metodo guardarDatosComplementarios ", e);
