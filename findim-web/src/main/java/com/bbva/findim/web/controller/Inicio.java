@@ -447,7 +447,7 @@ public class Inicio {
 				try {
 
 					lista = proposalService.listarPropuesta(seguridad.generarTSec(3), empresa.getIndenticador(),
-							empresa.getCdEmpresa(), tipoDocumento, numeroDocumento, empresa.getFechaExpiracion());
+							empresa.getCdEmpresa(), tipoDoc, numeroDocumento, empresa.getFechaExpiracion());
 					
 				} catch (Exception ep) {
 					logger.error(ep.getMessage(), ep);
