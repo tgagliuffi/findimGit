@@ -430,7 +430,7 @@ public class Inicio {
 					
 				if(lista!=null && lista.size()>0){
 								customerEnvio = customerService.obtenerDatosCliente(seguridad.generarTSec(3), tipoDoc,numeroDocumento);// OBTENEMOS LA INFORMACION DEL CLIENTE
-					if(customerEnvio.getRptErrorService().indexOf("CLIENTE NO EXISTE")>0){//NO EXISTE EL CLIENTE
+					if(customerEnvio.getRptErrorService()!=null && customerEnvio.getRptErrorService().indexOf("CLIENTE NO EXISTE")>0){//NO EXISTE EL CLIENTE
 						PersonaBean persona = null;
 						persona = personService.buscarNoCliente(tipoDocws, numeroDocumento, "2",seguridad.generarTSec(3));// OBTENIENDO INFORMACION DEL NO CLIENTE
 						if (persona.getRptErrorService() == null) {
@@ -452,7 +452,7 @@ public class Inicio {
 						customerEnvio.setTipoRespuesta(1);
 					}
 					
-					if (msgErrorFront!=null && lista.size() > 0) {
+					if (msgErrorFront==null && lista.size() > 0) {
 						customerEnvio.setTipoDocumento(tipoDocumento);
 						customerEnvio.setListaContrato(lista);
 					}
