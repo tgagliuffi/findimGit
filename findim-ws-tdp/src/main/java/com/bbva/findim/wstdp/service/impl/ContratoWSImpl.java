@@ -269,8 +269,6 @@ public class ContratoWSImpl implements ContratoWS {
 			respuestaTDP.setIndicadorProceso(0);
 			respuestaTDP.setimporteCuota((float) 0);
 			logAltaContratoService.insert(request);
-
-		
 		  	
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage(), ex);
@@ -281,8 +279,6 @@ public class ContratoWSImpl implements ContratoWS {
 			request.setTpIndicadorProceso("ERROR");
 			request.setTxMensajeFuncional("");
 			request.setTxMensajeTecnico(ex.getMessage());
-			
-			
 			logAltaContratoService.insert(request);
 		}
 

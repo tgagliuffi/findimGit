@@ -283,8 +283,7 @@ public class Inicio {
 						// TODO PENDIENTE LLAMADA A RENIEC(SOLO EN CASO ESPECIAL
 						// QUE EL NO CLIENTE YA EXISITIA
 						datosNoClienteReniec = new DatosReniecBean();
-						datosNoClienteReniec.setDireccionAmdocs(
-								"AV(|)Caminos del Inca(|)Nro. 3755(|)Mz.W4/ Lt.19(|)Piso 10(|)Dpto./Int. 101(|)URB(|)LOS ROSALES(|)");
+						datosNoClienteReniec.setDireccionAmdocs(datosNoClienteReniec.getDireccionAmdocs());
 						SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 						String stringFechaConHora = "2020-09-15";
 						Date fechaConHora = sdf.parse(stringFechaConHora);
