@@ -243,24 +243,22 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 		}finally {
 				ObjectMapper mapper = new ObjectMapper();
 				ErrorService obj = null;
-				
 				try {
 					if(!cadenaRptaError.equals("")){
 						obj = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
-						clienteBean.setDescError(obj.getSystemErrorCause());
+						clienteBean.setRptErrorService(obj.getSystemErrorCause());
 					}
-					
 				} catch (JsonParseException eA) {
 					LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
-					clienteBean.setDescError("Sucedio un Error inesperado.");
+					clienteBean.setRptErrorService("Sucedio un Error inesperado.");
 				} catch (JsonMappingException eB) {
 					LOGGER.info("\t"+ "\t"+"\t" + eB.getStackTrace());
-					clienteBean.setDescError("Sucedio un Error inesperado.");
+					clienteBean.setRptErrorService("Sucedio un Error inesperado.");
 				} catch (IOException eC) {
 					LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
-					clienteBean.setDescError("Sucedio un Error inesperado.");
+					clienteBean.setRptErrorService("Sucedio un Error inesperado.");
 				}
-	}
+		}
 
 		return clienteBean;
 	}

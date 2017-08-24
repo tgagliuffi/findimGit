@@ -453,19 +453,19 @@ public class ContratoWSImpl implements ContratoWS {
 		try {
 			clienteEs = customerService.obtenerDatosCliente(seguridad.generarTSec(3), tipoDoc, numeroDocumento);
 
-			if (clienteEs.getDescError() == null || clienteEs.getDescError().equals("")) {
+			if (clienteEs.getRptErrorService() == null || clienteEs.getRptErrorService().equals("")) {
 				clienteValida = cargarDatosClienteAlta(clienteEs, null, correo);
 				return clienteValida;// RETORNA CLIENTE
 			} else {
 				PersonaBean persona = null;
 				persona = personService.buscarNoCliente(tipoDocws, numeroDocumento, "2", seguridad.generarTSec(2));
-				if (persona.getDescError() == null || persona.getDescError().equals("")) {// EXISTE
+				if (persona.getRptErrorService() == null || persona.getRptErrorService().equals("")) {// EXISTE
 					persona.setNumeroDocumento(numeroDocumento);
 					clienteValida = cargarDatosClienteAlta(null, persona, correo);
 					return clienteValida; // RETORNA CLIENTE BASADO EN PERSONA
 				} else {
-					ErrorAtla = persona.getDescError();
-					 clienteValida.setRptErrorService(clienteEs.getDescError());; // NO EXISTE COMO CLIENTE NI COMO PERSONA
+					ErrorAtla = persona.getRptErrorService();
+					 clienteValida.setRptErrorService(clienteEs.getRptErrorService());; // NO EXISTE COMO CLIENTE NI COMO PERSONA
 					 return clienteValida;
 				}
 			}

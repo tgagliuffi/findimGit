@@ -203,14 +203,14 @@ public class AppTest {
         System.out.println(ToStringBuilder.reflectionToString(customer));
 		try {
 	    	customer = customerService.obtenerDatosCliente(tsecPublic,tipoDocumento, nroDocumento);
-	    	if(customer.getDescError()!=null){
-	            System.out.println("Sucedio un error : " +  customer.getDescError());
+	    	if(customer.getRptErrorService()!=null){
+	            System.out.println("Sucedio un error : " +  customer.getRptErrorService());
 	    	}else{
 	            System.out.println(ToStringBuilder.reflectionToString(customer));
 	    	}
 		} catch (Exception e) {
 			e.printStackTrace();
-            System.out.println("Sucedio un error : " +  customer.getDescError());
+            System.out.println("Sucedio un error : " +  customer.getRptErrorService());
 		}
 	    System.out.println("#############################################################################");
 	}
