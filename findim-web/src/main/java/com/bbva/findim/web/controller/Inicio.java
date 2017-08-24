@@ -395,7 +395,7 @@ public class Inicio {
 			String rutaServicioRest = prop.getString("sistema.uriservicio");
 			clienteBean.setRutaServicioRest(rutaServicioRest);
 
-			response = contratoRestService.guardarDatosComplementarios(clienteBean);
+			response = contratoRestService.generarPDF(clienteBean);
 		} catch (Exception e) {
 			response = null;
 			logger.error("Sucedío un error en el metodo guardarDatosComplementarios ", e);
@@ -429,7 +429,7 @@ public class Inicio {
 					
 				if(lista!=null && lista.size()>0){
 								customerEnvio = customerService.obtenerDatosCliente(seguridad.generarTSec(3), tipoDoc,numeroDocumento);// OBTENEMOS LA INFORMACION DEL CLIENTE
-					if(customerEnvio.getRptErrorService().indexOf("CLIENTE NO EXISTE")>0){//NO EXISTE EL CLIENTE
+					if(customerEnvio.getRptErrorService()!=null && customerEnvio.getRptErrorService().indexOf("CLIENTE NO EXISTE")>0){//NO EXISTE EL CLIENTE
 						PersonaBean persona = null;
 						persona = personService.buscarNoCliente(tipoDocws, numeroDocumento, "2",seguridad.generarTSec(3));// OBTENIENDO INFORMACION DEL NO CLIENTE
 						if (persona.getRptErrorService() == null) {
@@ -451,7 +451,7 @@ public class Inicio {
 						customerEnvio.setTipoRespuesta(1);
 					}
 					
-					if (msgErrorFront!=null && lista.size() > 0) {
+					if (msgErrorFront==null && lista.size() > 0) {
 						customerEnvio.setTipoDocumento(tipoDocumento);
 						customerEnvio.setListaContrato(lista);
 					}
@@ -671,7 +671,7 @@ public class Inicio {
 			contratoUpdate.setCodigoContrato(contrato.getCodigoContrato());
 			contratoUpdate.setTipoEnvio(tipoEnvio);
 			contratoUpdate.setCorreo(correo);
-			contratoUpdate.setEstadoContrato(ProposalService.EstadoHost.PENDING_SIGNATURE.getEstado());
+			contratoUpdate.setEstadoContrato(ProposalService.EstadoHost.SIGNED.getEstado());
 
 			int rptaUpdatePropuesta = proposalService.updateProposal(seguridad.generarTSec(3), contratoUpdate);
 

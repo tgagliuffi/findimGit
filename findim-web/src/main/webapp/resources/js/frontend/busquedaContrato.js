@@ -80,7 +80,8 @@ function actualizarContenidos(){
             	destinoModal ="",
             	textoBoton ="";
 
-            console.log(listaContrato[i].tipoEnvio);
+            console.log("tipoEnvio",listaContrato[i].tipoEnvio);
+            console.log("estadoContrato",listaContrato[i].estadoContrato);
             
             var esModalFirma = false;
             
@@ -134,6 +135,10 @@ function actualizarContenidos(){
             	destinoModal = "#modalInformacion";
         		textoBoton = "Completar datos";
         	}
+            else if(listaContrato[i].estadoContrato ==="FIRMADO"){
+            	destinoModal = "#modalContratosImprimir";
+        		textoBoton = "Imprimir";
+        	}
 
             alertaFormNoCompletado.hide();
 
@@ -153,13 +158,14 @@ function actualizarContenidos(){
 	            "<td>" + estado + "<br>";
 
         	var documentoFirmado = listaContrato[i].firmaContrato == 1;
-
+        	
             if (!documentoFirmado) {
             	tablaContenidoBodyHTML += "<div class='btn-group '>" +
             		"<a data-toggle='modal'" +
             		" data-target='" + htmlEncode(destinoModal) + "'" +
             		" data-valor='" + htmlEncode(i) + "'" +
             		" data-contrato='" + htmlEncode(listaContrato[i].codigoContrato) + "'" +
+            		" estado-contrato='" + htmlEncode(listaContrato[i].estadoContrato) + "'" +
             		(esModalFirma ? " data-pdf='" + htmlEncode(listaContrato[i].nombreArchivo) + "'" : '') +
             		" data-cod-auxiliar='" + htmlEncode(listaContrato[i].codigoAuxiliar) + "'" +
             		" class='btn btn-primary btn-xs butStatusContrato'> " + htmlEncode(textoBoton) + " </a>" +
@@ -171,6 +177,7 @@ function actualizarContenidos(){
         		" data-target='" + htmlEncode(destinoModal) + "'" +
         		" data-valor='" + i + "'" +
         		" data-contrato='" + htmlEncode(listaContrato[i].codigoContrato) + "'" +
+        		" estado-contrato='" + htmlEncode(listaContrato[i].estadoContrato) + "'" +
         		(esModalFirma ? " data-pdf='" + htmlEncode(listaContrato[i].nombreArchivo) + "'" : '') +
         		" data-cod-auxiliar='" + htmlEncode(listaContrato[i].codigoAuxiliar) + "'" +
         		// Boton anular
@@ -201,7 +208,7 @@ function actualizarContenidos(){
     	actualizarModalContratos($(this).attr("data-valor"));
 
     	if ($(this).attr("data-pdf") != null) {
-			cargarPDF($(this).attr("data-pdf"), $(this).data('cod-auxiliar'), $(this).data('contrato'));
+			cargarPDF($(this).attr("data-pdf"),$(this).attr("estado-contrato"), $(this).data('cod-auxiliar'), $(this).data('contrato'));
     	}
     });
 } 
@@ -253,6 +260,18 @@ $(function() {
     		firmarContrato();
     	}
     });
+    
+    $('#btnImprimirDocumento').click(function() {
+    	//$("#pdfImprimirRoute").get(0).contentWindow.print();
+    	//document.getElementById("pdfImprimirRoute").contentWindow.print()​​​​​​;
+    	var frm = document.getElementById("pdfImprimirRoute").contentWindow;
+        frm.focus();// focus on contentWindow is needed on some ie versions
+        frm.print();
+        //document.execCommand('print', false, null);
+        return false;
+    });
+    
+    
     
     $('#modalAlertaFirma').on('hidden.bs.modal', function () {
     	var refreshOnClose = parseBoolean($('#modalAlertaFirma #refreshOnClose').val());
@@ -574,11 +593,21 @@ function actualizarModalContratos(i){
   
 }
 
-function cargarPDF(rutaCargaPDF, codAuxiliar, codContrato) {
-	var linkRutaPDF = $("#pdfRoute");
-
-	$('#btnFirmarDocumento').data('cod-auxiliar', codAuxiliar);
-	$('#btnFirmarDocumento').data('contrato', codContrato);
+function cargarPDF(rutaCargaPDF, estadoContrato, codAuxiliar, codContrato) {
+	
+	var linkRutaPDF = "";
+	
+	if(estadoContrato ==="FIRMADO"){
+		linkRutaPDF = $("#pdfImprimirRoute");
+		$('#btnImprimirDocumento').data('cod-auxiliar', codAuxiliar);
+		$('#btnImprimirDocumento').data('contrato', codContrato);
+	}
+	else{
+		linkRutaPDF = $("#pdfRoute");
+		$('#btnFirmarDocumento').data('cod-auxiliar', codAuxiliar);
+		$('#btnFirmarDocumento').data('contrato', codContrato);
+	}
+	
 
 	var path;
 	if (isIE8) {
