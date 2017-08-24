@@ -813,7 +813,7 @@ public class Inicio {
 			contratoUpdate.setCodigoContrato(contrato.getCodigoContrato());
 			contratoUpdate.setTipoEnvio(tipoEnvio);
 			contratoUpdate.setCorreo(correo);
-			contratoUpdate.setEstadoContrato(ProposalService.EstadoHost.PENDING_SIGNATURE.getEstado());
+			contratoUpdate.setEstadoContrato(ProposalService.EstadoHost.SIGNED.getEstado());
 
 			int rptaUpdatePropuesta = proposalService.updateProposal(seguridad.generarTSec(3), contratoUpdate);
 
