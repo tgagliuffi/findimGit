@@ -278,6 +278,7 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 			}			
 		}catch (Exception e) {
 			LOGGER.error(e);
+			return null;
 		}
 		return lstContratos;
 	}

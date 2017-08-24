@@ -123,11 +123,10 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 			try {
 				if(!cadenaRptaError.equals("")){
 					obj = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
-					personaBean.setDescError(obj.getSystemErrorCause());
+					personaBean.setRptErrorService(obj.getSystemErrorCause());
 				}else{
-					personaBean.setDescError("Sucedio un Error inesperado.");
+					personaBean.setRptErrorService("Sucedio un Error inesperado.");
 				}
-				
 			} catch (JsonParseException eA) {
 				LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
 			} catch (JsonMappingException eB) {
@@ -136,9 +135,6 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 				LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
 			}
 		}
-		
-		
-		
 		return personaBean;
 	}
 	
