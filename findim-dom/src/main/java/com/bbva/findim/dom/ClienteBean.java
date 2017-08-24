@@ -56,7 +56,6 @@ public class ClienteBean {
 	private String direccion;
 	private Integer tipoRespuesta;
 	private Integer tipoError;
-	private String descError;
 	private String rutaServicioRest;
 	private DatosPdfBean datosPdf;
 	private String AddtipoDocIdentidad;
@@ -644,13 +643,13 @@ public class ClienteBean {
 		this.seguridad_status = seguridad_status;
 	}
 
-	public String getDescError() {
-		return descError;
-	}
-
-	public void setDescError(String descError) {
-		this.descError = descError;
-	}
+//	public String getDescError() {
+//		return descError;
+//	}
+//
+//	public void setDescError(String descError) {
+//		this.descError = descError;
+//	}
 
 	public Long getTceaTimeout() {
 		return tceaTimeout;

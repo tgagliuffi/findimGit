@@ -29,7 +29,7 @@ public class PersonaBean  {
 	private String numeroDocumento;
 	private String tipoDocumento;
 	private List<DireccionBean> lstDirecciones;
-	private String descError;
+	private String rptErrorService;
 
 	private String oficinaAsignada;
 
@@ -197,13 +197,15 @@ public class PersonaBean  {
 		this.lstDirecciones = lstDirecciones;
 	}
 
-	public String getDescError() {
-		return descError;
+	public String getRptErrorService() {
+		return rptErrorService;
 	}
 
-	public void setDescError(String descError) {
-		this.descError = descError;
+	public void setRptErrorService(String rptErrorService) {
+		this.rptErrorService = rptErrorService;
 	}
+
+	
 	
 	
 }
