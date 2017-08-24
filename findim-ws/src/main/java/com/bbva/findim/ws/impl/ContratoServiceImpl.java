@@ -47,8 +47,8 @@ public class ContratoServiceImpl implements ContratoService{
 	
 	
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = { ServiceException.class, Exception.class })
-	public ClienteBean guardarDatosComplementarios(ClienteBean clienteBean) throws ParseException, Exception{
-		logger.debug("> Inicio guardar datos complementarios");
+	public ClienteBean generarPDF(ClienteBean clienteBean) throws ParseException, Exception{
+		logger.debug("> Inicio generarPDF");
 		SimulacionBean simulacionBean = clienteBean.getSimulacionBean();
 		RutasPdfBean  rutasPdfBean = null;
 		EventoContratoBean eventoContratoBean = new EventoContratoBean();

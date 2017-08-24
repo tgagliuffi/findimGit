@@ -45,9 +45,9 @@ public class ContratoController {
 	private PropertyUtil prop;
 	
 
-	@RequestMapping(value = "/guardarDatosComplementarios", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/generarPDF", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ClienteBean guardarDatosComplementarios(@RequestBody ClienteBean clienteBean) {
+	public ClienteBean generarPDF(@RequestBody ClienteBean clienteBean) {
 		LOGGER.info("Inicio-[InicioController - guardarDatosComplementarios]");
 		try {
 
@@ -80,7 +80,7 @@ public class ContratoController {
 
 			Util.deleteFilesByPrefix(rutasPdfBean.getRutaGeneracionContrato(),Constantes.PREFIJO_TEMPORAL);
 			
-			clienteBean = contratoService.guardarDatosComplementarios(clienteBean);
+			clienteBean = contratoService.generarPDF(clienteBean);
 		}catch(ParseException e){
 			clienteBean = null;
 			LOGGER.error("Error-[guardarDatosComplementarios]-", e); 

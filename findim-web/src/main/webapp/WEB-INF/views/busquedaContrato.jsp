@@ -203,6 +203,34 @@
 			</div>
 		</div>
 	</div>
+	
+	<div id="modalContratosImprimir" tabindex="-1" role="dialog" class="modal fade bs-example-modal-lg" data-backdrop="static">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" data-dismiss="modal" aria-label="Close" class="close" id="btnCerrarModalFirma">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4>Imprimir contrato</h4>
+				</div>
+				<div class="modal-body">
+					<!-- 
+					<div id="contratos-preload">
+						<p> Cargando....</p>
+					</div>
+ 					-->
+					<div id="contratos_imprimir">
+						<iframe id="pdfImprimirRoute" src="" width="100%" height="350" style="z-index: 10"></iframe>
+						<p id="errorMessageTrick"></p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button id="btnImprimirDocumento" type="button" class="btn btn-info" data-loading-text="Procesando...">Imprimir Documento</button>					
+					<button id="modalImpresionCerrar" type="button" data-dismiss="modal" class="btn btn-default">Cerrar</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<!-- modal alerta firma -->
 	<div id="modalAlertaFirma" tabindex="-1" role="dialog" class="modal fade" data-backdrop="false" data-keyboard="false">
