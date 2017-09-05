@@ -139,16 +139,13 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 	}
 	
 	public PersonaBean altaNoCliente(PersonaBean personBean, String tSec)throws Exception{
-
+		String cadenaRptaError = "";
 		HttpHeaders headers = new HttpHeaders();
-//		headers.add("Content-Type","application/json");
 		headers.add(SeguridadBbvaService.HEADER_TSEC, tSec);
 		List<Address> lstAddress = null;
-		
-		
+
 		String url = propertyUtilCnx.getString(PersonaConstant.CODIGO_URL_PERSON_MODIFY).toString();
 
-		
 		if(StringUtils.isNotBlank(personBean.getNumeroDocumento()) && StringUtils.isNotBlank(personBean.getTipoDocumento()) ){
 			url = url + personBean.getTipoDocumento() + personBean.getNumeroDocumento();
 		}
@@ -199,9 +196,32 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 			//System.out.println(responseEntity);
 			restTemplate.setErrorHandler(new TestErrorHandler());
 			
-		} catch (Exception e) {
-			LOGGER.error("Sucedio un error en Alta", e);
-			return null;
+		} catch (HttpClientErrorException e) {
+			LOGGER.info("\t"+ "\t"+"\t" + e.getResponseHeaders().values());
+		 	cadenaRptaError = e.getResponseBodyAsString();
+		}catch (HttpServerErrorException e2) {
+			LOGGER.info("\t"+ "\t"+"\t" + e2.getResponseHeaders().values());
+			cadenaRptaError = e2.getResponseBodyAsString();
+		}catch (Exception e3) {
+			LOGGER.info("\t"+ "\t"+"\t" + "ERROR" , e3);
+		}finally {
+			ObjectMapper mapper = new ObjectMapper();
+			ErrorService obj = new ErrorService();
+			try {
+				if(!cadenaRptaError.equals("")){
+					obj = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
+					personBean.setRptErrorService(obj.getSystemErrorCause());
+					personBean.setErrorCode(obj.getErrorCode());
+				}else{
+					personBean.setRptErrorService("Sucedio un Error inesperado.");
+				}
+			} catch (JsonParseException eA) {
+				LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
+			} catch (JsonMappingException eB) {
+				LOGGER.info("\t"+ "\t"+"\t" + eB.getStackTrace());
+			} catch (IOException eC) {
+				LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
+			}
 		}
 		
 		return personBean;

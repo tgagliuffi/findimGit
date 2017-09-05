@@ -3,7 +3,9 @@ package com.bbva.findim.wstdp.service.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -15,20 +17,28 @@ import javax.jws.WebParam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.RestTemplate;
 
 import com.bbva.findim.bck.service.ApprovalsService;
 import com.bbva.findim.bck.service.CustomersService;
+import com.bbva.findim.bck.service.LoanService;
 import com.bbva.findim.bck.service.PersonService;
 import com.bbva.findim.bck.service.ProposalService;
 import com.bbva.findim.bck.service.SeguridadBbvaService;
+import com.bbva.findim.bck.service.TariffService;
 import com.bbva.findim.dom.AltaContratoRequest;
+import com.bbva.findim.dom.CabeceraBean;
 import com.bbva.findim.dom.ClienteBean;
 import com.bbva.findim.dom.ContratoAltaBean;
 import com.bbva.findim.dom.DatosReniecBean;
 import com.bbva.findim.dom.RespuestaBean;
+import com.bbva.findim.dom.SimulacionBean;
+import com.bbva.findim.dom.TarifaBean;
+import com.bbva.findim.dom.common.Constantes;
 import com.bbva.findim.dom.reniec.Ciudadano;
 import com.bbva.findim.dom.CalificacionClienteBean;
 import com.bbva.findim.dom.DireccionBean;
+import com.bbva.findim.dom.EmpresaBean;
 import com.bbva.findim.dom.GrupoGeografico;
 import com.bbva.findim.dom.PersonaBean;
 import com.bbva.findim.sql.service.DatoReniecService;
@@ -48,6 +58,7 @@ public class ContratoWSImpl implements ContratoWS {
 
 	private static final Logger LOGGER = LogManager.getLogger(ContratoWSImpl.class);
 
+	
 	@Autowired
 	private LogAltaContratoService logAltaContratoService;
 
@@ -71,6 +82,13 @@ public class ContratoWSImpl implements ContratoWS {
 
 	@Autowired
 	WS_PersonaReniec wS_PersonaReniec_Service;
+	
+	@Autowired
+	LoanService loanService;
+	
+	@Autowired
+	TariffService tariffService;
+	
 
 	private Properties prop = new Properties();
 
@@ -140,7 +158,11 @@ public class ContratoWSImpl implements ContratoWS {
 			) {
 		long begin = System.nanoTime();
 		LOGGER.info("SOAP::>Inicio -[altaContrato] {}", numeroDocIdentidad);
-
+		RestTemplate restTemplate = new RestTemplate();
+		String uriServicio = prop.getProperty("sistema.uriservicio").toString();
+		String uriEmpresa = uriServicio + "empresaService/obtenerEmpresa/" + prop.getProperty("empresa.telefonica");
+		EmpresaBean empresa = restTemplate.getForObject(uriEmpresa, EmpresaBean.class);
+		
 		AltaContratoRequest request = new AltaContratoRequest();
 		request.setLlaveUnica(llaveunica);
 		request.setAtributo(atributo);
@@ -201,118 +223,131 @@ public class ContratoWSImpl implements ContratoWS {
 					departamentoFirma               //    26	cd_dpto_ptovta				string(3)
 			);
 			ClienteBean clienteAlta = null;
-			String ok = "";
-			String tipoDoc="";
-			String tipoDocws="";
-			tipoDoc="DNI";
-			tipoDocws="L";
-			
-			String rptaServAltaPropuesta = "";
+			String tipoDoc="DNI";
+			String tipoDocws="L";
+			PersonaBean personaCreada = null;
 			CalificacionClienteBean beanClasificacion = null;
+			Double importeCuota = 0.0;
 			beanClasificacion = approvalsService.evaluarCliente(tipoDocIdentidad, numeroDocIdentidad, seguridad.generarTSec(2));
 			
 			if(beanClasificacion.getDescErrorServicio()==null || beanClasificacion.getDescErrorServicio().equals("")){
-			if(beanClasificacion.getCodigoResultado()==1){//APROBADO PARAMETRIZAR
+				if(beanClasificacion.getCodigoResultado()==1){//APROBADO PARAMETRIZAR =1
 					clienteAlta = validarTipoCliente(contratoAltaBean.getClienteBean().getNumeroDocumento(),tipoDoc,tipoDocws,contratoAltaBean.getClienteBean().getCorreoCliente());
-			        
 					if(clienteAlta.getRptErrorService()!=null){//Si no es cliente ni no cliente(RENIEC)
 			        	Ciudadano ciudadano = obtenerInformacionReniec(contratoAltaBean.getClienteBean().getNumeroDocumento());
-			        	PersonaBean personaCreada = crearNoCliente(ciudadano,contratoAltaBean,tipoDocws);//validar cuando no regresa ciudadano
-				    	
-				    	if(personaCreada!=null){
-							DatosReniecBean datoReniec = new DatosReniecBean();
-							datoReniec.setDireccionAmdocs(contratoAltaBean.getDomicilio().getDireccion());
-							//corregir y descomentar
-//							datoReniec.setFechaCaducidad(Util.convertFormatDate("yyyymmdd", "dd/mm/yy", ciudadano.getFechaCaducidad()));
-							
-							datoReniec.setNumeroDni(contratoAltaBean.getClienteBean().getNumeroDocumento());
-							if(datoReniecService.obtenerDatosReniecPersona(personaCreada.getNumeroDocumento())==null){
-								datoReniecService.guardarDatoReniecPersona(datoReniec);
-							}
-							rptaServAltaPropuesta =transaccionAltaContrato(contratoAltaBean,clienteAlta,request.getTarifa());
-				    	} 
+			        	if(ciudadano.getMensajeRespuesta() == null){
+				        	personaCreada = crearNoCliente(ciudadano,contratoAltaBean,tipoDocws);//validar cuando no regresa ciudadano
+					    	if(personaCreada.getErrorCode()==null){//NO SUCEDIO ERROR
+								DatosReniecBean datoReniec = new DatosReniecBean();
+								datoReniec.setDireccionAmdocs(contratoAltaBean.getDomicilio().getDireccion());
+								//corregir y descomentar
+//								datoReniec.setFechaCaducidad(Util.convertFormatDate("yyyymmdd", "dd/mm/yy", ciudadano.getFechaCaducidad()));
+								
+								datoReniec.setNumeroDni(contratoAltaBean.getClienteBean().getNumeroDocumento());
+								if(datoReniecService.obtenerDatosReniecPersona(personaCreada.getNumeroDocumento())==null){
+									datoReniecService.guardarDatoReniecPersona(datoReniec);
+								}
+								contratoAltaBean =transaccionAltaContrato(contratoAltaBean,clienteAlta,request.getTarifa());
+					    	} else{//ERROR AL CREAR LA PERSONA
+				        		request.setTpIndicadorProceso(Constantes.CODE_RPTA_ERROR);
+				    			request.setTxMensajeFuncional("ERROR AL CREAR LA PERSONA");
+				    			request.setTxCodigoError(personaCreada.getErrorCode());
+				    			request.setTxMensajeTecnico(personaCreada.getRptErrorService());
+					    	}
+			        	}else{
+			        		request.setTxCodigoError(ciudadano.getCodigoRespuesta());
+			        		request.setTpIndicadorProceso(Constantes.CODE_RPTA_ERROR);
+			    			request.setTxMensajeFuncional("SERVICIO RENIEC NO RESPONDE");
+			    			request.setTxMensajeTecnico(ciudadano.getMensajeRespuesta());
+			        	}
 			        }else{
-			        		rptaServAltaPropuesta =transaccionAltaContrato(contratoAltaBean,clienteAlta,request.getTarifa());
+			        	contratoAltaBean =transaccionAltaContrato(contratoAltaBean,clienteAlta,request.getTarifa());
 			        }
+					//SIMULAR
+					TarifaBean tarifaBean = tariffService.obtenerTarifa(null, tarifa, null,empresa);
 					
-					//TODO CAMBIAR ESTA LOGICA !!!
-				  	ok="";
-				  	if(rptaServAltaPropuesta!=null){
-					  	if(rptaServAltaPropuesta.contains("external-financing-proposals")){
-					  		ok="Se creó el contrato correctamente";
-					  	}else{
-					  		ok= "No se creó el contrato";
-					  	}
-					  	respuestaTDP.setMensajeTecnico(rptaServAltaPropuesta);
-					}else{
-						ok= "No se creó el contrato";
+					SimulacionBean simulacion = mapper("1", new BigDecimal(importeBien), tarifaBean, 
+													new BigDecimal(((importeBien-importePrestamo)*100/importeBien)),
+													new BigDecimal((importeBien-importePrestamo)), 
+													new BigDecimal(importePrestamo), "");
+					
+					simulacion = loanService.simularPrestamo(simulacion, seguridad.generarTSec(2));
+					
+					//VALIDAR REPUESTA DEL ALTA CONTRATO
+				  	if(contratoAltaBean.getRepuestaService()!=null){
+				  		if(contratoAltaBean.getRepuestaService().getExitoCode().equals(Constantes.CODE_RPTA_OK)){
+				  			request.setTxMensajeFuncional(contratoAltaBean.getRepuestaService().getExitoDescription());
+							request.setTxMensajeTecnico(contratoAltaBean.getRepuestaService().getExitoDescription());
+							if(simulacion!=null){
+								importeCuota = simulacion.getDetalle().get(0).getCuota();
+							}
+				  		
+				  		}else{
+				  			request.setTxCodigoError(contratoAltaBean.getRepuestaService().getErrorCode());
+				  			request.setTxMensajeFuncional(contratoAltaBean.getRepuestaService().getErrorCode());
+							request.setTxMensajeTecnico(contratoAltaBean.getRepuestaService().getErrorCode());
+				  		}
 					}
-//				  	respuestaTDP.setMensajeTecnico(rptaServAltaPropuesta);
 				  	request.setRtFiltroCliente(beanClasificacion.getTituloMostrar().toString());
-					request.setTxMensajeFuncional(ok);
-					request.setTxMensajeTecnico(ok);
-				}else{//RECHAZADO 
+				}else{//RECHAZADO COMPLETAR DATOS DEL RECHAZO PARA EL LOG
 					request.setRtFiltroCliente(beanClasificacion.getTituloMostrar());
 				  	request.setNbMotivoRechazo(beanClasificacion.getDsResultado()!=null?beanClasificacion.getDsResultado():null);
-					request.setTxMensajeFuncional("CONTRATO NO CREADO POR FILTRO RECHAZADO");
-					request.setTxMensajeTecnico("");
+					request.setTxMensajeFuncional(beanClasificacion.getTituloMostrar());
 				}
 			}else{//SUCEDIO UN ERROR EN LA EJECUCIÓN DEL FILTRO
 				request.setRtFiltroCliente(beanClasificacion.getTituloMostrar());
+				request.setTxCodigoError(Constantes.CODE_RPTA_ERROR);
 				request.setTxMensajeFuncional(beanClasificacion.getDescErrorServicio());
-				request.setTxMensajeTecnico("ERROR EN SW FILTRO");
-				respuestaTDP.setMensajeTecnico(request.getTxMensajeTecnico());
-				respuestaTDP.setMensajeFuncional(request.getTxMensajeFuncional());
-				respuestaTDP.setimporteCuota((float) 0);
+				request.setTxMensajeTecnico(Constantes.MJS_ERROR_FILTRO);
 			}
-			
+			//SETEAR REPUESTA CLIENTE
+			respuestaTDP.setMensajeFuncional(request.getTxMensajeFuncional());
+			respuestaTDP.setMensajeTecnico(request.getTxMensajeTecnico()!=null?request.getTxMensajeTecnico():null);
 			respuestaTDP.setIndicadorProceso(0);
-			respuestaTDP.setimporteCuota((float) 0);
+			respuestaTDP.setimporteCuota(importeCuota>0?new Float(importeCuota):0);
+			
 			logAltaContratoService.insert(request);
 		  	
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage(), ex);
-			respuestaTDP.setIndicadorProceso(0);
-			respuestaTDP.setMensajeFuncional("No se ejecuto el alta de contrato, por favor consulte con sistemas");
-			respuestaTDP.setimporteCuota((float) 0.0);
 			
-			request.setTpIndicadorProceso("ERROR");
-			request.setTxMensajeFuncional("");
+			request.setTpIndicadorProceso(Constantes.CODE_RPTA_ERROR);
+			request.setTxMensajeFuncional(Constantes.MSJ_EXCEPTION);
 			request.setTxMensajeTecnico(ex.getMessage());
+			
+			respuestaTDP.setMensajeFuncional(request.getTxMensajeFuncional());
+			respuestaTDP.setMensajeTecnico(ex.getMessage());
+			respuestaTDP.setIndicadorProceso(0);
+			respuestaTDP.setimporteCuota((float) 0);
+
 			logAltaContratoService.insert(request);
 		}
 
 		long end = System.nanoTime();
 		long elapsedTime = TimeUnit.NANOSECONDS.toMillis(end - begin);
 		LOGGER.info("SOAP::>Final {} - Transaccion Finalizada en: {} ms", numeroDocIdentidad, elapsedTime);
+		
+		
 		return respuestaTDP;
 	}
 
-	private String transaccionAltaContrato(ContratoAltaBean contratoAltaBean, ClienteBean clienteAlta, String tarifa) {
-		String respuesta = "";
-		// TODO Auto-generated method stub
+	private ContratoAltaBean transaccionAltaContrato(ContratoAltaBean contratoAltaBean, ClienteBean clienteAlta, String tarifa)throws Exception {
 		ContratoAltaBean contrato = new ContratoAltaBean();
 		contrato.setClienteBean(clienteAlta);
 		contrato.setAddNombreTarifa(tarifa);
 		contrato.setMonedaCredito(1);// soles
 		contrato.setImportePrestamo(contratoAltaBean.getImportePrestamo());
-
 		contrato.setDiaPago(contratoAltaBean.getDiaPago());
 		contrato.setAdddiaFacturacion(contratoAltaBean.getAdddiaFacturacion());
 		contrato.setTelefonoFinanciado(contratoAltaBean.getTelefonoFinanciado());
 		contrato.setCodTipoEnvio("");
 		contrato.setNumeroContrato(contratoAltaBean.getKeyUnica());
 		contrato.setValorEquipo(contratoAltaBean.getValorEquipo());
-		// preguntar si vendarn por parametria:
 		contrato.setProveedorTercero("TELF");
 		contrato.setCanal("TELF");
 		contrato.setProductoExterno("CTEL000985674");
-		try {
-			respuesta = proposalService.altaProposal(seguridad.generarTSec(2), contrato);
-		} catch (Exception e) {
-			LOGGER.error(e);
-		}
-		return respuesta;
+		contrato = proposalService.altaProposal(seguridad.generarTSec(2), contrato);
+		return contrato;
 	}
 
 	private PersonaBean crearNoCliente(Ciudadano ciudadano, ContratoAltaBean contratoAltaBean, String tipoDocws) {
@@ -567,6 +602,38 @@ public class ContratoWSImpl implements ContratoWS {
 			LOGGER.error(ex.getMessage(), ex);
 		}
 		return contratoAltaBean;
+	}
+	
+	@SuppressWarnings("deprecation")
+	public  SimulacionBean mapper(String tipoMoneda, BigDecimal valorEquipo, TarifaBean tarifaFinanciamiento,
+			BigDecimal porcentajeCuotaInicial, BigDecimal cuotaInicial, BigDecimal saldoAFinanciar,
+			                      String metodoEnvio)
+		{
+		SimulacionBean simulacion = new SimulacionBean();
+		
+		simulacion.setCdSubProducto(tarifaFinanciamiento.getCdSubProducto());
+		simulacion.setCabecera(new CabeceraBean());
+		simulacion.getCabecera().setCuotaInicial(cuotaInicial);
+		simulacion.getCabecera().setMoneda(tipoMoneda);
+		
+		if(metodoEnvio.equals("0")){//VIRTUAL
+			simulacion.getCabecera().setMetodoEnvio(0);
+		}else if(metodoEnvio.equals("10")){//FISICO
+			simulacion.getCabecera().setMetodoEnvio(1);
+		}else if(metodoEnvio.equals("20")){//AMBOS
+			simulacion.getCabecera().setMetodoEnvio(1);
+		}
+		
+		simulacion.getCabecera().setSaldoFinanciar(saldoAFinanciar);
+		simulacion.getCabecera().setNumeroCuotas(Integer.parseInt(tarifaFinanciamiento.getCuota()));
+		simulacion.getCabecera().setDiaPago((new Date()).getDay());
+		simulacion.getCabecera().setTea(tarifaFinanciamiento.getTasa()); 
+		simulacion.getCabecera().setCodigoTarifa(tarifaFinanciamiento.getCodigoTarifa());
+		simulacion.getCabecera().setValorEquipo(valorEquipo);
+		simulacion.getCabecera().setSeguroDesgravamen(tarifaFinanciamiento.getTasaSeguro());
+		
+		return simulacion;
+	
 	}
 
 }

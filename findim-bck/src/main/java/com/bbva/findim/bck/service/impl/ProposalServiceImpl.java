@@ -61,6 +61,7 @@ import com.bbva.findim.bck.util.ConstantesConection.Parametro.PropuestaConstant;
 import com.bbva.findim.dom.ClienteBean;
 import com.bbva.findim.dom.ContratoAltaBean;
 import com.bbva.findim.dom.ContratoBean;
+import com.bbva.findim.dom.RespuestaService;
 import com.bbva.findim.dom.common.Constantes;
 import com.bbva.findim.dom.util.DateUtil;
 import com.google.gson.Gson;
@@ -72,9 +73,8 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 	private PropertyUtilCnx propertyUtilCnx;
 	
 	@Override
-	public String altaProposal(String tSec, ContratoAltaBean contratoBean) throws Exception {
+	public ContratoAltaBean altaProposal(String tSec, ContratoAltaBean contratoBean) throws Exception {
 		String cadenaRptaError = "";
-		
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(SeguridadBbvaService.HEADER_TSEC, tSec);
 		ResponseEntity<String> responseEntity = null;
@@ -92,11 +92,16 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 				}
 				UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).queryParams(params).build();		
 				HttpEntity<Proposals> entity = new HttpEntity<Proposals>(proposals, headers);
-				
 				responseEntity = restTemplate.exchange(uriComponents.toUri(), HttpMethod.POST, entity, String.class);
 				
+				if(responseEntity!=null){
+					contratoBean.setRepuestaService(new RespuestaService());
+					contratoBean.getRepuestaService().setExitoCode(Constantes.CODE_RPTA_OK);
+					String[] cdContrato = responseEntity.getHeaders().getLocation().toString().split("/");
+					contratoBean.getRepuestaService().setExitoDescription(Constantes.MSJ_OK_ALTA_UNO + contratoBean.getClienteBean().getNumeroDocumento()+ Constantes.MSJ_OK_ALTA_DOS +  cdContrato[cdContrato.length-1]);
+				}
+				return contratoBean;
 			}
-			
 		} catch (HttpClientErrorException e) {
 			LOGGER.info("\t"+ "\t"+"\t" + e.getResponseHeaders().values());
 		 	cadenaRptaError = e.getResponseBodyAsString();
@@ -107,25 +112,36 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 			LOGGER.info("\t"+ "\t"+"\t" + "ERROR" , e3);
 		}finally {
 			ObjectMapper mapper = new ObjectMapper();
-			ErrorService obj = null;
+			ErrorService error = null;
 			try {
 				if(!cadenaRptaError.equals("")){
-					obj = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
-					return obj.getSystemErrorCause();
+					error = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
+					contratoBean.setRepuestaService(new RespuestaService());
+					contratoBean.getRepuestaService().setErrorCode(error.getErrorCode());
+					contratoBean.getRepuestaService().setErrorDescription(error.getSystemErrorCause());
+					return contratoBean;
 				}
-				
 			} catch (JsonParseException eA) {
 				LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
-				return "Sucedio un Error inesperado.";
+				contratoBean.setRepuestaService(new RespuestaService());
+				contratoBean.getRepuestaService().setErrorCode("9999");
+				contratoBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return contratoBean;
 			} catch (JsonMappingException eB) {
 				LOGGER.info("\t"+ "\t"+"\t" + eB.getStackTrace());
-				return "Sucedio un Error inesperado.";
+				contratoBean.setRepuestaService(new RespuestaService());
+				contratoBean.getRepuestaService().setErrorCode("000");
+				contratoBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return contratoBean;
 			} catch (IOException eC) {
 				LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
-				return "Sucedio un Error inesperado.";
+				contratoBean.setRepuestaService(new RespuestaService());
+				contratoBean.getRepuestaService().setErrorCode("000");
+				contratoBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return contratoBean;
 			}
 		}
-		return responseEntity.getHeaders().getLocation().toString();
+		return contratoBean;
 	}
 
 	@Override

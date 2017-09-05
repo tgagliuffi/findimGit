@@ -311,8 +311,8 @@ public class Inicio {
 						String userType = (String) session.getAttribute("seguridad_usertype");
 						String seguridadUser = (String) session.getAttribute("seguridad_user");
 //						clienteBean.setRutaServicioRest(rutaServicioRest);
-//						clienteBean.setSeguridad_usertype(userType);
-//						clienteBean.setSeguridad_user(seguridadUser);
+						clienteBean.setSeguridad_usertype(userType);
+						clienteBean.setSeguridad_user(seguridadUser);
 						
 						if (rptaUpdatePropuesta == 1) {
 							empresa = (EmpresaBean) session.getAttribute("empresa");
@@ -446,6 +446,7 @@ public class Inicio {
 										+ " " + (customerEnvio.getSegundoNombre() != null ? customerEnvio.getSegundoNombre() : "")
 										+ " " + customerEnvio.getApellidoPaterno() + " " + customerEnvio.getApellidoMaterno());
 						customerEnvio = cargaInicialClienteBean(customerEnvio);
+						customerEnvio.setDireccion(customerEnvio.getDireccionCliente().getUbicacion().getDsDireccionCompleta());
 						//TODO VALIDAR MENSAJE DE ERROR EN EL CATCH
 						customerEnvio.setCargo(obtenerCargo(customerEnvio.getIdTipoOcupacion(), customerEnvio.getListaCatalogo()));
 						customerEnvio.setTipoRespuesta(1);

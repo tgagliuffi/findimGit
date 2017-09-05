@@ -6,7 +6,7 @@
   </context-param>
   <context-param>
     <param-name>log4jConfiguration</param-name>
-    <param-value>file://apps/huascaran/config/log4j2.xml</param-value>
+    <param-value>file://apps/findim-ws/logs/log4j2.xml</param-value>
   </context-param>
   <context-param>
     <param-name>log4jExposeWebAppRoot</param-name>

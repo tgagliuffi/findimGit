@@ -30,6 +30,7 @@ public class PersonaBean  {
 	private String tipoDocumento;
 	private List<DireccionBean> lstDirecciones;
 	private String rptErrorService;
+	private String errorCode;
 
 	private String oficinaAsignada;
 
@@ -203,6 +204,14 @@ public class PersonaBean  {
 
 	public void setRptErrorService(String rptErrorService) {
 		this.rptErrorService = rptErrorService;
+	}
+
+	public String getErrorCode() {
+		return errorCode;
+	}
+
+	public void setErrorCode(String errorCode) {
+		this.errorCode = errorCode;
 	}
 
 	

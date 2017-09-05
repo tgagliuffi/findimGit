@@ -5,6 +5,9 @@ import java.util.Date;
 
 public class ContratoAltaBean {
 
+	/**
+	 * @author P023650 tgagliuffi
+	 */
 	private  Integer	idContratoAlta;
 	private	 int		idTipoProducto;
 	private  String 	atributos;
@@ -55,22 +58,24 @@ public class ContratoAltaBean {
 	
 	private RespuestaWS respuestaWS = new RespuestaWS();
 	private Integer     posicionContrato= new Integer(1);
-	private  Date 		fechaFinalContrato;
+	private Date 		fechaFinalContrato;
 
 	private Date		fechaDesembolso;
-	private  Double		totalInteresCompensatorio;
-	private  Double		importeSeguro;
+	private Double		totalInteresCompensatorio;
+	private Double		importeSeguro;
 	private BigDecimal	factorAcumulado = new BigDecimal(0);
 	private Integer		idUsuarioCreacion = new Integer(1);
-	private  Double		montoCuotaTotal;
-	private	 Integer    numeroCuotasInicial;
+	private Double		montoCuotaTotal;
+	private	Integer    numeroCuotasInicial;
 	private Date 		cambioFechaPagoContrato;
 	private Boolean 	primeraCuotaCambioFechaPago;
 	
-	private String 		proveedorTercero;
-	private String 		canal;
-	private String 		productoExterno;
-	private String		codTipoEnvio;
+	private String 	proveedorTercero;
+	private String 	canal;
+	private String 	productoExterno;
+	private String	codTipoEnvio;
+	
+	private RespuestaService repuestaService;
 	
 	public ContratoAltaBean() {
 	}
@@ -571,6 +576,13 @@ public class ContratoAltaBean {
 	public void setCodTipoEnvio(String codTipoEnvio) {
 		this.codTipoEnvio = codTipoEnvio;
 	}
-	
-	
+
+	public RespuestaService getRepuestaService() {
+		return repuestaService;
+	}
+
+	public void setRepuestaService(RespuestaService repuestaService) {
+		this.repuestaService = repuestaService;
+	}
+
 }

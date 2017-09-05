@@ -428,8 +428,8 @@ public class AppTest {
 	  	contrato.setProveedorTercero("TELF");
 	  	contrato.setCanal("TELF");
 	  	contrato.setProductoExterno("CTEL000985699");
-	  	String rpta2 = proposalService.altaProposal(tsecPublic2, contrato);
-	    System.out.println("Respuesta Propuesta : " + rpta2);
+	  	contrato = proposalService.altaProposal(tsecPublic2, contrato);
+	    System.out.println("Respuesta Propuesta : " + contrato.getNumeroContrato());
   	    System.out.println("#############################################################################");
     }
 

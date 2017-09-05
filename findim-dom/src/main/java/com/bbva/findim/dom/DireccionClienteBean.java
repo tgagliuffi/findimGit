@@ -9,6 +9,8 @@ public class DireccionClienteBean {
 	private String idTipoPropiedad;
 	private String nbTipoPropiedad;
 	
+	private String strDireccionInputTlf;
+	
 	private UbicacionDireccionBean ubicacion;
 
 	public String getIdDireccion() {
@@ -57,6 +59,16 @@ public class DireccionClienteBean {
 
 	public void setUbicacion(UbicacionDireccionBean ubicacion) {
 		this.ubicacion = ubicacion;
+	}
+
+	public String getStrDireccionInputTlf() {
+		return strDireccionInputTlf;
+	}
+
+	public void setStrDireccionInputTlf(String strDireccionInputTlf) {
+		this.strDireccionInputTlf = strDireccionInputTlf;
 	} 
+	
+	
 	
 }

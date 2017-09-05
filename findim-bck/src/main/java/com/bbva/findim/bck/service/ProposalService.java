@@ -7,7 +7,7 @@ import com.bbva.findim.dom.ContratoBean;
 
 public interface ProposalService {
 	
-	String altaProposal(String tSec, ContratoAltaBean contratoBean) throws Exception;
+	ContratoAltaBean altaProposal(String tSec, ContratoAltaBean contratoBean) throws Exception;
 	
 	int updateProposal(String tSec, ContratoBean contratoBean) throws Exception;
 	
