@@ -14,6 +14,8 @@ public interface ParametroService {
 	public ParametroDetalleBean gestionarParametrosDetalle(ParametroDetalleBean parametroDetalleBean);
 
 	ParametroBean obtenerParametroDetalle(Integer idPadre, Integer idParamDetalle);
+	
+	public String obtenerDireccionIngles(String direccionAmdocs);
 
 //	public List<ParametroDetalleBean> listaTipoDocumentos();
 }

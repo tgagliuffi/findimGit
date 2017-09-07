@@ -16,5 +16,6 @@ public interface ParametroDao {
 
 	ParametroBean obtenerParametroDetalle(Integer idPadre, Integer idParamDetalle);
 
+	public String obtenerDireccionIngles(String direccion);
 	//public List<ParametroDetalleBean> listaTipoDocumentos();
 }

@@ -1,5 +1,7 @@
 package com.bbva.findim.sql.dao.impl;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -27,6 +29,7 @@ import com.bbva.findim.dom.ParametroBean;
 import com.bbva.findim.dom.ParametroCabeceraBean;
 import com.bbva.findim.dom.ParametroDetalleBean;
 import com.bbva.findim.dom.common.Constantes;
+import com.bbva.findim.sql.connection.DBConnection;
 import com.bbva.findim.sql.dao.ParametroDao;
 
 @Repository
@@ -212,6 +215,34 @@ public class ParametroDaoImpl implements ParametroDao {
 			parametroDetalleBean.setTipoError(tipoError);
 		}
 		return parametroDetalleBean;
+	}
+	public String obtenerDireccionIngles(String direccion) {
+		// TODO Auto-generated method stub
+		Connection con = null;
+		CallableStatement stmt = null;
+		String result="";
+		String direccionOutput=null;
+		try{
+			con = DBConnection.getConnection();
+			stmt = con.prepareCall("{call P_ACTUALIZAR_DIRECCION_INGLES (?,?)}");
+			
+			stmt.setString(1, direccion);
+			stmt.registerOutParameter(2, java.sql.Types.VARCHAR);
+			stmt.executeUpdate();
+			//read the OUT parameter now
+			result = stmt.getString(2);
+			direccionOutput=result;
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			try {
+				stmt.close();
+				con.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	return direccionOutput;		
 	}
 
 //	public List<ParametroDetalleBean> listaTipoDocumentos() {
