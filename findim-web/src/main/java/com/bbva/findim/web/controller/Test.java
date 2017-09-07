@@ -68,12 +68,12 @@ public class Test {
 							GeographicGroup geographicGroup = new GeographicGroup();
 							geographicGroup.setGeographicGroupType(new GeographicGroupType());
 //							geographicGroup.getGeographicGroupType().setId(determinarIndicadorDireccion(direccion.getLstGrupoGeografico().get(j).getId()));
-							if(direccion.getLstGrupoGeografico().get(i).getNombre()!=null)
-								geographicGroup.setName(datosDireccion[i]);
-							if(direccion.getLstGrupoGeografico().get(i).getCode()!=null){
-								geographicGroup.setCode(datosDireccion[i]);
-							}
-							lstGeoGroup.add(geographicGroup);
+//							if(direccion.getLstGrupoGeografico().get(i).getNombre()!=null)
+//								geographicGroup.setName(datosDireccion[i]);
+//							if(direccion.getLstGrupoGeografico().get(i).getCode()!=null){
+//								geographicGroup.setCode(datosDireccion[i]);
+//							}
+//							lstGeoGroup.add(geographicGroup);
 						}
 						
 					}
