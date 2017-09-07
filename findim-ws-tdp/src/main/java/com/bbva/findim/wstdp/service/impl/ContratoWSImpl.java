@@ -43,6 +43,7 @@ import com.bbva.findim.dom.GrupoGeografico;
 import com.bbva.findim.dom.PersonaBean;
 import com.bbva.findim.sql.service.DatoReniecService;
 import com.bbva.findim.sql.service.LogAltaContratoService;
+import com.bbva.findim.sql.service.ParametroService;
 import com.bbva.findim.wstdp.service.ContratoWS;
 import com.bbva.server.reniec.WS_PersonaReniec;
 import com.grupobbva.pe.sir.ents.body.consultapordni.DatosNacimiento;
@@ -88,6 +89,9 @@ public class ContratoWSImpl implements ContratoWS {
 	
 	@Autowired
 	TariffService tariffService;
+	
+	@Autowired
+	ParametroService parametroService;
 	
 
 	private Properties prop = new Properties();
@@ -245,6 +249,7 @@ public class ContratoWSImpl implements ContratoWS {
 								
 								datoReniec.setNumeroDni(contratoAltaBean.getClienteBean().getNumeroDocumento());
 								if(datoReniecService.obtenerDatosReniecPersona(personaCreada.getNumeroDocumento())==null){
+									datoReniec.setDireccionAmdocs(parametroService.obtenerDireccionIngles(datoReniec.getDireccionAmdocs()));
 									datoReniecService.guardarDatoReniecPersona(datoReniec);
 								}
 								contratoAltaBean =transaccionAltaContrato(contratoAltaBean,clienteAlta,request.getTarifa());
