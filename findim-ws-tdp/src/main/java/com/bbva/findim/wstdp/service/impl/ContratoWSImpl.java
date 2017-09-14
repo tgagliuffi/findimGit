@@ -93,7 +93,6 @@ public class ContratoWSImpl implements ContratoWS {
 	@Autowired
 	ParametroService parametroService;
 	
-
 	private Properties prop = new Properties();
 
 	String ErrorAtla;
@@ -125,6 +124,12 @@ public class ContratoWSImpl implements ContratoWS {
 			cliente.setTipoDocumento("DNI");// DNI
 			cliente.setCorreoCliente(correo);
 			cliente.setDescTipoDocumento("DNI");
+			cliente.setApellidoPaterno(noCliente.getPaterno());
+			cliente.setApellidoMaterno(noCliente.getMaterno());
+			cliente.setNombreCompleto(noCliente.getNombres());
+			cliente.setGenero(noCliente.getSexo());
+			cliente.setEstadoCivil(Integer.parseInt(obtenerEstadoCivilPersona(noCliente.getEstadoCivil(), null)));
+			cliente.setFechaNacimiento(noCliente.getFhNacimiento());
 		}
 
 		return cliente;
@@ -237,11 +242,11 @@ public class ContratoWSImpl implements ContratoWS {
 			if(beanClasificacion.getDescErrorServicio()==null || beanClasificacion.getDescErrorServicio().equals("")){
 				if(beanClasificacion.getCodigoResultado()==1){//APROBADO PARAMETRIZAR =1
 					clienteAlta = validarTipoCliente(contratoAltaBean.getClienteBean().getNumeroDocumento(),tipoDoc,tipoDocws,contratoAltaBean.getClienteBean().getCorreoCliente());
-					if(clienteAlta.getRptErrorService()!=null){//Si no es cliente ni no cliente(RENIEC)
+					if(clienteAlta.getRepuestaService()!=null){//Si no es cliente ni no cliente(RENIEC)
 			        	Ciudadano ciudadano = obtenerInformacionReniec(contratoAltaBean.getClienteBean().getNumeroDocumento());
 			        	if(ciudadano.getMensajeRespuesta() == null){
 				        	personaCreada = crearNoCliente(ciudadano,contratoAltaBean,tipoDocws);//validar cuando no regresa ciudadano
-					    	if(personaCreada.getErrorCode()==null){//NO SUCEDIO ERROR
+					    	if(personaCreada.getRespuestaService().getErrorCode()==null){//NO SUCEDIO ERROR
 								DatosReniecBean datoReniec = new DatosReniecBean();
 								datoReniec.setDireccionAmdocs(contratoAltaBean.getDomicilio().getDireccion());
 								//corregir y descomentar
@@ -249,15 +254,14 @@ public class ContratoWSImpl implements ContratoWS {
 								
 								datoReniec.setNumeroDni(contratoAltaBean.getClienteBean().getNumeroDocumento());
 								if(datoReniecService.obtenerDatosReniecPersona(personaCreada.getNumeroDocumento())==null){
-									datoReniec.setDireccionAmdocs(parametroService.obtenerDireccionIngles(datoReniec.getDireccionAmdocs()));
-									datoReniecService.guardarDatoReniecPersona(datoReniec);
+  									datoReniecService.guardarDatoReniecPersona(datoReniec);
 								}
 								contratoAltaBean =transaccionAltaContrato(contratoAltaBean,clienteAlta,request.getTarifa());
 					    	} else{//ERROR AL CREAR LA PERSONA
 				        		request.setTpIndicadorProceso(Constantes.CODE_RPTA_ERROR);
 				    			request.setTxMensajeFuncional("ERROR AL CREAR LA PERSONA");
-				    			request.setTxCodigoError(personaCreada.getErrorCode());
-				    			request.setTxMensajeTecnico(personaCreada.getRptErrorService());
+				    			request.setTxCodigoError(personaCreada.getRespuestaService().getErrorCode());
+				    			request.setTxMensajeTecnico(personaCreada.getRespuestaService().getErrorDescription());
 					    	}
 			        	}else{
 			        		request.setTxCodigoError(ciudadano.getCodigoRespuesta());
@@ -268,23 +272,21 @@ public class ContratoWSImpl implements ContratoWS {
 			        }else{
 			        	contratoAltaBean =transaccionAltaContrato(contratoAltaBean,clienteAlta,request.getTarifa());
 			        }
-					//SIMULAR
-					TarifaBean tarifaBean = tariffService.obtenerTarifa(null, tarifa, null,empresa);
-					
-					SimulacionBean simulacion = mapper("1", new BigDecimal(importeBien), tarifaBean, 
-													new BigDecimal(((importeBien-importePrestamo)*100/importeBien)),
-													new BigDecimal((importeBien-importePrestamo)), 
-													new BigDecimal(importePrestamo), "");
-					
-					simulacion = loanService.simularPrestamo(simulacion, seguridad.generarTSec(2));
-					
 					//VALIDAR REPUESTA DEL ALTA CONTRATO
-				  	if(contratoAltaBean.getRepuestaService()!=null){
+				  	if(contratoAltaBean.getRepuestaService().getExitoDescription()!=null){
+				  		TarifaBean tarifaBean = tariffService.obtenerTarifa(null, tarifa, seguridad.generarTSec(2), empresa);
+						
+						SimulacionBean simulacion = mapper("1", new BigDecimal(importeBien), tarifaBean, 
+														new BigDecimal(((importeBien-importePrestamo)*100/importeBien)),
+														new BigDecimal((importeBien-importePrestamo)), 
+														new BigDecimal(importePrestamo), "");
+						
+						simulacion = loanService.simularPrestamo(simulacion, seguridad.generarTSec(2));
 				  		if(contratoAltaBean.getRepuestaService().getExitoCode().equals(Constantes.CODE_RPTA_OK)){
 				  			request.setTxMensajeFuncional(contratoAltaBean.getRepuestaService().getExitoDescription());
 							request.setTxMensajeTecnico(contratoAltaBean.getRepuestaService().getExitoDescription());
 							if(simulacion!=null){
-								importeCuota = simulacion.getDetalle().get(0).getCuota();
+								importeCuota = simulacion.getDetalle().get(0).getCuotaTotal();
 							}
 				  		
 				  		}else{
@@ -349,7 +351,7 @@ public class ContratoWSImpl implements ContratoWS {
 		contrato.setNumeroContrato(contratoAltaBean.getKeyUnica());
 		contrato.setValorEquipo(contratoAltaBean.getValorEquipo());
 		contrato.setProveedorTercero("TELF");
-		contrato.setCanal("TELF");
+		contrato.setCanal(contratoAltaBean.getCanal());
 		contrato.setProductoExterno("CTEL000985674");
 		contrato = proposalService.altaProposal(seguridad.generarTSec(2), contrato);
 		return contrato;
@@ -357,95 +359,76 @@ public class ContratoWSImpl implements ContratoWS {
 
 	private PersonaBean crearNoCliente(Ciudadano ciudadano, ContratoAltaBean contratoAltaBean, String tipoDocws) {
 		// TODO Auto-generated method stub
-		PersonaBean personaBean = new PersonaBean();
-		personaBean.setNumeroDocumento(contratoAltaBean.getClienteBean().getNumeroDocumento());
-		personaBean.setTipoDocumento(tipoDocws);
-
-		// TODO VALIDAR COMO SE HARA CON LOS CARACTERES EXTRAÑOS
-		personaBean.setNombres(ciudadano.getNombres().replace('Ñ', 'N'));
-		personaBean.setPaterno(ciudadano.getApellidoPaterno().replace('Ñ', 'N'));
-		personaBean.setMaterno(ciudadano.getApellidoMaterno().replace('Ñ', 'N'));
-		// TODO VALIDAR COMO SE HARA CON LOS CARACTERES EXTRAÑOS
-
-		personaBean.setClienteNuevo(true);
-		personaBean.setCodigoEstadoCivil(obtenerEstadoCivilPersona(ciudadano.getCodigoEstadoCivil()));
-		personaBean.setCodigoSexo(obtenerSexoPersona(ciudadano.getSexo()));
-
-		ciudadano.setFechaNacimiento(
-				ciudadano.getFechaNacimiento().substring(0, 4) + "-" + ciudadano.getFechaNacimiento().substring(4, 6)
-						+ "-" + ciudadano.getFechaNacimiento().substring(6, 8));
-		personaBean.setNacimiento(ciudadano.getFechaNacimiento());
-
-		// CL(|)TAVARA WEST(|)Nro. 1054(|)Mz. G/(|) (|) (|)UR.(|)DANIEL ALCIDES
-		// CARRION ET.2(|)
-
-		List<GrupoGeografico> grupoGeograficoLst = new ArrayList<>();
-
-		GrupoGeografico grupoGeografico = new GrupoGeografico();
-		grupoGeografico.setId("DEPARTMENT");// viene de no cliente
-		grupoGeografico.setCode(contratoAltaBean.getDomicilio().getIdDepartamento());// viene
-																						// de
-																						// no
-																						// cliente
-		grupoGeograficoLst.add(grupoGeografico);
-
-		GrupoGeografico grupoGeografico2 = new GrupoGeografico();
-		grupoGeografico2.setId("PROVINCE");// viene de no cliente
-		grupoGeografico2.setCode(contratoAltaBean.getDomicilio().getIdProvincia());// viene
-																					// de
-																					// no
-																					// cliente
-		grupoGeograficoLst.add(grupoGeografico2);
-
-		GrupoGeografico grupoGeografico3 = new GrupoGeografico();
-		grupoGeografico3.setId("DISTRICT");// viene de no cliente
-		grupoGeografico3.setCode(contratoAltaBean.getDomicilio().getIdDistrito());// viene
-																					// de
-																					// no
-																					// cliente
-		grupoGeograficoLst.add(grupoGeografico3);
-
-		List<DireccionBean> listDireccion = new ArrayList<DireccionBean>();
-		DireccionBean direccionAlta = new DireccionBean();
-		direccionAlta.setLstGrupoGeografico(grupoGeograficoLst);
-		direccionAlta.setDsDireccion(contratoAltaBean.getDomicilio().getDireccion());
-		listDireccion.add(direccionAlta);
-		personaBean.setLstDirecciones(listDireccion);
 		PersonaBean personaUpdate = null;
+		PersonaBean personaBean = null;
 		try {
+		
+			personaBean = new PersonaBean();
+			personaBean.setNumeroDocumento(contratoAltaBean.getClienteBean().getNumeroDocumento());
+			personaBean.setTipoDocumento(tipoDocws);
+	
+			// TODO VALIDAR COMO SE HARA CON LOS CARACTERES EXTRAÑOS
+			personaBean.setNombres(ciudadano.getNombres().replace('Ñ', 'N'));
+			personaBean.setPaterno(ciudadano.getApellidoPaterno().replace('Ñ', 'N'));
+			personaBean.setMaterno(ciudadano.getApellidoMaterno().replace('Ñ', 'N'));
+			// TODO VALIDAR COMO SE HARA CON LOS CARACTERES EXTRAÑOS
+	
+			personaBean.setClienteNuevo(true);
+			personaBean.setCodigoEstadoCivil(obtenerEstadoCivilPersona(ciudadano.getCodigoEstadoCivil(), null));
+			personaBean.setCodigoSexo(obtenerSexoPersona(ciudadano.getSexo()));
+	
+			ciudadano.setFechaNacimiento(ciudadano.getFechaNacimiento().substring(0, 4) + "-" + ciudadano.getFechaNacimiento().substring(4, 6)	+ "-" + ciudadano.getFechaNacimiento().substring(6, 8));
+			personaBean.setNacimiento(ciudadano.getFechaNacimiento());
+	
+			List<GrupoGeografico> grupoGeograficoLst = new ArrayList<>();
+			GrupoGeografico grupoGeografico = new GrupoGeografico();
+			grupoGeografico.setId("DEPARTMENT");// viene de no cliente
+			grupoGeografico.setCode(contratoAltaBean.getDomicilio().getIdDepartamento());// viene
+			grupoGeograficoLst.add(grupoGeografico);
+	
+			GrupoGeografico grupoGeografico2 = new GrupoGeografico();
+			grupoGeografico2.setId("PROVINCE");// viene de no cliente
+			grupoGeografico2.setCode(contratoAltaBean.getDomicilio().getIdProvincia());// viene
+			grupoGeograficoLst.add(grupoGeografico2);
+	
+			GrupoGeografico grupoGeografico3 = new GrupoGeografico();
+			grupoGeografico3.setId("DISTRICT");// viene de no cliente
+			grupoGeografico3.setCode(contratoAltaBean.getDomicilio().getIdDistrito());// viene
+			
+			List<DireccionBean> listDireccion = new ArrayList<DireccionBean>();
+			DireccionBean direccionAlta = new DireccionBean();
+			direccionAlta.setLstGrupoGeografico(grupoGeograficoLst);
+			direccionAlta.setDsDireccion(contratoAltaBean.getDomicilio().getDireccion());
+			listDireccion.add(direccionAlta);
+			personaBean.setLstDirecciones(listDireccion);
 			personaUpdate = personService.altaNoCliente(personaBean, seguridad.generarTSec(2));
+		
 		} catch (Exception e) {
 			ErrorAtla = "Sucedio un Error al crear NoCliente";
 			LOGGER.error("Error Al crear el no Cliente.", e);
-			return null;
+			return personaUpdate ;
 		}
 		return personaUpdate;
 	}
 
 	private Ciudadano obtenerInformacionReniec(String numeroDocumento) {
 		// TODO Auto-generated method stub
-		String registro = "P016739";// "P017737";
+		String registro = "P017737";// "P017737";
 		StringBuilder sRutaSoap = new StringBuilder();
 		sRutaSoap.append("http://118.180.34.15:9080/WSIntegracionRENIEC/services/WS_PersonaReniec");
-		// Parametria requerida para el servicio de RENIEC
-		// String fechaHoraEnvio = DateUtil.getFecha(new Date(),
-		// "yyyy-MM-dd-HH.mm.ss.SSS");//P
+
 		ConsultaPorDNIRequest consultaPorDNIRequest = new ConsultaPorDNIRequest();
 		consultaPorDNIRequest.setRefRequestHeader(new RequestHeader());
 		consultaPorDNIRequest.getRefRequestHeader().setCanal("S_C_");
 		consultaPorDNIRequest.getRefRequestHeader().setCodigoAplicacion("HUASCARAN");// Parametro
 		consultaPorDNIRequest.getRefRequestHeader().setIdEmpresa("RENI");// Parametro
 		consultaPorDNIRequest.getRefRequestHeader().setUsuario(registro);
-		consultaPorDNIRequest.getRefRequestHeader().setFechaHoraEnvio("2015-12-16-18.38.55.223456");// Fecha
-																									// formato
-																									// yyyy-MM-dd-HH24.mm.ss.sss
-		// TODO EL ID DE TRANSACCION ES LA COMBINACION DE LA fechaEnvio +
-		// codAplicacion + registro
-		consultaPorDNIRequest.getRefRequestHeader().setIdTransaccion("20151216183855223456PICP017737");
+		consultaPorDNIRequest.getRefRequestHeader().setFechaHoraEnvio("2016-01-05-17.38.55.223456");// Fecha
+
+		consultaPorDNIRequest.getRefRequestHeader().setIdTransaccion("20160105173855223456PICP017737");
 		consultaPorDNIRequest.getRefRequestHeader().setCodigoInterfaz("CPERRENXDNI");// Parametro
 		// TODO ADD-REQUEST
-		consultaPorDNIRequest
-				.setRefConsultaPorDNIRequest(new com.grupobbva.pe.sir.ents.body.consultapordni.ConsultaPorDNIRequest());
+		consultaPorDNIRequest.setRefConsultaPorDNIRequest(new com.grupobbva.pe.sir.ents.body.consultapordni.ConsultaPorDNIRequest());
 		consultaPorDNIRequest.getRefConsultaPorDNIRequest().setTipoAplicacion("E");// Parametro|
 		consultaPorDNIRequest.getRefConsultaPorDNIRequest().setRegistroCodUsuario(registro);
 		consultaPorDNIRequest.getRefConsultaPorDNIRequest().setNumeroDNIConsultado(numeroDocumento);
@@ -454,7 +437,7 @@ public class ContratoWSImpl implements ContratoWS {
 		consultaPorDNIRequest.getRefConsultaPorDNIRequest().setIndConsultaFirma("N");// Parametro
 
 		ConsultaPorDNIResponse dniResponseDocument = null;
-		// TODO CONSULTA A RENIEC DATOS DE PERSONA NATURAL
+
 		dniResponseDocument = wS_PersonaReniec_Service.consultaPorDNI(consultaPorDNIRequest);
 
 		Ciudadano ciudadano = new Ciudadano();
@@ -489,26 +472,25 @@ public class ContratoWSImpl implements ContratoWS {
 		try {
 			clienteEs = customerService.obtenerDatosCliente(seguridad.generarTSec(3), tipoDoc, numeroDocumento);
 
-			if (clienteEs.getRptErrorService() == null || clienteEs.getRptErrorService().equals("")) {
+			if (clienteEs.getRepuestaService() == null ) {
 				clienteValida = cargarDatosClienteAlta(clienteEs, null, correo);
 				return clienteValida;// RETORNA CLIENTE
 			} else {
 				PersonaBean persona = null;
 				persona = personService.buscarNoCliente(tipoDocws, numeroDocumento, "2", seguridad.generarTSec(2));
-				if (persona.getRptErrorService() == null || persona.getRptErrorService().equals("")) {// EXISTE
+				if (persona.getRespuestaService()==null) {// EXISTE PERSONA
 					persona.setNumeroDocumento(numeroDocumento);
 					clienteValida = cargarDatosClienteAlta(null, persona, correo);
 					return clienteValida; // RETORNA CLIENTE BASADO EN PERSONA
 				} else {
-					ErrorAtla = persona.getRptErrorService();
-					 clienteValida.setRptErrorService(clienteEs.getRptErrorService());; // NO EXISTE COMO CLIENTE NI COMO PERSONA
-					 return clienteValida;
+					clienteValida.setRepuestaService(persona.getRespuestaService()); // NO EXISTE COMO CLIENTE NI COMO PERSONA
+					return clienteValida;
 				}
 			}
 
 		} catch (Exception e) {
 			LOGGER.info("Sucedio un Error", e);
-			return null;
+			return clienteValida;
 		}
 
 	}
@@ -523,20 +505,32 @@ public class ContratoWSImpl implements ContratoWS {
 		return sexoPersona;
 	}
 
-	private String obtenerEstadoCivilPersona(String codigoEstadoCivil) {
-		// TODO Auto-generated method stub
-		String estadoCivil = "";
-		if (codigoEstadoCivil.equals(PersonService.SOLTERO)) {
-			estadoCivil = "S";
-		} else if (codigoEstadoCivil.equals(PersonService.CASADO)) {
-			estadoCivil = "C";
-		} else if (codigoEstadoCivil.equals(PersonService.VIUDO)) {
-			estadoCivil = "V";
-		} else if (codigoEstadoCivil.equals(PersonService.DIVORCIADO)) {
-			estadoCivil = "D";
+	private String obtenerEstadoCivilPersona(String cdEstCivilFront, Integer cdEstCivilBack) {
+		if(cdEstCivilFront!=null) {
+			if (cdEstCivilFront.equals(Constantes.EstadoCivil.S.name())) {
+				return Constantes.EstadoCivil.S.getEstadoCivil().toString();
+			} else if (cdEstCivilFront.equals(Constantes.EstadoCivil.C.name())) {
+				return Constantes.EstadoCivil.C.getEstadoCivil().toString();
+			} else if (cdEstCivilFront.equals(Constantes.EstadoCivil.V.name())) {
+				return Constantes.EstadoCivil.V.getEstadoCivil().toString();
+			} else if (cdEstCivilFront.equals(Constantes.EstadoCivil.D.name())) {
+				return Constantes.EstadoCivil.D.getEstadoCivil().toString();
+			}else {
+				return Constantes.EstadoCivil.S.getEstadoCivil().toString();
+			}
+		}else {
+			if(cdEstCivilBack==Constantes.EstadoCivil.S.getEstadoCivil())
+				return Constantes.EstadoCivil.S.name();
+			else if (cdEstCivilBack==Constantes.EstadoCivil.C.getEstadoCivil())
+				return Constantes.EstadoCivil.C.name();
+			else if (cdEstCivilBack==Constantes.EstadoCivil.D.getEstadoCivil())
+				return Constantes.EstadoCivil.D.name();
+			else if (cdEstCivilBack==Constantes.EstadoCivil.V.getEstadoCivil())
+				return Constantes.EstadoCivil.V.name();
+			else 
+				return Constantes.EstadoCivil.S.name().toString();
 		}
-
-		return estadoCivil;
+		
 	}
 
 	private ContratoAltaBean obtenerValoresBean(String llaveunica, // 1
