@@ -40,9 +40,9 @@ public class DatoReniecDaoImpl implements DatoReniecDao{
 			    new RowMapper<DatosReniecBean>() {
 					public DatosReniecBean mapRow(ResultSet rs, int rowNum) throws SQLException {
 						DatosReniecBean bean = new DatosReniecBean();
-						bean.setDireccionAmdocs(rs.getString("numero_dni"));
+						bean.setDireccionAmdocs(rs.getString("direccion_amdocs"));
 						bean.setFechaCaducidad(rs.getDate("fecha_caducidad"));
-						bean.setNumeroDni(rs.getString("direccion_amdocs"));
+						bean.setNumeroDni(rs.getString("numero_dni"));
 						return bean;
 					}
 				},

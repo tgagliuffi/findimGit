@@ -36,9 +36,9 @@ public class ParametroServiceImpl implements ParametroService {
 		return parametroDAO.obtenerParametroDetalle(idPadre, idParamDetalle);
 	}
 
-	public String obtenerDireccionIngles(String direccionAmdocs) {
+	public String obtenerDireccionIngles(String nroDni) {
 		// TODO Auto-generated method stub
-		return parametroDAO.obtenerDireccionIngles(direccionAmdocs);
+		return parametroDAO.obtenerDireccionIngles(nroDni);
 	}
 
 //	public List<ParametroDetalleBean> listaTipoDocumentos() {

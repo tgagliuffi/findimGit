@@ -216,7 +216,7 @@ public class ParametroDaoImpl implements ParametroDao {
 		}
 		return parametroDetalleBean;
 	}
-	public String obtenerDireccionIngles(String direccion) {
+	public String obtenerDireccionIngles(String nroDni) {
 		// TODO Auto-generated method stub
 		Connection con = null;
 		CallableStatement stmt = null;
@@ -226,7 +226,7 @@ public class ParametroDaoImpl implements ParametroDao {
 			con = DBConnection.getConnection();
 			stmt = con.prepareCall("{call P_ACTUALIZAR_DIRECCION_INGLES (?,?)}");
 			
-			stmt.setString(1, direccion);
+			stmt.setString(1, nroDni);
 			stmt.registerOutParameter(2, java.sql.Types.VARCHAR);
 			stmt.executeUpdate();
 			//read the OUT parameter now
