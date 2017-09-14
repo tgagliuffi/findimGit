@@ -37,7 +37,21 @@ public class ParametriaController {
 			LOGGER.error(e.getMessage(), e);		
 		}			
 		return listaParametroBean;		
-	}		
+	}	
+	@RequestMapping(value = "/obtenerDireccionHost/{dirAndocs}",method = RequestMethod.GET,headers="Accept=application/json")		
+	@ResponseBody	
+	public String obtenerEquivalenciaH(@PathVariable("dirAndocs") String nroDni) {
+		String dirIngles = null;
+		try {		
+			LOGGER.info("[ParametriaController Inicio :  obtenerDirCastIngles]"); 			
+			dirIngles = parametroService.obtenerDireccionIngles(nroDni);
+			LOGGER.info("[ParametriaController Fin : obtenerDirCastIngles]:" + dirIngles); 		
+		} catch (Exception e) {		
+			LOGGER.error(e.getMessage(), e);	
+			return dirIngles;
+		}			
+		return dirIngles;	
+	}
 	
 			
 }
