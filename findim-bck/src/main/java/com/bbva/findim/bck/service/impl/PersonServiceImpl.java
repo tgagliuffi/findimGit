@@ -21,7 +21,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.bbva.findim.bck.configuration.domain.error.TestErrorHandler;
 import com.bbva.findim.bck.domain.communs.ErrorService;
 import com.bbva.findim.bck.domain.person.Address;
 import com.bbva.findim.bck.domain.person.ContactsInformation;
@@ -36,6 +35,7 @@ import com.bbva.findim.bck.util.ConstantesConection.Parametro.PersonaConstant;
 import com.bbva.findim.dom.DireccionBean;
 import com.bbva.findim.dom.GrupoGeografico;
 import com.bbva.findim.dom.PersonaBean;
+import com.bbva.findim.dom.RespuestaService;
 
 @Service
 public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonService {
@@ -52,13 +52,10 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 		String tipoDoiKey = propertyUtilCnx.getString(PersonaConstant.CODIGO_TYPEID_PERSON).toString();
 		String numDoiKey = propertyUtilCnx.getString(PersonaConstant.CODIGO_NUMID_PERSON ).toString();
 		String source = propertyUtilCnx.getString(PersonaConstant.CODIGO_SOURCE_PERSON).toString();
-		
 		String filter = propertyUtilCnx.getString(PersonaConstant.CODIGO_PARAMETER_FILTER).toString();
 		String filterValue = null;
-				
-				
-		MultiValueMap<String, String> params = null;
 		
+		MultiValueMap<String, String> params = null;
 		
 		if(StringUtils.isNotBlank(tipoDocumento) && StringUtils.isNotBlank(nroDocumento) ){
 			filterValue = numDoiKey+"=="+nroDocumento+";"+tipoDoiKey+"=="+tipoDocumento;
@@ -69,14 +66,12 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 			}
 		}
 		
-		
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).queryParams(params).build();
-		System.out.println("URL PERSON " + uriComponents.toUri());
 		ResponseEntity<Person> responseEntity = null;
 		try {
 			responseEntity = restTemplate.exchange(uriComponents.toUri(), HttpMethod.GET, new HttpEntity<String>(headers), Person.class);
 			Person personResult = responseEntity.getBody();
-				
+			String ubigeo = "";	
 					if(personResult!=null){
 						personaBean = new PersonaBean();
 						personaBean.setCodigoCentral(personResult.getId());
@@ -84,31 +79,36 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 						personaBean.setPaterno(personResult.getLastName());
 						personaBean.setMaterno(personResult.getMothersLastName());
 						personaBean.setNacimiento(personResult.getBirthday());
-						List<DireccionBean> lstDirecciones= new ArrayList<>();
 						List<GrupoGeografico> lstGrupoGeografico= new ArrayList<>();
 						
 						List<Address> adresses=personResult.getAddresses();
+						DireccionBean direccion = null;
 						for (Address address : adresses) {
 							if(address.getGeographicGroup()!=null){
-								DireccionBean direccion = new DireccionBean();
+								direccion = new DireccionBean();
 								direccion.setDsDireccion(address.getName());
 								List<GeographicGroup> ggcodes=address.getGeographicGroup();
 								for (GeographicGroup geographicGroup : ggcodes) {
 									GrupoGeografico ubigeoCode=new GrupoGeografico();
 									ubigeoCode.setCode(geographicGroup.getCode());
+									ubigeo=ubigeo+ubigeoCode.getCode();
 									lstGrupoGeografico.add(ubigeoCode);
 								}
+								
 								direccion.setLstGrupoGeografico(lstGrupoGeografico);
-								lstDirecciones.add(direccion);
+								
 							}
-							
 						}
-						personaBean.setLstDirecciones(lstDirecciones);
+						personaBean.setLstDirecciones(new ArrayList<DireccionBean>());
+						personaBean.getLstDirecciones().add(direccion);
+						personaBean.setDsUbigeoComplet(ubigeo);
 						if(personResult.getExtendedData()!=null && !personResult.getExtendedData().equals(""))
 							personaBean.setCodigoSexo(personResult.getExtendedData().getSex());
 						if(personResult.getExtendedData()!=null && !personResult.getExtendedData().equals(""))
 							personaBean.setEstadoCivil(personResult.getExtendedData().getMaritalStatus()!=null?personResult.getExtendedData().getMaritalStatus().getId():null);
+						personaBean.setFhNacimiento(personResult.getBirthday());
 					}
+					
 		} catch (HttpClientErrorException e) {
 			LOGGER.info("\t"+ "\t"+"\t" + e.getResponseHeaders().values());
 		 	cadenaRptaError = e.getResponseBodyAsString();
@@ -119,56 +119,68 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 			LOGGER.info("\t"+ "\t"+"\t" + "ERROR" , e3);
 		}finally {
 			ObjectMapper mapper = new ObjectMapper();
-			ErrorService obj = new ErrorService();
+			ErrorService error = null;
 			try {
 				if(!cadenaRptaError.equals("")){
-					obj = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
-					personaBean.setRptErrorService(obj.getSystemErrorCause());
-				}else{
-					personaBean.setRptErrorService("Sucedio un Error inesperado.");
+					error = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
+					personaBean.setRespuestaService(new RespuestaService());
+					personaBean.getRespuestaService().setErrorCode(error.getErrorCode());
+					personaBean.getRespuestaService().setErrorDescription(error.getSystemErrorCause());
+					return personaBean;
 				}
 			} catch (JsonParseException eA) {
 				LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
+				personaBean.setRespuestaService(new RespuestaService());
+				personaBean.getRespuestaService().setErrorCode("000");
+				personaBean.getRespuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return personaBean;
 			} catch (JsonMappingException eB) {
 				LOGGER.info("\t"+ "\t"+"\t" + eB.getStackTrace());
+				personaBean.setRespuestaService(new RespuestaService());
+				personaBean.getRespuestaService().setErrorCode("000");
+				personaBean.getRespuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return personaBean;
 			} catch (IOException eC) {
 				LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
+				personaBean.setRespuestaService(new RespuestaService());
+				personaBean.getRespuestaService().setErrorCode("000");
+				personaBean.getRespuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return personaBean;
 			}
 		}
 		return personaBean;
 	}
 	
-	public PersonaBean altaNoCliente(PersonaBean personBean, String tSec)throws Exception{
+	public PersonaBean altaNoCliente(PersonaBean personaBean, String tSec)throws Exception{
 		String cadenaRptaError = "";
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(SeguridadBbvaService.HEADER_TSEC, tSec);
 		List<Address> lstAddress = null;
-
 		String url = propertyUtilCnx.getString(PersonaConstant.CODIGO_URL_PERSON_MODIFY).toString();
 
-		if(StringUtils.isNotBlank(personBean.getNumeroDocumento()) && StringUtils.isNotBlank(personBean.getTipoDocumento()) ){
-			url = url + personBean.getTipoDocumento() + personBean.getNumeroDocumento();
+		if(StringUtils.isNotBlank(personaBean.getNumeroDocumento()) && StringUtils.isNotBlank(personaBean.getTipoDocumento()) ){
+			url = url + personaBean.getTipoDocumento() + personaBean.getNumeroDocumento();
 		}
 		
 		Person personBack = new Person();
-		personBack.setName(personBean.getNombres());
-		personBack.setLastName(personBean.getPaterno());
-		personBack.setBirthday(personBean.getNacimiento());
-		personBack.setMothersLastName(personBean.getMaterno());
+		personBack.setName(personaBean.getNombres());
+		personBack.setLastName(personaBean.getPaterno());
+		personBack.setBirthday(personaBean.getNacimiento());
+		personBack.setMothersLastName(personaBean.getMaterno());
 		personBack.setExtendedData(new ExtendedData());
-		personBack.getExtendedData().setSex(personBean.getCodigoSexo());
+		personBack.getExtendedData().setSex(personaBean.getCodigoSexo());
 		personBack.getExtendedData().setMaritalStatus(new MaritalStatus());
-		personBack.getExtendedData().getMaritalStatus().setId(personBean.getCodigoEstadoCivil());
+		personBack.getExtendedData().getMaritalStatus().setId(personaBean.getCodigoEstadoCivil());
 		
-		if(personBean.getLstDirecciones().size()>0){
+		if(personaBean.getLstDirecciones().size()>0){
 			lstAddress = new ArrayList<Address>();
-			for (int i = 0; i <personBean.getLstDirecciones().size(); i++) {
+			for (int i = 0; i <personaBean.getLstDirecciones().size(); i++) {
 				Address address = new Address();
-				address.setName(personBean.getLstDirecciones().get(i).getDsDireccion());
+				address.setName(personaBean.getLstDirecciones().get(i).getDsDireccion());
 				address.setGeographicGroup(new ArrayList<GeographicGroup>());
-				if(personBean.getLstDirecciones().get(0).getLstGrupoGeografico().size()>0){
+				if(personaBean.getLstDirecciones().get(0).getLstGrupoGeografico().size()>0){
 					int j=0;
-					for (GrupoGeografico grupoGeografico : personBean.getLstDirecciones().get(0).getLstGrupoGeografico()) {
+					for (GrupoGeografico grupoGeografico : personaBean.getLstDirecciones().get(0).getLstGrupoGeografico()) {
 						GeographicGroup gg = new GeographicGroup() ;
 						gg.setCode(grupoGeografico.getCode());
 						address.getGeographicGroup().add(j, gg);
@@ -180,7 +192,7 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 			personBack.setAddresses(lstAddress);
 			personBack.setContactsInformation(new ArrayList<ContactsInformation>());
 			personBack.getContactsInformation().add(0, new ContactsInformation());
-			personBack.getContactsInformation().get(0).setName("945908614");
+			personBack.getContactsInformation().get(0).setName("");
 		}
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).build();		
 		HttpEntity<Person> entity = new HttpEntity<Person>(personBack, headers);
@@ -190,11 +202,9 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 			Person personGrabada = respuesta.getBody();
 			if(respuesta.getBody()!=null){
 				if(respuesta.getBody().getId()!=null && !respuesta.getBody().getId().equals("")){
-					personBean.setId(personGrabada.getId());
+					personaBean.setId(personGrabada.getId());
 				}
 			}
-			//System.out.println(responseEntity);
-			restTemplate.setErrorHandler(new TestErrorHandler());
 			
 		} catch (HttpClientErrorException e) {
 			LOGGER.info("\t"+ "\t"+"\t" + e.getResponseHeaders().values());
@@ -206,27 +216,41 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 			LOGGER.info("\t"+ "\t"+"\t" + "ERROR" , e3);
 		}finally {
 			ObjectMapper mapper = new ObjectMapper();
-			ErrorService obj = new ErrorService();
+			ErrorService error = null;
 			try {
 				if(!cadenaRptaError.equals("")){
-					obj = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
-					personBean.setRptErrorService(obj.getSystemErrorCause());
-					personBean.setErrorCode(obj.getErrorCode());
-				}else{
-					personBean.setRptErrorService("Sucedio un Error inesperado.");
+					error = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
+					personaBean.setRespuestaService(new RespuestaService());
+					personaBean.getRespuestaService().setErrorCode(error.getErrorCode());
+					personaBean.getRespuestaService().setErrorDescription(error.getSystemErrorCause());
+					return personaBean;
 				}
 			} catch (JsonParseException eA) {
 				LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
+				personaBean.setRespuestaService(new RespuestaService());
+				personaBean.getRespuestaService().setErrorCode("000");
+				personaBean.getRespuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return personaBean;
 			} catch (JsonMappingException eB) {
 				LOGGER.info("\t"+ "\t"+"\t" + eB.getStackTrace());
+				personaBean.setRespuestaService(new RespuestaService());
+				personaBean.getRespuestaService().setErrorCode("000");
+				personaBean.getRespuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return personaBean;
 			} catch (IOException eC) {
 				LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
+				personaBean.setRespuestaService(new RespuestaService());
+				personaBean.getRespuestaService().setErrorCode("000");
+				personaBean.getRespuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return personaBean;
 			}
 		}
 		
-		return personBean;
+		return personaBean;
 	
 	}
+	
+
 	
 }
 	

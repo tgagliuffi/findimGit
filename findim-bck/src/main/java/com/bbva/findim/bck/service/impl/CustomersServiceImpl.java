@@ -1,9 +1,11 @@
 package com.bbva.findim.bck.service.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
@@ -22,13 +24,11 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.bbva.findim.bck.configuration.domain.error.TestErrorHandler;
 import com.bbva.findim.bck.domain.communs.ErrorService;
 import com.bbva.findim.bck.domain.communs.Status;
 import com.bbva.findim.bck.domain.communs.Term;
 import com.bbva.findim.bck.domain.communs.Value;
 import com.bbva.findim.bck.domain.customers.Address;
-import com.bbva.findim.bck.domain.customers.AddressType;
 import com.bbva.findim.bck.domain.customers.BirthData;
 import com.bbva.findim.bck.domain.customers.ContactDetail;
 import com.bbva.findim.bck.domain.customers.ContactType;
@@ -48,24 +48,22 @@ import com.bbva.findim.bck.domain.customers.Location;
 import com.bbva.findim.bck.domain.customers.MaritalStatus;
 import com.bbva.findim.bck.domain.customers.Nationality;
 import com.bbva.findim.bck.domain.customers.OccupationType;
-import com.bbva.findim.bck.domain.customers.OwnershipType;
 import com.bbva.findim.bck.domain.customers.PersonalTitle;
 import com.bbva.findim.bck.domain.customers.Residence;
 import com.bbva.findim.bck.domain.customers.ResidenceType;
 import com.bbva.findim.bck.domain.customers.WorkPlace;
 import com.bbva.findim.bck.service.CustomersService;
-import com.bbva.findim.bck.service.ProposalService;
 import com.bbva.findim.bck.service.SeguridadBbvaService;
 import com.bbva.findim.bck.util.ConstantesConection;
 import com.bbva.findim.bck.util.PropertyUtilCnx;
 import com.bbva.findim.bck.util.ConstantesConection.Parametro.ClienteConstant;
 import com.bbva.findim.bck.util.ConstantesConection.Parametro.GENERAL;
 import com.bbva.findim.dom.ClienteBean;
-import com.bbva.findim.dom.DireccionBean;
 import com.bbva.findim.dom.DireccionClienteBean;
 import com.bbva.findim.dom.DireccionDetalleclienteBean;
 import com.bbva.findim.dom.DocumentoIdentidadBean;
 import com.bbva.findim.dom.GrupoGeografico;
+import com.bbva.findim.dom.RespuestaService;
 import com.bbva.findim.dom.UbicacionDireccionBean;
 
 @Service
@@ -106,6 +104,7 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 				if(customerResult.getData()!=null){
 					for (int i = 0; i < customerResult.getData().size(); i++) {
 						clienteBean = new ClienteBean();
+						clienteBean.setRepuestaService(new RespuestaService());
 						clienteBean.setIdCliente(Integer.parseInt(customerResult.getData().get(i).getCustomerId()));
 						clienteBean.setApellidoPaterno(customerResult.getData().get(i).getLastName());
 						clienteBean.setPrimerNombre(customerResult.getData().get(i).getFirstName());
@@ -241,54 +240,107 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 		}catch (Exception e3) {
 			LOGGER.info("\t"+ "\t"+"\t" + "ERROR" , e3);
 		}finally {
-				ObjectMapper mapper = new ObjectMapper();
-				ErrorService obj = null;
-				try {
-					if(!cadenaRptaError.equals("")){
-						obj = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
-						clienteBean.setRptErrorService(obj.getSystemErrorCause());
-					}
-				} catch (JsonParseException eA) {
-					LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
-					clienteBean.setRptErrorService("Sucedio un Error inesperado.");
-				} catch (JsonMappingException eB) {
-					LOGGER.info("\t"+ "\t"+"\t" + eB.getStackTrace());
-					clienteBean.setRptErrorService("Sucedio un Error inesperado.");
-				} catch (IOException eC) {
-					LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
-					clienteBean.setRptErrorService("Sucedio un Error inesperado.");
+			ObjectMapper mapper = new ObjectMapper();
+			ErrorService error = null;
+			try {
+				if(!cadenaRptaError.equals("")){
+					error = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
+					clienteBean.setRepuestaService(new RespuestaService());
+					clienteBean.getRepuestaService().setErrorCode(error.getErrorCode());
+					clienteBean.getRepuestaService().setErrorDescription(error.getSystemErrorCause());
+					return clienteBean;
 				}
+			} catch (JsonParseException eA) {
+				LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
+				clienteBean.setRepuestaService(new RespuestaService());
+				clienteBean.getRepuestaService().setErrorCode("000");
+				clienteBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return clienteBean;
+			} catch (JsonMappingException eB) {
+				LOGGER.info("\t"+ "\t"+"\t" + eB.getStackTrace());
+				clienteBean.setRepuestaService(new RespuestaService());
+				clienteBean.getRepuestaService().setErrorCode("000");
+				clienteBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return clienteBean;
+			} catch (IOException eC) {
+				LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
+				clienteBean.setRepuestaService(new RespuestaService());
+				clienteBean.getRepuestaService().setErrorCode("000");
+				clienteBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return clienteBean;
+			}
 		}
-
 		return clienteBean;
 	}
 	
 	@Override
-	public String altaCliente(String tSec, ClienteBean clienteNuevo, Customer customerIn) {
+	public ClienteBean altaCliente(String tSec, ClienteBean clienteAltaBean, Customer customerIn) {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(SeguridadBbvaService.HEADER_TSEC, tSec);
-		
+		String cadenaRptaError = null;
 		try {
 			
 			Customer customerBack = new Customer();
-			if(clienteNuevo!=null){
-				customerBack = mapperCopyCustomerForClienteBean(customerBack, clienteNuevo);
+			if(clienteAltaBean!=null){
+				customerBack = mapperCopyCustomerForClienteBean(customerBack, clienteAltaBean);
 			}else if(customerIn!=null){
 				customerBack=customerIn;
 			}
-			
 			String url = propertyUtilCnx.getString(ClienteConstant.CODIGO_URL_CUSTOMERS_CREATE).toString();
 			UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).build();		
 			HttpEntity<Customer> entity = new HttpEntity<Customer>(customerBack, headers);
-			ResponseEntity<String> responseEntity = restTemplate.exchange(uriComponents.toUri(), HttpMethod.POST, entity, String.class);
-			return responseEntity.getHeaders().get("ResponseWarningDescription").toString();
-		} catch (Exception e) {
-			restTemplate.setErrorHandler(new TestErrorHandler());
-			return "[SUCEDIO ERROR]";
 			
-		}
+			ObjectMapper mapper = new ObjectMapper();
+			   //Object to JSON in file
+			mapper.writeValue(new File("D:\\file.json"), customerBack);
 
+			//Object to JSON in String
+			String jsonInString = mapper.writeValueAsString(customerBack);
+			
+			
+			ResponseEntity<String> responseEntity = restTemplate.exchange(uriComponents.toUri(), HttpMethod.POST, entity, String.class);
+			clienteAltaBean.getRepuestaService().setExitoDescription(responseEntity.getHeaders().get("ResponseWarningDescription").toString());
+		} catch (HttpClientErrorException e) {
+			LOGGER.info("\t"+ "\t"+"\t" + e.getResponseHeaders().values());
+		 	cadenaRptaError = e.getResponseBodyAsString();
+		}catch (HttpServerErrorException e2) {
+			LOGGER.info("\t"+ "\t"+"\t" + e2.getResponseHeaders().values());
+			cadenaRptaError = e2.getResponseBodyAsString();
+		}catch (Exception e3) {
+			LOGGER.info("\t"+ "\t"+"\t" + "ERROR" , e3);
+		}finally {
+			ObjectMapper mapper = new ObjectMapper();
+			ErrorService error = null;
+			try {
+				if(!cadenaRptaError.equals("")){
+					error = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
+					clienteAltaBean.setRepuestaService(new RespuestaService());
+					clienteAltaBean.getRepuestaService().setErrorCode(error.getErrorCode());
+					clienteAltaBean.getRepuestaService().setErrorDescription(error.getSystemErrorCause());
+					return clienteAltaBean;
+				}
+			} catch (JsonParseException eA) {
+				LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
+				clienteAltaBean.setRepuestaService(new RespuestaService());
+				clienteAltaBean.getRepuestaService().setErrorCode("9999");
+				clienteAltaBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return clienteAltaBean;
+			} catch (JsonMappingException eB) {
+				LOGGER.info("\t"+ "\t"+"\t" + eB.getStackTrace());
+				clienteAltaBean.setRepuestaService(new RespuestaService());
+				clienteAltaBean.getRepuestaService().setErrorCode("000");
+				clienteAltaBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return clienteAltaBean;
+			} catch (IOException eC) {
+				LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
+				clienteAltaBean.setRepuestaService(new RespuestaService());
+				clienteAltaBean.getRepuestaService().setErrorCode("000");
+				clienteAltaBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				return clienteAltaBean;
+			}
+		}
+		return clienteAltaBean;
 	}
 	
 	public Customer mapperCopyCustomerForClienteBean(Customer clienteBack, ClienteBean clienteNuevo) throws ParseException{
@@ -356,53 +408,12 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 		clienteBack.getResidence().setResidenceType(new ResidenceType());
 		clienteBack.getResidence().getResidenceType().setId(CustomersService.Residencia.PERMANENTE.getTipo());//TODO : validar si es constante
 	
-		
-		List<Address> lstAddress = null;
-		if(clienteNuevo.getLstDireccionBean()!=null && clienteNuevo.getLstDireccionBean().size()>0){
-			 lstAddress = new ArrayList<Address>();
-			for (int i = 0; i < clienteNuevo.getLstDireccionBean().size(); i++) {
-				Address  addresses = new Address();
-				DireccionBean direccion = clienteNuevo.getLstDireccionBean().get(i);
-				//Set TypeAddress
-				addresses.setAddressType(new AddressType());
-				addresses.getAddressType().setId(direccion.getIdTipoDireccion());
-				//Set Owner
-				addresses.setOwnershipType(new OwnershipType());
-				addresses.getOwnershipType().setId(direccion.getIdTipoPropiedad());
-				//Set Location
-				if(direccion.getDsDireccion()!=null){
-					addresses.setLocation(new Location());
-					addresses.getLocation().setAddressName(direccion.getDsDireccion());
-					if(direccion.getIdCountry()!=null){
-						addresses.getLocation().setCountry(new Country());
-						addresses.getLocation().getCountry().setId(direccion.getIdCountry());
-					}
-					if(direccion.getRfAdicionalInfo()!=null)
-					addresses.getLocation().setAdditionalInformation(direccion.getRfAdicionalInfo());
-				}
-				//Set GeoGrafica
-				if(direccion.getLstGrupoGeografico()!=null && direccion.getLstGrupoGeografico().size()>0){
-					List<GeographicGroup> lstGeoGroup = new ArrayList<GeographicGroup>();
-						for (int j = 0; j < direccion.getLstGrupoGeografico().size() ; j++) {
-							GeographicGroup geographicGroup = new GeographicGroup();
-							geographicGroup.setGeographicGroupType(new GeographicGroupType());
-							geographicGroup.getGeographicGroupType().setId(determinarIndicadorDireccion(direccion.getLstGrupoGeografico().get(j).getId()));
-							if(direccion.getLstGrupoGeografico().get(j).getNombre()!=null)
-								geographicGroup.setName(direccion.getLstGrupoGeografico().get(j).getNombre());
-							if(direccion.getLstGrupoGeografico().get(j).getCode()!=null){
-								geographicGroup.setCode(direccion.getLstGrupoGeografico().get(j).getCode());
-							}
-							lstGeoGroup.add(geographicGroup);
-						}
-						//set grupo geografico
-						addresses.getLocation().setGeographicGroups(lstGeoGroup);
-				}
-				//Agregamos un dirección
-				lstAddress.add(addresses);
-			}
+		String  idUrbano  = "EXTERIOR_NUMBER";
+		if(esUrbano(clienteNuevo.getDireccion(), idUrbano)){
+			clienteBack.setAddresses(setDireccionCliente(clienteNuevo, true));
+		}else{
+			clienteBack.setAddresses(setDireccionCliente(clienteNuevo, false));
 		}
-		//Agregamos la lista de direccion
-		clienteBack.setAddresses(lstAddress);
 		
 		if(clienteNuevo.getLstContacto()!=null && clienteNuevo.getLstContacto().size()>0){
 			clienteBack.setContactDetails(new ArrayList<ContactDetail>());
@@ -507,17 +518,11 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 		return estadoCivil;
 	}
 	
-	/*
-	 * Genero (Reniec) 1 = Masculino 2 = Femenino
-	 */
-
-
-
+	/*Genero (Reniec) 1 = Masculino 2 = Femenino */
 	private Value determinarGenero(String generoCliente) {
 		Value genero = null;
 		if (CustomersService.GeneroFront.FEMALE.getDescipcion().equals(generoCliente)) {
 			genero = new Value(CustomersService.Genero.MASCULINO.getDescipcion());
-
 		}else if(CustomersService.GeneroFront.MALE.getDescipcion().equals(generoCliente)) {
 			genero = new Value(CustomersService.Genero.FENEMINO.getDescipcion());
 		}else if(CustomersService.GeneroFront.FEMALE.toString().equals(generoCliente)) {
@@ -529,73 +534,9 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 		return genero;
 	}
 	
-	private String determinarIndicadorDireccion(String idDireccion) {
-		String direccion="";
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.AGR.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.AGR.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.AHH.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.AHH.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.ALM.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.ALM.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.AV.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.AV.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.BAJ.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.BAJ.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.CAL.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.CAL.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.CC.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.CC.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.CRT.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.CRT.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.GAL.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.GAL.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.JR.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.JR.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.MAL.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.MAL.getIndicadorDireccion());
-		}else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.OVA.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.OVA.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.PAS.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.PAS.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.PLZ.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.PLZ.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.POR.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.POR.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.PQE.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.PQE.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.PRL.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.PRL.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.PSJ.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.PSJ.getIndicadorDireccion());
-		} else
-		if (idDireccion.equals(ProposalService.IndicadorDireccion.PTE.name())) {
-			direccion =  (ProposalService.IndicadorDireccion.PTE.getIndicadorDireccion());
-		} else{
-			direccion=idDireccion;
-		}
-		return direccion;
-	}
 	
 	private Value determinarTitle(Customer cliente) {
 		Value title = new Value();
-
 		if (CustomersService.Genero.MASCULINO.getDescipcion().equals(cliente.getGender().getId())) {
 			title.setValue(CustomersService.TituloPersona.SR.getTitulo());
 		} else if (CustomersService.Genero.FENEMINO.getDescipcion().equals(cliente.getGender().getId())) {
@@ -661,4 +602,113 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 		}
 		return false;
 	}
+	
+	public static List<Address> setDireccionCliente(ClienteBean cliente, Boolean esUrbano){
+		String[] datosDireccion;
+		List<Address> lstAddress = null;
+		
+		if(cliente.getDireccionCliente()!=null){
+			if(cliente.getDireccionCliente().getStrDireccionInputTlf()!=null){
+				lstAddress = new ArrayList<>();
+			
+				datosDireccion = cliente.getDireccionCliente().getStrDireccionInputTlf().split(Pattern.quote("(|)"));
+				Address  addresses = new Address();
+//				addresses.setAddressType(new AddressType());
+//				addresses.getAddressType().setId(cliente.getDireccionCliente().getIdTipoDireccion());
+//				addresses.setOwnershipType(new OwnershipType());
+//				addresses.getOwnershipType().setId(cliente.getDireccionCliente().getIdTipoPropiedad());
+//				
+				if(cliente.getDireccionCliente().getUbicacion()!=null){
+					addresses.setLocation(new Location());
+					addresses.getLocation().setCountry(new Country());
+					addresses.getLocation().getCountry().setId(cliente.getDireccionCliente().getUbicacion().getNbPais());
+					
+					if(cliente.getDireccionCliente().getUbicacion().getDsReferencia() !=null)
+						addresses.getLocation().setAdditionalInformation(cliente.getDireccionCliente().getUbicacion().getDsReferencia());
+
+					if(datosDireccion.length==8){
+						addresses.getLocation().setGeographicGroups(new ArrayList<GeographicGroup>());
+						GeographicGroup geographicGroup = null;
+						geographicGroup = new GeographicGroup();
+						geographicGroup.setGeographicGroupType(new GeographicGroupType());
+						geographicGroup.getGeographicGroupType().setId("DEPARTMENT");
+						geographicGroup.setCode(cliente.getDireccionCliente().getUbicacion().getDsUbigeo().substring(0,2));
+						addresses.getLocation().getGeographicGroups().add(geographicGroup);
+						geographicGroup = new GeographicGroup();
+						geographicGroup.setGeographicGroupType(new GeographicGroupType());
+						geographicGroup.getGeographicGroupType().setId("PROVINCE");
+						geographicGroup.setCode(cliente.getDireccionCliente().getUbicacion().getDsUbigeo().substring(2,4));
+						addresses.getLocation().getGeographicGroups().add(geographicGroup);
+						geographicGroup = new GeographicGroup();
+						geographicGroup.setGeographicGroupType(new GeographicGroupType());
+						geographicGroup.getGeographicGroupType().setId("DISTRICT");
+						geographicGroup.setCode(cliente.getDireccionCliente().getUbicacion().getDsUbigeo().substring(4));
+						addresses.getLocation().getGeographicGroups().add(geographicGroup);
+						Boolean esCompuesto = false;
+						for (int i = 0; i < datosDireccion.length; i++) {
+							if(datosDireccion[i]!=null) {
+										 geographicGroup = new GeographicGroup();
+										 geographicGroup.setGeographicGroupType(new GeographicGroupType());
+										 if(esUrbano) {
+											 if(datosDireccion[i].indexOf("INTERIOR_NUMBER")>-1) {
+												 	String[] arregloRefInterna = datosDireccion[i].split(Pattern.quote("/"));
+													geographicGroup.getGeographicGroupType().setId("INTERIOR_NUMBER");
+													if(!arregloRefInterna[0].equals("INTERIOR_NUMBER ")) {
+														geographicGroup.setName(arregloRefInterna[1].replaceAll("[^0-9]", "").trim());
+													}else {
+														geographicGroup.setName(arregloRefInterna[0].replaceAll("[^0-9]", "").trim());
+													}
+												}
+												else if(datosDireccion[i].indexOf("EXTERIOR_NUMBER")>-1) {
+													geographicGroup.getGeographicGroupType().setId("EXTERIOR_NUMBER");
+													geographicGroup.setName(datosDireccion[i].replaceAll("[^0-9]", "").trim());
+												}else {
+													geographicGroup.getGeographicGroupType().setId(datosDireccion[i]);
+													geographicGroup.setName(datosDireccion[i+1]);
+													i++;
+												}
+										 }else {
+											 String[] aregloNoUrbano = datosDireccion[3].split(Pattern.quote("/"));
+											 if(datosDireccion[i].indexOf("BLOCK.")>-1 && !esCompuesto) {
+												 if(aregloNoUrbano.length>=1) {
+													geographicGroup.getGeographicGroupType().setId("BLOCK");
+													geographicGroup.setName(aregloNoUrbano[0].replaceAll("BLOCK.", "").trim());
+													esCompuesto=true;
+													i--;
+												 }
+											}else if(datosDireccion[i].indexOf("LOT.")>-1 && esCompuesto) {
+												 if(aregloNoUrbano.length>=1) {
+													geographicGroup.getGeographicGroupType().setId("LOT");
+													geographicGroup.setName(aregloNoUrbano[1].replaceAll("LOT.", "").trim());
+												 }
+											}else {
+												    if(!datosDireccion[i].equals("")) {
+												    	geographicGroup.getGeographicGroupType().setId(datosDireccion[i]);
+												    	geographicGroup.setName(datosDireccion[i+1]);
+												    	i++;
+												    }
+												}
+										 }
+										 
+										 if(geographicGroup.getGeographicGroupType().getId()!=null) {
+											 if(esUrbano && i!=3 && i!=4)
+											 addresses.getLocation().getGeographicGroups().add(geographicGroup);
+										 }
+							}
+						}
+					}
+				}
+				lstAddress.add(addresses);
+			}
+		}	
+		return lstAddress;
+	}
+	
+	public static Boolean esUrbano(String  direccion,String idUrbano){
+		if(direccion.indexOf(idUrbano)>-1){
+			return true;
+		}
+		return false;
+	}
+	
 }

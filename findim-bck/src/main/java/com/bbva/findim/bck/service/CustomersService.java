@@ -5,11 +5,8 @@ import com.bbva.findim.dom.ClienteBean;
 
 public interface CustomersService {
 
-	String altaCliente(String tSec, ClienteBean clienteNuevo, Customer obj) throws Exception;
-	//Customer obtenerDatosCliente(String tSec, String tipoDocumento, String numeroDocumento);
-	
+	ClienteBean altaCliente(String tSec, ClienteBean clienteNuevo, Customer obj) throws Exception;
 	ClienteBean obtenerDatosCliente(String tSec, String tipoDocumento, String numeroDocumento)throws Exception;
-
 
 	enum NivelDetalle {
 		

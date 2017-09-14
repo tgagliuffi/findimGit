@@ -203,14 +203,14 @@ public class AppTest {
         System.out.println(ToStringBuilder.reflectionToString(customer));
 		try {
 	    	customer = customerService.obtenerDatosCliente(tsecPublic,tipoDocumento, nroDocumento);
-	    	if(customer.getRptErrorService()!=null){
-	            System.out.println("Sucedio un error : " +  customer.getRptErrorService());
-	    	}else{
-	            System.out.println(ToStringBuilder.reflectionToString(customer));
-	    	}
+//	    	if(customer.getRptErrorService()!=null){
+//	            System.out.println("Sucedio un error : " +  customer.getRptErrorService());
+//	    	}else{
+//	            System.out.println(ToStringBuilder.reflectionToString(customer));
+//	    	}
 		} catch (Exception e) {
 			e.printStackTrace();
-            System.out.println("Sucedio un error : " +  customer.getRptErrorService());
+//            System.out.println("Sucedio un error : " +  customer.getRptErrorService());
 		}
 	    System.out.println("#############################################################################");
 	}
@@ -385,8 +385,8 @@ public class AppTest {
 	       clienteBean.setLstCondiciones(new ArrayList<String>() );
 	       clienteBean.getLstCondiciones().add("");
 	     
-		   String rpta =   customerService.altaCliente(tsecPublic, clienteBean, null);
-		   System.out.println("Respuesta : " + rpta);
+	       clienteBean =   customerService.altaCliente(tsecPublic, clienteBean, null);
+		   System.out.println("Respuesta : " + clienteBean.getRepuestaService().getExitoDescription());
 	       System.out.println("#############################################################################");
 
 	}

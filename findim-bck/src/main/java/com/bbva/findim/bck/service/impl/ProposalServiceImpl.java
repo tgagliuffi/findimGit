@@ -195,7 +195,6 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 		
 		try{
 			pFromDate = DateUtil.convertFormatDate("yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd", pFromDate);
-			
 			String url = propertyUtilCnx.getString(PropuestaConstant.CODIGO_URL_PROPOSALS_LIST).toString();
 			String terceros = propertyUtilCnx.getString(PropuestaConstant.CODIGO_PARAM_THIRDPARTPROV_ID_LIST);
 			String categoria = propertyUtilCnx.getString(PropuestaConstant.CODIGO_CATEGORY);
@@ -203,7 +202,6 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 			String numDoiKey = propertyUtilCnx.getString(PropuestaConstant.CODIGO_NUMID_PROPOSALS_LIST.toString());
 			String fromDate = propertyUtilCnx.getString(PropuestaConstant.CODIGO_FROM_DATE);
 			String toDate = propertyUtilCnx.getString(PropuestaConstant.CODIGO_TO_DATE);
-			
 			MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
 			
 			if( StringUtils.isNotBlank(pCategoria) ){
@@ -325,55 +323,49 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 	}
 
 	public Proposals mapperProposalsFromContratoBean(ContratoAltaBean contrato) throws ParseException{
-		
-		Proposals proposal = new Proposals();
-
-		
-				proposal.setHolder(new Holder());
-			    proposal.getHolder().setIdentityDocuments(new ArrayList<IdentityDocument>());
-			    proposal.getHolder().getIdentityDocuments().add(new IdentityDocument());
-			    proposal.getHolder().getIdentityDocuments().get(0).setDocumentNumber(contrato.getClienteBean().getNumeroDocumento());
-			    proposal.getHolder().getIdentityDocuments().get(0).setDocumentType(new DocumentType());
-			    proposal.getHolder().getIdentityDocuments().get(0).getDocumentType().setId(contrato.getClienteBean().getDescTipoDocumento());
-			   
-			    proposal.setTariff(new Tariff());
-			    proposal.getTariff().setId(contrato.getAddNombreTarifa());
+			Proposals proposal = new Proposals();
+			proposal.setHolder(new Holder());
+		    proposal.getHolder().setIdentityDocuments(new ArrayList<IdentityDocument>());
+		    proposal.getHolder().getIdentityDocuments().add(new IdentityDocument());
+		    proposal.getHolder().getIdentityDocuments().get(0).setDocumentNumber(contrato.getClienteBean().getNumeroDocumento());
+		    proposal.getHolder().getIdentityDocuments().get(0).setDocumentType(new DocumentType());
+		    proposal.getHolder().getIdentityDocuments().get(0).getDocumentType().setId(contrato.getClienteBean().getDescTipoDocumento());
+		   
+		    proposal.setTariff(new Tariff());
+		    proposal.getTariff().setId(contrato.getAddNombreTarifa());
+		    proposal.setCurrency(determinarMoneda(contrato.getMonedaCredito()).getId());
+		    
+		    proposal.setInitialAmount(new InitialAmount());
+		    proposal.getInitialAmount().setAmount(contrato.getImportePrestamo().intValue());
+		    proposal.getInitialAmount().setCurrency(determinarMoneda(contrato.getMonedaCredito()).getId());
+		    
+		    proposal.setBillingDay(contrato.getAdddiaFacturacion());//TODO REVISAR
+		    proposal.setPaymentDay(contrato.getDiaPago());
+		    
+		    proposal.setDelivery(new Delivery());
+		    proposal.getDelivery().setType(new Type());
+		    proposal.getDelivery().getType().setId(determinarTipoEnvio(contrato.getCodTipoEnvio()).getId());
+		    proposal.getDelivery().setEmail(contrato.getClienteBean().getCorreoCliente());
+		    
+		    proposal.setOperation(new Operation());
+		    proposal.getOperation().setId(contrato.getNumeroContrato());
+		    proposal.getOperation().setOperationType(new OperationType());
+		    proposal.getOperation().getOperationType().setId("ALTA"); //TODO CAMBIAR
+		    
+		    proposal.setExternalProduct(new ExternalProduct());
+		    proposal.getExternalProduct().setId(contrato.getTelefonoFinanciado());
+		    proposal.getExternalProduct().setCommercialValue(new CommercialValue());
+		    proposal.getExternalProduct().getCommercialValue().setAmount(contrato.getValorEquipo().intValue()); //setAmount(contrato.getValorEquipo());
+		    proposal.getExternalProduct().getCommercialValue().setCurrency(determinarMoneda(contrato.getMonedaCredito()).getId());// TODO : REVISAR
+		    
+		    proposal.setThirdPartyProvider(new ThirdPartyProvider());
+		    proposal.getThirdPartyProvider().setId(contrato.getProveedorTercero());
+		    proposal.getThirdPartyProvider().setExternalSalesChannel(new ExternalSalesChannel());
+		    proposal.getThirdPartyProvider().getExternalSalesChannel().setId(contrato.getCanal());
+		    
+		    proposal.setBranch(new Branch());
+		    proposal.getBranch().setId("0130");
 			    
-			    proposal.setCurrency(determinarMoneda(contrato.getMonedaCredito()).getId());
-			    
-			    proposal.setInitialAmount(new InitialAmount());
-			    proposal.getInitialAmount().setAmount(contrato.getImportePrestamo().intValue());
-			    proposal.getInitialAmount().setCurrency(determinarMoneda(contrato.getMonedaCredito()).getId());
-			    
-			    proposal.setBillingDay(contrato.getAdddiaFacturacion());//TODO REVISAR
-			    proposal.setPaymentDay(contrato.getDiaPago());
-			    
-			    proposal.setDelivery(new Delivery());
-			    proposal.getDelivery().setType(new Type());
-			    proposal.getDelivery().getType().setId(determinarTipoEnvio(contrato.getCodTipoEnvio()).getId());
-			    proposal.getDelivery().setEmail(contrato.getClienteBean().getCorreoCliente());
-			    
-			    proposal.setOperation(new Operation());
-			    proposal.getOperation().setId(contrato.getNumeroContrato());
-			    proposal.getOperation().setOperationType(new OperationType());
-			    proposal.getOperation().getOperationType().setId("ALTA"); //TODO CAMBIAR
-			    
-			    proposal.setExternalProduct(new ExternalProduct());
-			    proposal.getExternalProduct().setId(contrato.getTelefonoFinanciado());
-			    proposal.getExternalProduct().setCommercialValue(new CommercialValue());
-			    proposal.getExternalProduct().getCommercialValue().setAmount(contrato.getValorEquipo().intValue()); //setAmount(contrato.getValorEquipo());
-			    proposal.getExternalProduct().getCommercialValue().setCurrency(determinarMoneda(contrato.getMonedaCredito()).getId());// TODO : REVISAR
-			    
-			    proposal.setThirdPartyProvider(new ThirdPartyProvider());
-			    proposal.getThirdPartyProvider().setId(contrato.getProveedorTercero());
-			    proposal.getThirdPartyProvider().setExternalSalesChannel(new ExternalSalesChannel());
-			    proposal.getThirdPartyProvider().getExternalSalesChannel().setId(contrato.getCanal());
-			    
-			    proposal.setBranch(new Branch());
-			    proposal.getBranch().setId("0130");
-			    
-			    
-			
 		return proposal;
 	}
 	
