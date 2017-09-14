@@ -7,6 +7,7 @@ public class UbicacionDireccionBean {
 	private String nbPais;
 	private List<DireccionDetalleclienteBean> lstDetalleDireccion;
 	private String dsReferencia;
+	private String dsUbigeo;
 	private String dsDireccionCompleta;
 	
 	public String getNbPais() {
@@ -32,6 +33,12 @@ public class UbicacionDireccionBean {
 	}
 	public void setDsDireccionCompleta(String dsDireccionCompleta) {
 		this.dsDireccionCompleta = dsDireccionCompleta;
+	}
+	public String getDsUbigeo() {
+		return dsUbigeo;
+	}
+	public void setDsUbigeo(String dsUbigeo) {
+		this.dsUbigeo = dsUbigeo;
 	}
 	
 	

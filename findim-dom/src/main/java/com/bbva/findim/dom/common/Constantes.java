@@ -408,4 +408,39 @@ public class Constantes {
 	public static final int CD_DETALLE_4 = 4;
 	public static final int CD_DETALLE_5 = 5;
 	public static final int CD_DETALLE_6 = 6;
+	
+	//*************************************************************************************************************//
+	//
+	//*************************************************************************************************************//
+	
+	
+	public enum Genero {
+		M("0"),
+		F("1");
+	    private String genero;
+	    Genero(String genero) {
+	        this.genero = genero;
+	    }	    
+	    public String getGenero() {
+	        return genero;
+	    }
+	}
+
+	public enum EstadoCivil {
+		S(1),
+		C(2),
+		V(3),
+		D(4),
+		F(1),
+		U(1),
+		X(1);
+	    private Integer estadoCivil;
+	    EstadoCivil(Integer estadoCivil) {
+	        this.estadoCivil = estadoCivil;
+	    }	    
+	    public Integer getEstadoCivil() {
+	        return estadoCivil;
+	    }
+	}
+	
 }

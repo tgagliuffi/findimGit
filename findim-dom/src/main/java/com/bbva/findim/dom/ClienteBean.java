@@ -102,8 +102,7 @@ public class ClienteBean {
 	private String tituloCliente;
 
 	private SimulacionBean simulacionBean;
-	
-	private String rptErrorService;
+	private RespuestaService repuestaService;
 	private DireccionClienteBean direccionCliente;
 	
 	public SimulacionBean getSimulacionBean() {
@@ -773,12 +772,12 @@ public class ClienteBean {
 		this.codPaisOrigen = codPaisOrigen;
 	}
 
-	public String getRptErrorService() {
-		return rptErrorService;
+	public RespuestaService getRepuestaService() {
+		return repuestaService;
 	}
 
-	public void setRptErrorService(String rptErrorService) {
-		this.rptErrorService = rptErrorService;
+	public void setRepuestaService(RespuestaService repuestaService) {
+		this.repuestaService = repuestaService;
 	}
 
 	public DireccionClienteBean getDireccionCliente() {

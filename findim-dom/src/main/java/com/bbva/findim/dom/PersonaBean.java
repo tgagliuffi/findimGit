@@ -29,11 +29,14 @@ public class PersonaBean  {
 	private String numeroDocumento;
 	private String tipoDocumento;
 	private List<DireccionBean> lstDirecciones;
-	private String rptErrorService;
-	private String errorCode;
+	
+	private String fhNacimiento;
 
 	private String oficinaAsignada;
-
+	private String dsDireccionAndocs;
+	private String dsUbigeoComplet;
+	private RespuestaService respuestaService;
+	
 	public PersonaBean() {
 	}
 
@@ -198,23 +201,37 @@ public class PersonaBean  {
 		this.lstDirecciones = lstDirecciones;
 	}
 
-	public String getRptErrorService() {
-		return rptErrorService;
+	public String getDsDireccionAndocs() {
+		return dsDireccionAndocs;
 	}
 
-	public void setRptErrorService(String rptErrorService) {
-		this.rptErrorService = rptErrorService;
+	public void setDsDireccionAndocs(String dsDireccionAndocs) {
+		this.dsDireccionAndocs = dsDireccionAndocs;
 	}
 
-	public String getErrorCode() {
-		return errorCode;
+	public String getDsUbigeoComplet() {
+		return dsUbigeoComplet;
 	}
 
-	public void setErrorCode(String errorCode) {
-		this.errorCode = errorCode;
+	public void setDsUbigeoComplet(String dsUbigeoComplet) {
+		this.dsUbigeoComplet = dsUbigeoComplet;
 	}
 
-	
+	public RespuestaService getRespuestaService() {
+		return respuestaService;
+	}
+
+	public void setRespuestaService(RespuestaService respuestaService) {
+		this.respuestaService = respuestaService;
+	}
+
+	public String getFhNacimiento() {
+		return fhNacimiento;
+	}
+
+	public void setFhNacimiento(String fhNacimiento) {
+		this.fhNacimiento = fhNacimiento;
+	}
 	
 	
 }
