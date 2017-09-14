@@ -108,38 +108,11 @@
 		        						<input id="completar_info_direccion" type="text" 
 		        						name="completar_info_direccion" aria-describedby="completar_info_direccion" 
 		        						readonly="" class="form-control" >
-		        						
-		        						
 									</div>
 								</div>
 							</div>
-							<div class="row form-inline" id="div_direccion_via">
-								<div class="col-md-5">
-									<h6>Indicador</h6>
-									<select id="completar_info_indicador"
-										name="completar_info_indicador" required 
-										class="form-control form-warning" style="width: 100%">
-										<option disabled selected value>-- Elegir una opción --</option>
-									</select>
-									
-								</div>	
-								<div class="col-md-7" >
-									<h6>Nombre (Jr. Av. Calle.)</h6>
-										<input type="text" id="completar_info_dir_nom"
-										name="completar_info_dir_nom" required
-										class="form-control"  style="width: 100%"
-										maxlength="100" >
-								</div>	
-						</div>
-						<div class="row form-inline" id="div_direccion_ref">
-							<div class="col-md-2">
-									<h6>Num. Ext</h6>
-									<input type="text" id="completar_info_dir_num"
-										name="completar_info_dir_num" required
-										class="form-control" style="width: 100%"
-										maxlength="10" >
-							</div>	
-							<div class="col-md-10" >
+							<div class="row form-inline" id="div_direccion_ref">
+							<div class="col-md-12" >
 									<h6>Referencia</h6>
 										<input type="text" id="completar_info_dir_ref"
 										name="completar_info_dir_ref" required

@@ -213,7 +213,6 @@ function obtenerResultado(data, callbackResultado) {
 }
 
 function callbackResultadoBiometriaFiltro(response) {
-	debugger;
 	console.log('callbackResultadoBiometriaFiltro');
 	console.log(response);
 	if (response.resultado == 'R') {

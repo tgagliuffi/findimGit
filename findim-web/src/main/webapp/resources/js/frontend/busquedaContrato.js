@@ -74,7 +74,7 @@ function actualizarContenidos(){
 
         datosCliente.text(objetoContenedor.nombreCompleto);
         tablaContenidoBody.children().remove();
-        debugger;    
+ 
         for(var i = 0; i < totalArrayTabla ; i++) {
             var btnHolderContrato = "",
             	destinoModal ="",
@@ -453,9 +453,9 @@ var contratosCompletarInfoForm = $("#form-completar-informacion"),
   completarInfoModalidad= $("#completar_info_modalidad"),
   alertaPDF = $("#alert_contratos_resultado"),
   completarInfoDireccion= $("#completar_info_direccion"),
-  completarInfoIndicador= $("#completar_info_indicador"),
-  completarInfoDirNom= $("#completar_info_dir_nom"),
-  completarInfoDirNum= $("#completar_info_dir_num"),  
+//  completarInfoIndicador= $("#completar_info_indicador"),
+//  completarInfoDirNom= $("#completar_info_dir_nom"),
+//  completarInfoDirNum= $("#completar_info_dir_num"),  
   conteoUpdate = 0;
 
 contratosCompletarInfoForm.validate({
@@ -519,7 +519,7 @@ function actualizarModalContratos(i){
 		$('#modalInformacionCerrar').attr('disabled', false);
 		$('#completar_info_profesion').attr('disabled', true);
 		$('#div_direccion_ref').hide();
-		$('#div_direccion_via').hide();
+//		$('#div_direccion_via').hide();
 //	  $('#completar_info_cargo').prop('readonly', true);
 	  
 	  $('#completar_info_empresa').attr('disabled', true);

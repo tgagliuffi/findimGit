@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,24 +47,24 @@ import com.bbva.findim.bck.service.ProposalService;
 import com.bbva.findim.bck.service.SeguridadBbvaService;
 import com.bbva.findim.bck.service.TariffService;
 import com.bbva.findim.dom.CabeceraBean;
-import com.bbva.findim.dom.ClienteBean;
-import com.bbva.findim.dom.ContratoBean;
-import com.bbva.findim.dom.DatosReniecBean;
-import com.bbva.findim.dom.LogContratoBean;
-import com.bbva.findim.dom.ParametroBean;
-import com.bbva.findim.dom.SimulacionBean;
-import com.bbva.findim.dom.TarifaBean;
-import com.bbva.findim.web.common.Constantes;
-import com.bbva.findim.dom.util.ConvertUtil;
-import com.bbva.findim.dom.util.PropertyUtil;
 import com.bbva.findim.dom.CalificacionClienteBean;
 import com.bbva.findim.dom.CatalogoBean;
+import com.bbva.findim.dom.ClienteBean;
+import com.bbva.findim.dom.ContratoBean;
 import com.bbva.findim.dom.DatosLaboralesBean;
-import com.bbva.findim.dom.DireccionBean;
+import com.bbva.findim.dom.DatosReniecBean;
+import com.bbva.findim.dom.DireccionClienteBean;
 import com.bbva.findim.dom.DocumentoIdentidadBean;
 import com.bbva.findim.dom.EmpresaBean;
-import com.bbva.findim.dom.GrupoGeografico;
+import com.bbva.findim.dom.LogContratoBean;
+import com.bbva.findim.dom.ParametroBean;
 import com.bbva.findim.dom.PersonaBean;
+import com.bbva.findim.dom.SimulacionBean;
+import com.bbva.findim.dom.TarifaBean;
+import com.bbva.findim.dom.UbicacionDireccionBean;
+import com.bbva.findim.dom.util.ConvertUtil;
+import com.bbva.findim.dom.util.PropertyUtil;
+import com.bbva.findim.web.common.Constantes;
 import com.bbva.findim.web.service.ContratoRestService;
 import com.google.gson.Gson;
 
@@ -102,7 +101,7 @@ public class Inicio {
 
 	@Autowired
 	private TariffService tariffService;
-
+	
 
 	private static List<String> codigos = null;
 	List<ParametroBean> listaDireccionesOracle = null;
@@ -264,9 +263,8 @@ public class Inicio {
 		RestTemplate restTemplate = new RestTemplate();
 		String uriServicio = prop.getString("sistema.uriservicio").toString();
 		final String uriReniec = uriServicio + "obtenerDatoReniec/" + clienteBean.getNumeroDocumento();
+		final String uriGetAdressFormatHost = uriServicio + "obtenerDireccionHost/";
 		String gsonString = null;
-
-		String rptaAltaCliente = null;
 		int rptaUpdatePropuesta = 0;
 
 		try {
@@ -278,22 +276,14 @@ public class Inicio {
 				if (!clienteBean.isEsCliente()) {// FLUJO NO CLIENTE
 					clienteBean.setDatosLaboralesBean((new DatosLaboralesBean()));
 					clienteBean.getDatosLaboralesBean().setIdOcupacion((contratoBean.getIdTipoOcupacion()));
+					
 					datosNoClienteReniec = restTemplate.getForObject(uriReniec, DatosReniecBean.class);
-					if (datosNoClienteReniec == null) {
-						// TODO PENDIENTE LLAMADA A RENIEC(SOLO EN CASO ESPECIAL
-						// QUE EL NO CLIENTE YA EXISITIA
-						datosNoClienteReniec = new DatosReniecBean();
-						datosNoClienteReniec.setDireccionAmdocs(datosNoClienteReniec.getDireccionAmdocs());
-						SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-						String stringFechaConHora = "2020-09-15";
-						Date fechaConHora = sdf.parse(stringFechaConHora);
-						datosNoClienteReniec.setFechaCaducidad(fechaConHora);
-						datosNoClienteReniec.setNumeroDni(clienteBean.getNumeroDocumento());
-					}
-					clienteBean = completarDatosCliente(clienteBean, datosNoClienteReniec);
-					rptaAltaCliente = customerService.altaCliente(seguridad.generarTSec(3), clienteBean, null);
+					String newAdressHost = restTemplate.getForObject(uriGetAdressFormatHost+datosNoClienteReniec.getNumeroDni(), String.class);
+					clienteBean.setDireccion(newAdressHost);
+					clienteBean = mapperPersonForClient(clienteBean, null, datosNoClienteReniec, "PER");
+					clienteBean = customerService.altaCliente(seguridad.generarTSec(3), clienteBean, null);
 
-					if (rptaAltaCliente.equals("[OK. ALTA EFECTUADA]")) {
+					if (clienteBean.getRepuestaService().getExitoDescription()!=null) {
 						ContratoBean contratoUpdate = new ContratoBean();
 						contratoUpdate.setCodigoContrato(contratoBean.getCodigoContrato());
 						contratoUpdate.setTipoEnvio(contratoBean.getNombreEnvio());
@@ -306,11 +296,10 @@ public class Inicio {
 									contratoUpdate);
 							clienteBean = clienteBeanPDF;
 						}
-
-						//TODO REVISAR ESTO
+						
 						String userType = (String) session.getAttribute("seguridad_usertype");
 						String seguridadUser = (String) session.getAttribute("seguridad_user");
-//						clienteBean.setRutaServicioRest(rutaServicioRest);
+						clienteBean.setRutaServicioRest("");//lienteBean.setRutaServicioRest(rutaServicioRest);
 						clienteBean.setSeguridad_usertype(userType);
 						clienteBean.setSeguridad_user(seguridadUser);
 						
@@ -324,11 +313,9 @@ public class Inicio {
 								session.setAttribute("clienteSession", clienteBean);
 							}
 						}
-
 					} else {
-						
+						//Error al grabar cliente
 					}
-
 				} else {// FLUJO CLIENTE
 					ContratoBean contratoUpdate = new ContratoBean();
 					contratoUpdate.setCodigoContrato(contratoBean.getCodigoContrato());
@@ -388,13 +375,8 @@ public class Inicio {
 			cronograma.setListaTarifa(listaTarifa);
 			clienteBean.setSimulacionBean(cronograma);
 			clienteBean.setIdContrato(contratoBean.getCodigoContrato());
-			// ite : Cambiar nombre generarPfd //validar generacion de contratos
-			// y condicionar el flujo
-			// TODO ppazos: se esta cayendo en este metodo por eso no esta
-			// refrescando la lista de contratos
 			String rutaServicioRest = prop.getString("sistema.uriservicio");
 			clienteBean.setRutaServicioRest(rutaServicioRest);
-
 			response = contratoRestService.generarPDF(clienteBean);
 		} catch (Exception e) {
 			response = null;
@@ -410,17 +392,29 @@ public class Inicio {
 			@RequestParam(value = "tipoDocumento", required = false) String tipoDocumento,
 			@RequestParam(value = "numeroDocumento", required = false) String numeroDocumento,
 			HttpServletRequest request, HttpServletResponse response) {
-
+		
+		HttpSession session = request.getSession();
+		
+		String seguridad_data	   = (String) session.getAttribute("seguridad_data");	   
+		String seguridad_user      = (String) session.getAttribute("seguridad_user");     
+		String seguridad_usertype  = (String) session.getAttribute("seguridad_usertype"); 
+		String seguridad_channel   = (String) session.getAttribute("seguridad_channel");  
+		String seguridad_message   = (String) session.getAttribute("seguridad_message");  
+		String seguridad_status    = (String) session.getAttribute("seguridad_status");  
 		
 		String gsonString = null;
 		EmpresaBean empresa = null;
-		ClienteBean customerEnvio = null;
+		ClienteBean clienteAltaBean = null;
 		List<ContratoBean> lista = null;
 		String msgErrorFront = null;
+		
+		RestTemplate restTemplate = new RestTemplate();
+		String uriServicio = prop.getString("sistema.uriservicio").toString();
+		
 		try {
 			empresa = (EmpresaBean) request.getSession().getAttribute("empresa");
 			if (empresa != null) {
-				customerEnvio = new ClienteBean();
+				clienteAltaBean = new ClienteBean();
 				lista = new ArrayList<>();
 				String tipoDoc = "DNI";
 				String tipoDocws = "L";
@@ -428,150 +422,131 @@ public class Inicio {
 				lista = proposalService.listarPropuesta(seguridad.generarTSec(3), empresa.getIndenticador(),empresa.getCdEmpresa(), tipoDoc, numeroDocumento, empresa.getFechaExpiracion());
 					
 				if(lista!=null && lista.size()>0){
-								customerEnvio = customerService.obtenerDatosCliente(seguridad.generarTSec(3), tipoDoc,numeroDocumento);// OBTENEMOS LA INFORMACION DEL CLIENTE
-					if(customerEnvio.getRptErrorService()!=null && customerEnvio.getRptErrorService().indexOf("CLIENTE NO EXISTE")>0){//NO EXISTE EL CLIENTE
+					clienteAltaBean = customerService.obtenerDatosCliente(seguridad.generarTSec(3), tipoDoc,numeroDocumento);// OBTENEMOS LA INFORMACION DEL CLIENTE
+					
+					/*----------Seguridad INI-----------------------------------------------------------*/
+					clienteAltaBean.setSeguridad_data(seguridad_data);    
+					clienteAltaBean.setSeguridad_user(seguridad_user);
+					clienteAltaBean.setSeguridad_usertype(seguridad_usertype);
+					clienteAltaBean.setSeguridad_channel(seguridad_channel);
+					clienteAltaBean.setSeguridad_message(seguridad_message);
+					clienteAltaBean.setSeguridad_status(seguridad_status);
+					  
+					/*----------Seguridad FIN-----------------------------------------------------------*/
+					 
+					if(clienteAltaBean.getRepuestaService().getErrorCode()!=null && clienteAltaBean.getRepuestaService().getErrorDescription().indexOf("PERSONA INEXISTENTE")>0){//NO EXISTE EL CLIENTE
 						PersonaBean persona = null;
 						persona = personService.buscarNoCliente(tipoDocws, numeroDocumento, "2",seguridad.generarTSec(3));// OBTENIENDO INFORMACION DEL NO CLIENTE
-						if (persona.getRptErrorService() == null) {
-							customerEnvio = mapperCustomerPersona(customerEnvio,persona);
-						} else {//PERCY : SALIMOS PORQUE ES UN ERROR - MOSTRAR MENSAJE
-							customerEnvio.setTipoRespuesta(1);
-							msgErrorFront = "Sucedio un error.";
-						}
+								if (persona.getRespuestaService() == null) {//se encontro persona
+									final String uriReniec = uriServicio + "obtenerDatoReniec/" + numeroDocumento;
+									DatosReniecBean datosNoClienteReniec = restTemplate.getForObject(uriReniec, DatosReniecBean.class);
+									persona.setDsDireccionAndocs(datosNoClienteReniec!=null?datosNoClienteReniec.getDireccionAmdocs():null);
+									persona.setCaducidad(datosNoClienteReniec!=null?datosNoClienteReniec.getFechaCaducidad():null);
+									clienteAltaBean = mapperPersonForClient(clienteAltaBean,persona, null, "PER");
+								} else {
+									clienteAltaBean.setTipoRespuesta(1);
+									msgErrorFront = "Sucedio un error.";
+								}
 					}else{
-						customerEnvio.setEsCliente(true);
-						customerEnvio.setNumeroDocumento(numeroDocumento);
-						customerEnvio.setTipoDocumento(tipoDocumento);
-						customerEnvio.setNombreCompleto((customerEnvio.getPrimerNombre() != null ? customerEnvio.getPrimerNombre() : "")
-										+ " " + (customerEnvio.getSegundoNombre() != null ? customerEnvio.getSegundoNombre() : "")
-										+ " " + customerEnvio.getApellidoPaterno() + " " + customerEnvio.getApellidoMaterno());
-						customerEnvio = cargaInicialClienteBean(customerEnvio);
-						customerEnvio.setDireccion(customerEnvio.getDireccionCliente().getUbicacion().getDsDireccionCompleta());
-						//TODO VALIDAR MENSAJE DE ERROR EN EL CATCH
-						customerEnvio.setCargo(obtenerCargo(customerEnvio.getIdTipoOcupacion(), customerEnvio.getListaCatalogo()));
-						customerEnvio.setTipoRespuesta(1);
+						clienteAltaBean.setEsCliente(true);
+						clienteAltaBean.setNumeroDocumento(numeroDocumento);
+						clienteAltaBean.setTipoDocumento(tipoDocumento);
+						clienteAltaBean.setNombreCompleto((clienteAltaBean.getPrimerNombre() != null ? clienteAltaBean.getPrimerNombre() : "")	+ " " + (clienteAltaBean.getSegundoNombre() != null ? clienteAltaBean.getSegundoNombre() : "")	+ " " + clienteAltaBean.getApellidoPaterno() + " " + clienteAltaBean.getApellidoMaterno());
+						clienteAltaBean = cargaInicialClienteBean(clienteAltaBean);
+						clienteAltaBean.setDireccion(clienteAltaBean.getDireccionCliente().getUbicacion().getDsDireccionCompleta());
+						clienteAltaBean.setCargo(obtenerCargo(clienteAltaBean.getIdTipoOcupacion(), clienteAltaBean.getListaCatalogo()));
+						clienteAltaBean.setTipoRespuesta(1);
 					}
 					
 					if (msgErrorFront==null && lista.size() > 0) {
-						customerEnvio.setTipoDocumento(tipoDocumento);
-						customerEnvio.setListaContrato(lista);
+						clienteAltaBean.setNumeroDocumento(numeroDocumento);
+						clienteAltaBean.setTipoDocumento(tipoDocumento);
+						clienteAltaBean.setListaContrato(lista);
 					}
 				}else{
-					customerEnvio.setTipoRespuesta(1);
-					customerEnvio.setTipoError(2);
+					clienteAltaBean.setTipoRespuesta(1);
+					clienteAltaBean.setTipoError(2);
 				}
-
-				request.getSession().setAttribute("clienteSession", customerEnvio);
+				clienteAltaBean.setTipoRespuesta(1);
+				request.getSession().setAttribute("clienteSession", clienteAltaBean);
 				Gson gson = new Gson();
-				gsonString = gson.toJson(customerEnvio);
+				gsonString = gson.toJson(clienteAltaBean);
 			}
 
-			logger.debug("busquedaContrato===========>:" + customerEnvio);
+			logger.debug("busquedaContrato===========>:" + clienteAltaBean);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			request.getSession().setAttribute("clienteSession", customerEnvio);
+			request.getSession().setAttribute("clienteSession", clienteAltaBean);
 			Gson gson = new Gson();
-			gsonString = gson.toJson(customerEnvio);
+			gsonString = gson.toJson(clienteAltaBean);
 			return gsonString;
 		}
 		return gsonString;
 	}
-
-	private ClienteBean mapperCustomerPersona(ClienteBean customerEnvio, PersonaBean persona) {
-		// TODO Auto-generated method stub
-		customerEnvio.setEsCliente(false);
-		customerEnvio = cargaInicialClienteBean(customerEnvio);
-		customerEnvio.setCargo(obtenerCargo(customerEnvio.getIdTipoOcupacion(), customerEnvio.getListaCatalogo()));
-
 	
-		customerEnvio.setTipoRespuesta(1);
-		customerEnvio.setPrimerNombre(persona.getNombres());
-		customerEnvio.setApellidoPaterno(persona.getPaterno());
-		customerEnvio.setApellidoMaterno(persona.getMaterno());
-		customerEnvio.setFechaNacimiento(persona.getNacimiento());
+	private ClienteBean mapperPersonForClient(ClienteBean clienteAltaBean, PersonaBean persona, DatosReniecBean clienteReniec, String cdPais) {
+		// TODO Auto-generated method stub
+		clienteAltaBean.setEsCliente(false);
+		clienteAltaBean = cargaInicialClienteBean(clienteAltaBean);
+		clienteAltaBean.setCargo(obtenerCargo(clienteAltaBean.getIdTipoOcupacion(), clienteAltaBean.getListaCatalogo()));
 
-		DocumentoIdentidadBean documentoIdentidadBean = new DocumentoIdentidadBean();
-		/* PER */documentoIdentidadBean
-				.setPais(persona.getLstDirecciones().get(0).getIdCountry());// VALIDAR
-		// documentoIdentidadBean.setFechaExpiracion((java.sql.Date)
-		// persona.getCaducidad());//validar PER
-		customerEnvio.setLstDocumentoIdentidadBean(new ArrayList<DocumentoIdentidadBean>());
-		customerEnvio.getLstDocumentoIdentidadBean().add(documentoIdentidadBean);
-
-		// pendiente
-		List<String> nacionalidades = new ArrayList<>();
-		nacionalidades.add("PER");// se setea al otro  lado
-		customerEnvio.setNacionalidades(nacionalidades);
-
-		// DATOS DIRECCION
-		DireccionBean direccionBean = new DireccionBean();
-		direccionBean.setDsDireccion(persona.getLstDirecciones().get(0).getDsDireccion());
-		direccionBean.setIdCountry("PER");
-		direccionBean.setIdTipoDireccion("LEGAL");// pendiente
-		direccionBean.setIdTipoPropiedad("OWNER");// pendiente
-
-		List<GrupoGeografico> grupoGeograficoLst = new ArrayList<>();
-		GrupoGeografico grupoGeografico = new GrupoGeografico();
-		grupoGeografico.setId("DEPARTMENT");
-		grupoGeografico.setCode(
-				persona.getLstDirecciones().get(0).getLstGrupoGeografico().get(0).getCode());
-		grupoGeograficoLst.add(grupoGeografico);
-
-		GrupoGeografico grupoGeografico2 = new GrupoGeografico();
-		grupoGeografico2.setId("PROVINCE");
-		grupoGeografico2.setCode(
-				persona.getLstDirecciones().get(0).getLstGrupoGeografico().get(1).getCode());
-		grupoGeograficoLst.add(grupoGeografico2);
-
-		GrupoGeografico grupoGeografico3 = new GrupoGeografico();
-		grupoGeografico3.setId("DISTRICT");
-		grupoGeografico3.setCode(
-				persona.getLstDirecciones().get(0).getLstGrupoGeografico().get(2).getCode());
-		grupoGeograficoLst.add(grupoGeografico3);
-
-		// <--PENDIENTE RENIEC
-		// GrupoGeografico grupoGeografico4= new
-		// GrupoGeografico();
-		// grupoGeografico4.setId("URBANIZATION");
-		// grupoGeografico4.setNombre("Corpac");
-		// grupoGeograficoLst.add(grupoGeografico4);
-		// PENDIENTE RENIEC -->
-
-		/*
-		 * ESTO SE LLENA CON LA DATA DE LA WEB
-		 * GrupoGeografico grupoGeografico5= new
-		 * GrupoGeografico();
-		 * grupoGeografico5.setId("DESCENT");
-		 * grupoGeografico5.
-		 * setNombre("República de Ecuador");
-		 * grupoGeograficoLst.add(grupoGeografico5);
-		 * 
-		 * GrupoGeografico grupoGeografico6= new
-		 * GrupoGeografico();
-		 * grupoGeografico6.setId("EXTERIOR_NUMBER");
-		 * grupoGeografico6.setNombre("1234");
-		 * grupoGeograficoLst.add(grupoGeografico6);
-		 */
-		//
-		direccionBean.setLstGrupoGeografico(grupoGeograficoLst);
-
-		List<DireccionBean> lstDireccionBean = new ArrayList<>();
-		lstDireccionBean.add(direccionBean);
-		customerEnvio.setLstDireccionBean(lstDireccionBean);
-		customerEnvio.setGenero("0");// 0persona.getCodigoSexo()
-		customerEnvio.setEstadoCivil(1);// persona.getEstadoCivil();persona.getCodigoEstadoCivil()
-
-		customerEnvio.setDireccion("");//TODO 
-		customerEnvio
-				.setNombreCompleto((persona.getNombres() != null ? persona.getNombres() : "")
-						+ " " + persona.getPaterno() + " " + persona.getMaterno());
-		customerEnvio.setTipoRespuesta(1);
+		if(persona!=null) {
+			clienteAltaBean.setPrimerNombre(persona.getNombres());
+			clienteAltaBean.setApellidoPaterno(persona.getPaterno());
+			clienteAltaBean.setApellidoMaterno(persona.getMaterno());
+			clienteAltaBean.setNombreCompleto(persona.getNombres() + " " + persona.getPaterno() + " " + persona.getMaterno());
+			clienteAltaBean.setFechaNacimiento(persona.getNacimiento());
+			
+			clienteAltaBean.setGenero(persona.getCodigoSexo().equals(Constantes.Genero.M.toString())?Constantes.Genero.M.getGenero():Constantes.Genero.F.getGenero());// 
+			
+			if(persona.getEstadoCivil().equals(Constantes.EstadoCivil.S.name()))
+				clienteAltaBean.setEstadoCivil(Constantes.EstadoCivil.S.getEstadoCivil());
+			else if (persona.getEstadoCivil().equals(Constantes.EstadoCivil.C.name()))
+				clienteAltaBean.setEstadoCivil(Constantes.EstadoCivil.C.getEstadoCivil());
+			else if  (persona.getEstadoCivil().equals(Constantes.EstadoCivil.D.name()))
+				clienteAltaBean.setEstadoCivil(Constantes.EstadoCivil.D.getEstadoCivil());
+			else if  (persona.getEstadoCivil().equals(Constantes.EstadoCivil.V.name()))
+				clienteAltaBean.setEstadoCivil(Constantes.EstadoCivil.V.getEstadoCivil());
+			else 
+				clienteAltaBean.setEstadoCivil(Constantes.EstadoCivil.S.getEstadoCivil());
+			
+			if(persona.getDsDireccionAndocs()!=null) {
+				clienteAltaBean.setDireccionCliente(new DireccionClienteBean());
+				clienteAltaBean.getDireccionCliente().setStrDireccionInputTlf(persona.getDsDireccionAndocs());
+				clienteAltaBean.getDireccionCliente().setUbicacion(new UbicacionDireccionBean());
+				clienteAltaBean.getDireccionCliente().getUbicacion().setDsUbigeo(persona.getDsUbigeoComplet());
+				clienteAltaBean.getDireccionCliente().getUbicacion().setNbPais(cdPais);
+				clienteAltaBean.setDireccion(persona.getDsDireccionAndocs().replace("(|)", " "));
+			}
+			
+			clienteAltaBean.setLstDocumentoIdentidadBean(new ArrayList<DocumentoIdentidadBean>());
+			clienteAltaBean.getLstDocumentoIdentidadBean().add(new DocumentoIdentidadBean());
+			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setPais(cdPais);
+			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setNroDocumento(persona.getNumeroDocumento());
+			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setTipoDocumentoIdentidad(persona.getTipoDocumento());
+			
+			clienteAltaBean.setNacionalidades(new ArrayList<>());
+			clienteAltaBean.getNacionalidades().add(cdPais);
+		}else {
 		
-		return customerEnvio;
+			clienteAltaBean.getDireccionCliente().setStrDireccionInputTlf(clienteAltaBean.getDireccion());
+			clienteAltaBean.getDireccionCliente().getUbicacion().setNbPais(cdPais);
+			
+			clienteAltaBean.setLstDocumentoIdentidadBean(new ArrayList<DocumentoIdentidadBean>());
+			clienteAltaBean.getLstDocumentoIdentidadBean().add(new DocumentoIdentidadBean());
+			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setPais(cdPais);
+			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setNroDocumento(clienteAltaBean.getNumeroDocumento());
+			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setTipoDocumentoIdentidad(clienteAltaBean.getTipoDocumento());
+			clienteAltaBean.setNacionalidades(new ArrayList<>());
+			clienteAltaBean.getNacionalidades().add(cdPais);
+		}
+
+		
+
+		return clienteAltaBean;
 	}
 
 	private String obtenerCargo(String idTipoOcupacion, List<CatalogoBean> catalogoOficios2) {
-		// TODO Auto-generated method stub
 		String cargo = "";
 		for (CatalogoBean catalogoBean : catalogoOficios2) {
 			if (catalogoBean.getIdCatalogo().equals(idTipoOcupacion)) {
@@ -580,10 +555,6 @@ public class Inicio {
 			}
 		}
 		return cargo;
-	}
-
-	public ClienteBean cargarInforacionCliente(PersonaBean persona) {
-		return null;
 	}
 
 	@RequestMapping(value = "/tarifa", method = RequestMethod.GET)
@@ -616,16 +587,13 @@ public class Inicio {
 
 	@RequestMapping(value = "/contrato/pdf/{filename}/view")
 	public void getPdfPath(@PathVariable("filename") String filename, HttpServletResponse response) throws IOException {
-		
 		String baseDirectory = "";
-		String uriServicio = prop.getString("sistema.uriservicio");
+//		String uriServicio = prop.getString("sistema.uriservicio");
 		if(filename.startsWith(com.bbva.findim.dom.common.Constantes.DOCUMENTO_ACE))
 			baseDirectory = prop.getString("sistema.ruta.generacion.contrato");
 		else
-			baseDirectory = prop.getString("sistema.ruta.contrato.consolidado");
-		
+			baseDirectory = prop.getString("sistema.ruta.contrato.consolidado");	
 		String path = baseDirectory + filename;
-
 		try (InputStream is = new FileInputStream(new File(path))) {
 			response.setContentType("application/pdf");
 			IOUtils.copy(is, response.getOutputStream());
@@ -724,52 +692,4 @@ public class Inicio {
 
 	}
 
-	public ClienteBean completarDatosCliente(ClienteBean clienteBean, DatosReniecBean datosNoClienteReniec) {
-
-		clienteBean.setFechaExpiracionDocumento(datosNoClienteReniec.getFechaCaducidad());
-		List<GrupoGeografico> gruposDireccion = obtenerDireccionAmdocsReniec(datosNoClienteReniec.getDireccionAmdocs());
-		;
-		if (gruposDireccion.size() > 0) {
-			for (GrupoGeografico grupoGeografico : gruposDireccion) {
-				clienteBean.getLstDireccionBean().get(0).getLstGrupoGeografico().add(grupoGeografico);
-			}
-		}
-		return clienteBean;
-	}
-
-	private List<GrupoGeografico> obtenerDireccionAmdocsReniec(String direccionAmdocs) {
-		List<GrupoGeografico> listaRespuesta = new ArrayList<>();
-		String[] direccionSeparada = direccionAmdocs.split(Pattern.quote("(|)"));
-
-		GrupoGeografico grupoGeografico1 = new GrupoGeografico();
-		grupoGeografico1.setId(obtenerTraduccionAmdocs(direccionSeparada[0]));
-		grupoGeografico1.setNombre(direccionSeparada[1]);
-		listaRespuesta.add(grupoGeografico1);
-
-		String[] numero = direccionSeparada[2].split(Pattern.quote("."));
-		GrupoGeografico grupoGeografico = new GrupoGeografico();
-		grupoGeografico.setId(obtenerTraduccionAmdocs(numero[0]));
-		grupoGeografico.setNombre(numero[1].trim());
-		listaRespuesta.add(grupoGeografico);
-
-		GrupoGeografico grupoGeografico2 = new GrupoGeografico();
-		grupoGeografico2.setId(obtenerTraduccionAmdocs(direccionSeparada[6]));
-		grupoGeografico2.setNombre(direccionSeparada[7]);
-		listaRespuesta.add(grupoGeografico2);
-
-		return listaRespuesta;
-	}
-
-	private String obtenerTraduccionAmdocs(String string) {
-		// TODO MEJORAR(CAMBIAR POR BD O ENUM)
-		String traduccion = "";
-		if (string.equals("AV")) {
-			traduccion = "AVENUE";
-		} else if (string.equals("Nro")) {
-			traduccion = "EXTERIOR_NUMBER";
-		} else if (string.equals("URB")) {
-			traduccion = "URBANIZATION";
-		}
-		return traduccion;
-	}
 }

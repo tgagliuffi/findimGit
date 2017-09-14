@@ -48,5 +48,36 @@ public class Constantes {
 	        return respuesta;
 	    }
 	}
+	
+	public enum Genero {
+		M("1"),
+		F("2");
+	    private String genero;
+	    Genero(String genero) {
+	        this.genero = genero;
+	    }	    
+	    public String getGenero() {
+	        return genero;
+	    }
+	}
+
+	public enum EstadoCivil {
+		S(1),
+		C(2),
+		V(3),
+		D(4),
+		F(1),
+		U(1),
+		X(1);
+	    private Integer estadoCivil;
+	    EstadoCivil(Integer estadoCivil) {
+	        this.estadoCivil = estadoCivil;
+	    }	    
+	    public Integer getEstadoCivil() {
+	        return estadoCivil;
+	    }
+	}
+
+
 
 }

@@ -1,10 +1,8 @@
 package com.bbva.findim.web.controller;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.regex.Pattern;
 
 import com.bbva.findim.bck.domain.customers.Address;
 import com.bbva.findim.bck.domain.customers.AddressType;
@@ -14,39 +12,55 @@ import com.bbva.findim.bck.domain.customers.GeographicGroupType;
 import com.bbva.findim.bck.domain.customers.Location;
 import com.bbva.findim.bck.domain.customers.OwnershipType;
 import com.bbva.findim.dom.ClienteBean;
-import com.bbva.findim.dom.DireccionBean;
 import com.bbva.findim.dom.DireccionClienteBean;
-import com.bbva.findim.dom.DireccionDetalleclienteBean;
 import com.bbva.findim.dom.UbicacionDireccionBean;
+import com.bbva.findim.web.common.Constantes;
 
 public class Test {
 
 	public static void main(String[] args) {
 
-		String idNoUrbano = "Mz.";
-		String  idUrbano  = "INT.";
-		String urbano = "AV(|)REPÚBLICA DE PANAMÁ(|)NRO. 3055(|)MZ. / LT. (|)PISO 3(|)DPTO. / INT. 204(|)URB(|)CORPAC(|)";
-		
-		String[] arreglo = urbano.split("(|)");
+		String  idUrbano  = "EXTERIOR_NUMBER.";
+		String urbano = "AVENUE(|)REPÚBLICA DE PANAMÁ(|)EXTERIOR_NUMBER. 3055(|)BLOCK. / LOT. (|)PISO 3(|)DPTO. 203/ INTERIOR_NUMBER. 204(|)URBANIZATION(|)CORPAC(|)";
+		String NOurbano = "AVENUE(|)REPÚBLICA DE PANAMÁ(|)(|)BLOCK. A / LOT. 18 (|)(|)(|)URBANIZATION(|)CORPAC(|)";
+
+		ClienteBean cliente = new ClienteBean();
 	    DireccionClienteBean direccionCliente;
-		if(esUrbano(urbano, idUrbano)){
-			direccionCliente = new DireccionClienteBean();
-			direccionCliente.setUbicacion(new UbicacionDireccionBean());
-			direccionCliente.getUbicacion().setLstDetalleDireccion(new ArrayList<DireccionDetalleclienteBean>());
-			DireccionDetalleclienteBean bean = new DireccionDetalleclienteBean();
-			direccionCliente.getUbicacion().getLstDetalleDireccion().add(bean);
+	    direccionCliente = new DireccionClienteBean();
+		direccionCliente.setIdTipoDireccion("000");
+		direccionCliente.setIdTipoPropiedad("HOME");
+		direccionCliente.setNbTipoPropiedad("HOGAR");
+		direccionCliente.setStrDireccionInputTlf(urbano);
+		direccionCliente.setUbicacion(new UbicacionDireccionBean());
+		direccionCliente.getUbicacion().setDsUbigeo("0101005");
+		direccionCliente.getUbicacion().setNbPais("PER");
+		cliente.setDireccionCliente(direccionCliente);
+		
+		if(esUrbano(direccionCliente.getStrDireccionInputTlf(), idUrbano)){
+			List<Address> lstAddress = setDireccionCliente(cliente, true);
+			System.out.println("Tamaño de lista Urbano : " + lstAddress.size());
 		}else{
-			
+			List<Address> lstAddress = setDireccionCliente(cliente, false);
+			System.out.println("Tamaño de lista NoUrbano: " + lstAddress.size());
 		}
+		
+		System.out.println("Salida : "  +
+				Constantes.EstadoCivil.S.name() + " VALUE : " + 
+				Constantes.EstadoCivil.S.getEstadoCivil()
+				);
+		
 		
 	}
 	
-	public static void prueba(ClienteBean cliente){
+	public static List<Address> setDireccionCliente(ClienteBean cliente, Boolean esUrbano){
 		String[] datosDireccion;
 		List<Address> lstAddress = null;
+		
 		if(cliente.getDireccionCliente()!=null){
 			if(cliente.getDireccionCliente().getStrDireccionInputTlf()!=null){
-				datosDireccion = cliente.getDireccionCliente().getStrDireccionInputTlf().split("(|)"); 
+				lstAddress = new ArrayList<>();
+			
+				datosDireccion = cliente.getDireccionCliente().getStrDireccionInputTlf().split(Pattern.quote("(|)"));
 				Address  addresses = new Address();
 				addresses.setAddressType(new AddressType());
 				addresses.getAddressType().setId(cliente.getDireccionCliente().getIdTipoDireccion());
@@ -58,74 +72,73 @@ public class Test {
 					addresses.getLocation().setCountry(new Country());
 					addresses.getLocation().getCountry().setId(cliente.getDireccionCliente().getUbicacion().getNbPais());
 					
-					// additionalInformation
 					if(cliente.getDireccionCliente().getUbicacion().getDsReferencia() !=null)
 						addresses.getLocation().setAdditionalInformation(cliente.getDireccionCliente().getUbicacion().getDsReferencia());
 
-					//Lista de Grupos Geograficos
-					if(datosDireccion.length>8){
+					if(datosDireccion.length==8){
+						addresses.getLocation().setGeographicGroups(new ArrayList<>());
+						GeographicGroup geographicGroup = null;
+						geographicGroup = new GeographicGroup();
+						geographicGroup.setGeographicGroupType(new GeographicGroupType());
+						geographicGroup.getGeographicGroupType().setId("UBIGEO");
+						geographicGroup.setCode(cliente.getDireccionCliente().getUbicacion().getDsUbigeo());
+						addresses.getLocation().getGeographicGroups().add(geographicGroup);
+						Boolean esCompuesto = false;
 						for (int i = 0; i < datosDireccion.length; i++) {
-							GeographicGroup geographicGroup = new GeographicGroup();
-							geographicGroup.setGeographicGroupType(new GeographicGroupType());
-//							geographicGroup.getGeographicGroupType().setId(determinarIndicadorDireccion(direccion.getLstGrupoGeografico().get(j).getId()));
-//							if(direccion.getLstGrupoGeografico().get(i).getNombre()!=null)
-//								geographicGroup.setName(datosDireccion[i]);
-//							if(direccion.getLstGrupoGeografico().get(i).getCode()!=null){
-//								geographicGroup.setCode(datosDireccion[i]);
-//							}
-//							lstGeoGroup.add(geographicGroup);
+							if(datosDireccion[i]!=null) {
+										 geographicGroup = new GeographicGroup();
+										 geographicGroup.setGeographicGroupType(new GeographicGroupType());
+										 if(esUrbano) {
+											 if(datosDireccion[i].indexOf("INTERIOR_NUMBER")>-1) {
+												 	String[] arregloRefInterna = datosDireccion[i].split(Pattern.quote("/"));
+													geographicGroup.getGeographicGroupType().setId("INTERIOR_NUMBER");
+													if(!arregloRefInterna[0].equals("INTERIOR_NUMBER ")) {
+														geographicGroup.setName(arregloRefInterna[1].replaceAll("[^0-9]", "").trim());
+													}else {
+														geographicGroup.setName(arregloRefInterna[0].replaceAll("[^0-9]", "").trim());
+													}
+												}
+												else if(datosDireccion[i].indexOf("EXTERIOR_NUMBER")>-1) {
+													geographicGroup.getGeographicGroupType().setId("EXTERIOR_NUMBER");
+													geographicGroup.setName(datosDireccion[i].replaceAll("[^0-9]", "").trim());
+												}else {
+													geographicGroup.getGeographicGroupType().setId(datosDireccion[i]);
+													geographicGroup.setName(datosDireccion[i+1]);
+													i++;
+												}
+										 }else {
+											 String[] aregloNoUrbano = datosDireccion[3].split(Pattern.quote("/"));
+											 if(datosDireccion[i].indexOf("BLOCK.")>-1 && !esCompuesto) {
+												 if(aregloNoUrbano.length>=1) {
+													geographicGroup.getGeographicGroupType().setId("BLOCK");
+													geographicGroup.setName(aregloNoUrbano[0].replaceAll("BLOCK.", "").trim());
+													esCompuesto=true;
+													i--;
+												 }
+											}else if(datosDireccion[i].indexOf("LOT.")>-1 && esCompuesto) {
+												 if(aregloNoUrbano.length>=1) {
+													geographicGroup.getGeographicGroupType().setId("LOT");
+													geographicGroup.setName(aregloNoUrbano[1].replaceAll("LOT.", "").trim());
+												 }
+											}else {
+												    if(!datosDireccion[i].equals("")) {
+												    	geographicGroup.getGeographicGroupType().setId(datosDireccion[i]);
+												    	geographicGroup.setName(datosDireccion[i+1]);
+												    	i++;
+												    }
+												}
+										 }
+										 
+										 if(geographicGroup.getGeographicGroupType().getId()!=null)
+											 addresses.getLocation().getGeographicGroups().add(geographicGroup);
+							}
 						}
-						
 					}
 				}
-				
-				
+				lstAddress.add(addresses);
 			}
 		}	
-//			 lstAddress = new ArrayList<Address>();
-//			for (int i = 0; i < cliente.getLstDireccionBean().size(); i++) {
-//				Address  addresses = new Address();
-//				DireccionBean direccion = cliente.getLstDireccionBean().get(i);
-//				//Set TypeAddress
-//				addresses.setAddressType(new AddressType());
-//				addresses.getAddressType().setId(direccion.getIdTipoDireccion());
-//				//Set Owner
-//				addresses.setOwnershipType(new OwnershipType());
-//				addresses.getOwnershipType().setId(direccion.getIdTipoPropiedad());
-//				//Set Location
-//				if(direccion.getDsDireccion()!=null){
-//					addresses.setLocation(new Location());
-//					addresses.getLocation().setAddressName(direccion.getDsDireccion());
-//					if(direccion.getIdCountry()!=null){
-//						addresses.getLocation().setCountry(new Country());
-//						addresses.getLocation().getCountry().setId(direccion.getIdCountry());
-//					}
-//					if(direccion.getRfAdicionalInfo()!=null)
-//					addresses.getLocation().setAdditionalInformation(direccion.getRfAdicionalInfo());
-//				}
-//				//Set GeoGrafica
-//				if(direccion.getLstGrupoGeografico()!=null && direccion.getLstGrupoGeografico().size()>0){
-//					List<GeographicGroup> lstGeoGroup = new ArrayList<GeographicGroup>();
-//						for (int j = 0; j < direccion.getLstGrupoGeografico().size() ; j++) {
-//							GeographicGroup geographicGroup = new GeographicGroup();
-//							geographicGroup.setGeographicGroupType(new GeographicGroupType());
-////							geographicGroup.getGeographicGroupType().setId(determinarIndicadorDireccion(direccion.getLstGrupoGeografico().get(j).getId()));
-//							if(direccion.getLstGrupoGeografico().get(j).getNombre()!=null)
-//								geographicGroup.setName(direccion.getLstGrupoGeografico().get(j).getNombre());
-//							if(direccion.getLstGrupoGeografico().get(j).getCode()!=null){
-//								geographicGroup.setCode(direccion.getLstGrupoGeografico().get(j).getCode());
-//							}
-//							lstGeoGroup.add(geographicGroup);
-//						}
-//						//set grupo geografico
-//						addresses.getLocation().setGeographicGroups(lstGeoGroup);
-//				}
-//				//Agregamos un dirección
-//				lstAddress.add(addresses);
-//			}
-		
-		//Agregamos la lista de direccion
-		//clienteBack.setAddresses(lstAddress);
+		return lstAddress;
 	}
 	
 	public static Boolean esUrbano(String  direccion,String idUrbano){
