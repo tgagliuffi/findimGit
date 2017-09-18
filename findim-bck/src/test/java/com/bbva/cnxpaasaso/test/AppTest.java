@@ -386,7 +386,7 @@ public class AppTest {
 	       clienteBean.getLstCondiciones().add("");
 	     
 	       clienteBean =   customerService.altaCliente(tsecPublic, clienteBean, null);
-		   System.out.println("Respuesta : " + clienteBean.getRepuestaService().getExitoDescription());
+//		   System.out.println("Respuesta : " + clienteBean.getRepuestaService().getExitoDescription());
 	       System.out.println("#############################################################################");
 
 	}

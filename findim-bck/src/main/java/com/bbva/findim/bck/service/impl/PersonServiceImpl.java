@@ -36,6 +36,7 @@ import com.bbva.findim.dom.DireccionBean;
 import com.bbva.findim.dom.GrupoGeografico;
 import com.bbva.findim.dom.PersonaBean;
 import com.bbva.findim.dom.RespuestaService;
+import com.bbva.findim.dom.common.ConstantResponseMessage;
 
 @Service
 public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonService {
@@ -74,6 +75,10 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 			String ubigeo = "";	
 					if(personResult!=null){
 						personaBean = new PersonaBean();
+						personaBean.setRespuestaService(new RespuestaService());
+						personaBean.getRespuestaService().setExitoCode(ConstantResponseMessage.CODE_RPTA_OK);
+						personaBean.getRespuestaService().setExitoDescription(ConstantResponseMessage.MSJ_OK_PERSON);
+						
 						personaBean.setCodigoCentral(personResult.getId());
 						personaBean.setNombres(personResult.getName());
 						personaBean.setPaterno(personResult.getLastName());
@@ -131,20 +136,20 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 			} catch (JsonParseException eA) {
 				LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
 				personaBean.setRespuestaService(new RespuestaService());
-				personaBean.getRespuestaService().setErrorCode("000");
-				personaBean.getRespuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				personaBean.getRespuestaService().setErrorCode(ConstantResponseMessage.CODE_RPTA_OK);
+				personaBean.getRespuestaService().setErrorDescription(ConstantResponseMessage.CODE_RPTA_ERROR_DESCRIP);
 				return personaBean;
 			} catch (JsonMappingException eB) {
 				LOGGER.info("\t"+ "\t"+"\t" + eB.getStackTrace());
 				personaBean.setRespuestaService(new RespuestaService());
-				personaBean.getRespuestaService().setErrorCode("000");
-				personaBean.getRespuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				personaBean.getRespuestaService().setErrorCode(ConstantResponseMessage.CODE_RPTA_OK);
+				personaBean.getRespuestaService().setErrorDescription(ConstantResponseMessage.CODE_RPTA_ERROR_DESCRIP);
 				return personaBean;
 			} catch (IOException eC) {
 				LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
 				personaBean.setRespuestaService(new RespuestaService());
-				personaBean.getRespuestaService().setErrorCode("000");
-				personaBean.getRespuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				personaBean.getRespuestaService().setErrorCode(ConstantResponseMessage.CODE_RPTA_OK);
+				personaBean.getRespuestaService().setErrorDescription(ConstantResponseMessage.CODE_RPTA_ERROR_DESCRIP);
 				return personaBean;
 			}
 		}
@@ -249,9 +254,7 @@ public class PersonServiceImpl extends BaseServiceBackImpl  implements PersonSer
 		return personaBean;
 	
 	}
-	
-
-	
+		
 }
 	
 	

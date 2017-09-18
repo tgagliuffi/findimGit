@@ -55,13 +55,14 @@ import com.bbva.findim.bck.domain.proposals.Tariff;
 import com.bbva.findim.bck.domain.proposals.ThirdPartyProvider;
 import com.bbva.findim.bck.service.ProposalService;
 import com.bbva.findim.bck.service.SeguridadBbvaService;
+import com.bbva.findim.bck.util.ConstantesConection.Parametro.PropuestaConstant;
 import com.bbva.findim.bck.util.PropertyUtilCnx;
 import com.bbva.findim.bck.util.Util;
-import com.bbva.findim.bck.util.ConstantesConection.Parametro.PropuestaConstant;
 import com.bbva.findim.dom.ClienteBean;
 import com.bbva.findim.dom.ContratoAltaBean;
 import com.bbva.findim.dom.ContratoBean;
 import com.bbva.findim.dom.RespuestaService;
+import com.bbva.findim.dom.common.ConstantResponseMessage;
 import com.bbva.findim.dom.common.Constantes;
 import com.bbva.findim.dom.util.DateUtil;
 import com.google.gson.Gson;
@@ -90,15 +91,16 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 					params = new LinkedMultiValueMap<String, String>();
 						params.add(parametro, contratoBean.getProductoExterno());
 				}
+				
 				UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).queryParams(params).build();		
 				HttpEntity<Proposals> entity = new HttpEntity<Proposals>(proposals, headers);
 				responseEntity = restTemplate.exchange(uriComponents.toUri(), HttpMethod.POST, entity, String.class);
 				
 				if(responseEntity!=null){
 					contratoBean.setRepuestaService(new RespuestaService());
-					contratoBean.getRepuestaService().setExitoCode(Constantes.CODE_RPTA_OK);
+					contratoBean.getRepuestaService().setExitoCode(ConstantResponseMessage.CODE_RPTA_OK);
 					String[] cdContrato = responseEntity.getHeaders().getLocation().toString().split("/");
-					contratoBean.getRepuestaService().setExitoDescription(Constantes.MSJ_OK_ALTA_UNO + contratoBean.getClienteBean().getNumeroDocumento()+ Constantes.MSJ_OK_ALTA_DOS +  cdContrato[cdContrato.length-1]);
+					contratoBean.getRepuestaService().setExitoDescription(ConstantResponseMessage.MSJ_OK_ALTAPROP_UNO + contratoBean.getClienteBean().getNumeroDocumento()+ ConstantResponseMessage.MSJ_OK_APTAPROP_DOS +  cdContrato[cdContrato.length-1]);
 				}
 				return contratoBean;
 			}
@@ -124,20 +126,20 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 			} catch (JsonParseException eA) {
 				LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
 				contratoBean.setRepuestaService(new RespuestaService());
-				contratoBean.getRepuestaService().setErrorCode("9999");
-				contratoBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				contratoBean.getRepuestaService().setErrorCode(ConstantResponseMessage.CODE_RPTA_ERROR);
+				contratoBean.getRepuestaService().setErrorDescription(ConstantResponseMessage.CODE_RPTA_ERROR_DESCRIP);
 				return contratoBean;
 			} catch (JsonMappingException eB) {
 				LOGGER.info("\t"+ "\t"+"\t" + eB.getStackTrace());
 				contratoBean.setRepuestaService(new RespuestaService());
-				contratoBean.getRepuestaService().setErrorCode("000");
-				contratoBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				contratoBean.getRepuestaService().setErrorCode(ConstantResponseMessage.CODE_RPTA_ERROR);
+				contratoBean.getRepuestaService().setErrorDescription(ConstantResponseMessage.CODE_RPTA_ERROR_DESCRIP);
 				return contratoBean;
 			} catch (IOException eC) {
 				LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
 				contratoBean.setRepuestaService(new RespuestaService());
-				contratoBean.getRepuestaService().setErrorCode("000");
-				contratoBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				contratoBean.getRepuestaService().setErrorCode(ConstantResponseMessage.CODE_RPTA_ERROR);
+				contratoBean.getRepuestaService().setErrorDescription(ConstantResponseMessage.CODE_RPTA_ERROR_DESCRIP);
 				return contratoBean;
 			}
 		}
@@ -361,7 +363,7 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 		    proposal.setThirdPartyProvider(new ThirdPartyProvider());
 		    proposal.getThirdPartyProvider().setId(contrato.getProveedorTercero());
 		    proposal.getThirdPartyProvider().setExternalSalesChannel(new ExternalSalesChannel());
-		    proposal.getThirdPartyProvider().getExternalSalesChannel().setId(contrato.getCanal());
+		    proposal.getThirdPartyProvider().getExternalSalesChannel().setId(contrato.getDescripcionCanal());
 		    
 		    proposal.setBranch(new Branch());
 		    proposal.getBranch().setId("0130");

@@ -1,6 +1,5 @@
 package com.bbva.findim.bck.service.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -55,9 +54,9 @@ import com.bbva.findim.bck.domain.customers.WorkPlace;
 import com.bbva.findim.bck.service.CustomersService;
 import com.bbva.findim.bck.service.SeguridadBbvaService;
 import com.bbva.findim.bck.util.ConstantesConection;
-import com.bbva.findim.bck.util.PropertyUtilCnx;
 import com.bbva.findim.bck.util.ConstantesConection.Parametro.ClienteConstant;
 import com.bbva.findim.bck.util.ConstantesConection.Parametro.GENERAL;
+import com.bbva.findim.bck.util.PropertyUtilCnx;
 import com.bbva.findim.dom.ClienteBean;
 import com.bbva.findim.dom.DireccionClienteBean;
 import com.bbva.findim.dom.DireccionDetalleclienteBean;
@@ -65,6 +64,7 @@ import com.bbva.findim.dom.DocumentoIdentidadBean;
 import com.bbva.findim.dom.GrupoGeografico;
 import com.bbva.findim.dom.RespuestaService;
 import com.bbva.findim.dom.UbicacionDireccionBean;
+import com.bbva.findim.dom.common.ConstantResponseMessage;
 
 @Service
 public class CustomersServiceImpl extends BaseServiceBackImpl implements CustomersService {	
@@ -104,13 +104,16 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 				if(customerResult.getData()!=null){
 					for (int i = 0; i < customerResult.getData().size(); i++) {
 						clienteBean = new ClienteBean();
-						clienteBean.setRepuestaService(new RespuestaService());
+						clienteBean.setRespuestaService(new RespuestaService());
+						clienteBean.getRespuestaService().setExitoCode(ConstantResponseMessage.CODE_RPTA_OK);
+						clienteBean.getRespuestaService().setExitoDescription(ConstantResponseMessage.MSJ_OK_CUSTOMER);
+						
 						clienteBean.setIdCliente(Integer.parseInt(customerResult.getData().get(i).getCustomerId()));
 						clienteBean.setApellidoPaterno(customerResult.getData().get(i).getLastName());
 						clienteBean.setPrimerNombre(customerResult.getData().get(i).getFirstName());
 						clienteBean.setApellidoMaterno(customerResult.getData().get(i).getSurnames());
 						
-						if(customerResult.getData().get(i).getIdentityDocuments().size()>0){ //TODO: considerar como lista
+						if(customerResult.getData().get(i).getIdentityDocuments().size()>0){ 
 							clienteBean.setLstDocumentoIdentidadBean(new ArrayList<DocumentoIdentidadBean>());
 							for (int j = 0; j < customerResult.getData().get(i).getIdentityDocuments().size(); j++) {
 								DocumentoIdentidadBean documentoIdentidadBean = new DocumentoIdentidadBean();
@@ -245,28 +248,28 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 			try {
 				if(!cadenaRptaError.equals("")){
 					error = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
-					clienteBean.setRepuestaService(new RespuestaService());
-					clienteBean.getRepuestaService().setErrorCode(error.getErrorCode());
-					clienteBean.getRepuestaService().setErrorDescription(error.getSystemErrorCause());
+					clienteBean.setRespuestaService(new RespuestaService());
+					clienteBean.getRespuestaService().setErrorCode(error.getErrorCode());
+					clienteBean.getRespuestaService().setErrorDescription(error.getSystemErrorCause());
 					return clienteBean;
 				}
 			} catch (JsonParseException eA) {
 				LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
-				clienteBean.setRepuestaService(new RespuestaService());
-				clienteBean.getRepuestaService().setErrorCode("000");
-				clienteBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				clienteBean.setRespuestaService(new RespuestaService());
+				clienteBean.getRespuestaService().setErrorCode(ConstantResponseMessage.CODE_RPTA_ERROR);
+				clienteBean.getRespuestaService().setErrorDescription(ConstantResponseMessage.CODE_RPTA_ERROR_DESCRIP);
 				return clienteBean;
 			} catch (JsonMappingException eB) {
 				LOGGER.info("\t"+ "\t"+"\t" + eB.getStackTrace());
-				clienteBean.setRepuestaService(new RespuestaService());
-				clienteBean.getRepuestaService().setErrorCode("000");
-				clienteBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				clienteBean.setRespuestaService(new RespuestaService());
+				clienteBean.getRespuestaService().setErrorCode(ConstantResponseMessage.CODE_RPTA_ERROR);
+				clienteBean.getRespuestaService().setErrorDescription(ConstantResponseMessage.CODE_RPTA_ERROR_DESCRIP);
 				return clienteBean;
 			} catch (IOException eC) {
 				LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
-				clienteBean.setRepuestaService(new RespuestaService());
-				clienteBean.getRepuestaService().setErrorCode("000");
-				clienteBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				clienteBean.setRespuestaService(new RespuestaService());
+				clienteBean.getRespuestaService().setErrorCode(ConstantResponseMessage.CODE_RPTA_ERROR);
+				clienteBean.getRespuestaService().setErrorDescription(ConstantResponseMessage.CODE_RPTA_ERROR_DESCRIP);
 				return clienteBean;
 			}
 		}
@@ -290,17 +293,9 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 			String url = propertyUtilCnx.getString(ClienteConstant.CODIGO_URL_CUSTOMERS_CREATE).toString();
 			UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).build();		
 			HttpEntity<Customer> entity = new HttpEntity<Customer>(customerBack, headers);
-			
-			ObjectMapper mapper = new ObjectMapper();
-			   //Object to JSON in file
-			mapper.writeValue(new File("D:\\file.json"), customerBack);
-
-			//Object to JSON in String
-			String jsonInString = mapper.writeValueAsString(customerBack);
-			
-			
 			ResponseEntity<String> responseEntity = restTemplate.exchange(uriComponents.toUri(), HttpMethod.POST, entity, String.class);
-			clienteAltaBean.getRepuestaService().setExitoDescription(responseEntity.getHeaders().get("ResponseWarningDescription").toString());
+			clienteAltaBean.getRespuestaService().setExitoDescription(responseEntity.getHeaders().get("ResponseWarningDescription").toString());
+		
 		} catch (HttpClientErrorException e) {
 			LOGGER.info("\t"+ "\t"+"\t" + e.getResponseHeaders().values());
 		 	cadenaRptaError = e.getResponseBodyAsString();
@@ -313,30 +308,30 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 			ObjectMapper mapper = new ObjectMapper();
 			ErrorService error = null;
 			try {
-				if(!cadenaRptaError.equals("")){
+				if(cadenaRptaError!=null){
 					error = mapper.readValue(new ErrorService().toString(cadenaRptaError), ErrorService.class);
-					clienteAltaBean.setRepuestaService(new RespuestaService());
-					clienteAltaBean.getRepuestaService().setErrorCode(error.getErrorCode());
-					clienteAltaBean.getRepuestaService().setErrorDescription(error.getSystemErrorCause());
+					clienteAltaBean.setRespuestaService(new RespuestaService());
+					clienteAltaBean.getRespuestaService().setErrorCode(error.getErrorCode());
+					clienteAltaBean.getRespuestaService().setErrorDescription(error.getSystemErrorCause());
 					return clienteAltaBean;
 				}
 			} catch (JsonParseException eA) {
 				LOGGER.info("\t"+ "\t"+"\t" + eA.getStackTrace());
-				clienteAltaBean.setRepuestaService(new RespuestaService());
-				clienteAltaBean.getRepuestaService().setErrorCode("9999");
-				clienteAltaBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				clienteAltaBean.setRespuestaService(new RespuestaService());
+				clienteAltaBean.getRespuestaService().setErrorCode(ConstantResponseMessage.CODE_RPTA_ERROR);
+				clienteAltaBean.getRespuestaService().setErrorDescription(ConstantResponseMessage.CODE_RPTA_ERROR_DESCRIP);
 				return clienteAltaBean;
 			} catch (JsonMappingException eB) {
 				LOGGER.info("\t"+ "\t"+"\t" + eB.getStackTrace());
-				clienteAltaBean.setRepuestaService(new RespuestaService());
-				clienteAltaBean.getRepuestaService().setErrorCode("000");
-				clienteAltaBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				clienteAltaBean.setRespuestaService(new RespuestaService());
+				clienteAltaBean.getRespuestaService().setErrorCode(ConstantResponseMessage.CODE_RPTA_ERROR);
+				clienteAltaBean.getRespuestaService().setErrorDescription(ConstantResponseMessage.CODE_RPTA_ERROR_DESCRIP);
 				return clienteAltaBean;
 			} catch (IOException eC) {
 				LOGGER.info("\t"+ "\t"+"\t" + eC.getStackTrace());
-				clienteAltaBean.setRepuestaService(new RespuestaService());
-				clienteAltaBean.getRepuestaService().setErrorCode("000");
-				clienteAltaBean.getRepuestaService().setErrorDescription("Sucedio un Error inesperado.");
+				clienteAltaBean.setRespuestaService(new RespuestaService());
+				clienteAltaBean.getRespuestaService().setErrorCode(ConstantResponseMessage.CODE_RPTA_ERROR);
+				clienteAltaBean.getRespuestaService().setErrorDescription(ConstantResponseMessage.CODE_RPTA_ERROR_DESCRIP);
 				return clienteAltaBean;
 			}
 		}
@@ -352,8 +347,7 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 		BirthData nacimiento = new BirthData();
 		nacimiento.setCountry(new Country());
 		nacimiento.getCountry().setId(ConstantesConection.VALUE_PERU.getId());//TODO : VER SI ES CONSTANTE
-//		nacimiento.setBirthDate(DateFormatUtils.format(clienteNuevo.getFechaNacimiento(), "yyyy-MM-dd"));
-		nacimiento.setBirthDate("1990-01-01");
+		nacimiento.setBirthDate(clienteNuevo.getFechaNacimiento());
 		clienteBack.setBirthData(nacimiento);
 		
 		//Lista de documentos
@@ -361,38 +355,28 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 			clienteBack.setIdentityDocuments(new ArrayList<IdentityDocument>());
 			for (int i = 0; i < clienteNuevo.getLstDocumentoIdentidadBean().size(); i++) {
 				IdentityDocument identityDocuments = new IdentityDocument();
-				
 				identityDocuments.setDocumentType(new DocumentType());
 				identityDocuments.getDocumentType().setId(clienteNuevo.getLstDocumentoIdentidadBean().get(i).getTipoDocumentoIdentidad());
-				
 				identityDocuments.setStatus(new Status());
 				identityDocuments.getStatus().setId(clienteNuevo.getLstDocumentoIdentidadBean().get(i).getEstado());
-				
 				identityDocuments.setCountry(new Country());
 				identityDocuments.getCountry().setId(clienteNuevo.getLstDocumentoIdentidadBean().get(i).getPais());
-				
 				identityDocuments.setDocumentNumber(clienteNuevo.getLstDocumentoIdentidadBean().get(i).getNroDocumento());
-//				identityDocuments.setExpirationDate(DateFormatUtils.format(clienteNuevo.getLstDocumentoIdentidadBean().get(i).getFechaExpiracion(),"yyyy-MM-dd"));
-				identityDocuments.setExpirationDate("2019-01-01");
+				identityDocuments.setExpirationDate(clienteNuevo.getLstDocumentoIdentidadBean().get(i).getFechaExpiracion());
+//			identityDocuments.setExpirationDate("2019-01-01");
 				clienteBack.getIdentityDocuments().add(identityDocuments);
 			}
 		}
 		
 		clienteBack.setGender(new Gender());
-
-
 		clienteBack.getGender().setId(determinarGenero(clienteNuevo.getGenero()).getId());
-		
 		clienteBack.setMaritalStatus(new MaritalStatus());
 		clienteBack.getMaritalStatus().setId(clienteNuevo.getEstadoCivil()+"");
 		clienteBack.getMaritalStatus().setId(determinarEstadoCivilBack(clienteBack).getId());
-		
 		clienteBack.setPersonalTitle(new PersonalTitle());
 		clienteBack.getPersonalTitle().setId(clienteNuevo.getTituloCliente());
 		clienteBack.getPersonalTitle().setId(determinarTitle(clienteBack).getValue());
 
-	
-		
 		if(clienteNuevo.getNacionalidades()!=null && clienteNuevo.getNacionalidades().size()>0){
 			clienteBack.setNationalities(new ArrayList<Nationality>());
 			for (int i = 0; i < clienteNuevo.getNacionalidades().size(); i++) {
@@ -533,8 +517,7 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 		
 		return genero;
 	}
-	
-	
+		
 	private Value determinarTitle(Customer cliente) {
 		Value title = new Value();
 		if (CustomersService.Genero.MASCULINO.getDescipcion().equals(cliente.getGender().getId())) {
