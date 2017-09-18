@@ -335,11 +335,6 @@ function guardarDatosComplementarios(objetoPrueba){
 		)	
 	);
 
-//	var idTipoModalidad = (
-//		objetoContenedor==null?'':(
-//			objetoContenedor.idTipoModalidad==undefined?'':objetoContenedor.idTipoModalidad
-//		)	
-//	);
 	objetoPrueba.estadoContrato = (
 		objetoContenedor==null?'':(
 			objetoContenedor.estadoContrato==undefined?'':objetoContenedor.estadoContrato

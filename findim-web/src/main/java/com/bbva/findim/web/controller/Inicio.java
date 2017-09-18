@@ -283,7 +283,7 @@ public class Inicio {
 					clienteBean = mapperPersonForClient(clienteBean, null, datosNoClienteReniec, "PER");
 					clienteBean = customerService.altaCliente(seguridad.generarTSec(3), clienteBean, null);
 
-					if (clienteBean.getRepuestaService().getExitoDescription()!=null) {
+					if (clienteBean.getRespuestaService().getExitoDescription()!=null) {
 						ContratoBean contratoUpdate = new ContratoBean();
 						contratoUpdate.setCodigoContrato(contratoBean.getCodigoContrato());
 						contratoUpdate.setTipoEnvio(contratoBean.getNombreEnvio());
@@ -434,7 +434,7 @@ public class Inicio {
 					  
 					/*----------Seguridad FIN-----------------------------------------------------------*/
 					 
-					if(clienteAltaBean.getRepuestaService().getErrorCode()!=null && clienteAltaBean.getRepuestaService().getErrorDescription().indexOf("PERSONA INEXISTENTE")>0){//NO EXISTE EL CLIENTE
+					if(clienteAltaBean.getRespuestaService().getErrorCode()!=null && clienteAltaBean.getRespuestaService().getErrorDescription().indexOf("PERSONA INEXISTENTE")>0){//NO EXISTE EL CLIENTE
 						PersonaBean persona = null;
 						persona = personService.buscarNoCliente(tipoDocws, numeroDocumento, "2",seguridad.generarTSec(3));// OBTENIENDO INFORMACION DEL NO CLIENTE
 								if (persona.getRespuestaService() == null) {//se encontro persona
@@ -642,19 +642,19 @@ public class Inicio {
 			contratoUpdate.setCorreo(correo);
 			contratoUpdate.setEstadoContrato(ProposalService.EstadoHost.SIGNED.getEstado());
 
-			int rptaUpdatePropuesta = proposalService.updateProposal(seguridad.generarTSec(3), contratoUpdate);
-
-			if (rptaUpdatePropuesta == 1) {
-				empresa = (EmpresaBean) session.getAttribute("empresa");
-				if (empresa != null) {
-					List<ContratoBean> contratos = proposalService.listarPropuesta(seguridad.generarTSec(3),
-							empresa.getIndenticador(), empresa.getCdEmpresa(), clienteBean.getTipoDocumento(),
-							clienteBean.getNumeroDocumento(), empresa.getFechaExpiracion());
-					clienteBean.setListaContrato(contratos);
-					session.setAttribute("clienteSession", clienteBean);
-				}
-			}
-			clienteBean.setResultadoFirma(clienteBeanFirma.getResultadoFirma());
+//			int rptaUpdatePropuesta = proposalService.updateProposal(seguridad.generarTSec(3), contratoUpdate);
+//
+//			if (rptaUpdatePropuesta == 1) {
+//				empresa = (EmpresaBean) session.getAttribute("empresa");
+//				if (empresa != null) {
+//					List<ContratoBean> contratos = proposalService.listarPropuesta(seguridad.generarTSec(3),
+//							empresa.getIndenticador(), empresa.getCdEmpresa(), clienteBean.getTipoDocumento(),
+//							clienteBean.getNumeroDocumento(), empresa.getFechaExpiracion());
+//					clienteBean.setListaContrato(contratos);
+//					session.setAttribute("clienteSession", clienteBean);
+//				}
+//			}
+//			clienteBean.setResultadoFirma(clienteBeanFirma.getResultadoFirma());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
