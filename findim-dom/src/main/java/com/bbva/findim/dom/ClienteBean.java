@@ -78,15 +78,13 @@ public class ClienteBean {
 	
 	private Integer idTipoEnvioSeleccionado;
 	
-//	private List<CuotaBean> listaCuotaVencidaRecudada;
 	private List<MantenimientoCorreoBean> listaCorreo;
 	 
 	
 	private String estadoContrato;
 	private String nombreEnvio;
-	private boolean esCliente;
+	private Boolean esCliente;
 	private List<GrupoGeografico> lstGrupoGeografico;
-	//tgf: change update prestamos
 	private List<DireccionBean> lstDireccionBean;
 	private List<DocumentoIdentidadBean> lstDocumentoIdentidadBean;
 	private List<ContactoBean> lstContacto;
@@ -100,9 +98,10 @@ public class ClienteBean {
 	private List<ParametroBean> listaComprobantePago; 
 	
 	private String tituloCliente;
+	private int idNaturaleza;//3=cliente ; 2 = persona ; 1 = ciudadano
 
 	private SimulacionBean simulacionBean;
-	private RespuestaService repuestaService;
+	private RespuestaService respuestaService;
 	private DireccionClienteBean direccionCliente;
 	
 	public SimulacionBean getSimulacionBean() {
@@ -113,11 +112,11 @@ public class ClienteBean {
 		this.simulacionBean = simulacionBean;
 	}
 
-	public boolean isEsCliente() {
+	public Boolean isEsCliente() {
 		return esCliente;
 	}
 
-	public void setEsCliente(boolean esCliente) {
+	public void setEsCliente(Boolean esCliente) {
 		this.esCliente = esCliente;
 	}
 
@@ -772,12 +771,12 @@ public class ClienteBean {
 		this.codPaisOrigen = codPaisOrigen;
 	}
 
-	public RespuestaService getRepuestaService() {
-		return repuestaService;
+	public RespuestaService getRespuestaService() {
+		return respuestaService;
 	}
 
-	public void setRepuestaService(RespuestaService repuestaService) {
-		this.repuestaService = repuestaService;
+	public void setRespuestaService(RespuestaService respuestaService) {
+		this.respuestaService = respuestaService;
 	}
 
 	public DireccionClienteBean getDireccionCliente() {
@@ -787,5 +786,19 @@ public class ClienteBean {
 	public void setDireccionCliente(DireccionClienteBean direccionCliente) {
 		this.direccionCliente = direccionCliente;
 	}
+
+	public int getIdNaturaleza() {
+		return idNaturaleza;
+	}
+
+	public void setIdNaturaleza(int idNaturaleza) {
+		this.idNaturaleza = idNaturaleza;
+	}
+
+	public Boolean getEsCliente() {
+		return esCliente;
+	}
+	
+	
 	
 }

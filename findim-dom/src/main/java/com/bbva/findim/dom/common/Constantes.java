@@ -41,12 +41,7 @@ public class Constantes {
 	
 	public static final Integer C_CUOTA_PREPAGO =999;
 	
-	public static final String CODE_RPTA_OK = "0000";
-	public static final String CODE_RPTA_ERROR = "9999";
-	public static final String MJS_ERROR_FILTRO = "ERROR EN SW FILTRO";
-	public static final String MSJ_EXCEPTION = "Error. Comuníquese con sistemas.";
-	public static final String MSJ_OK_ALTA_UNO = "OK :Cliente: ";
-	public static final String MSJ_OK_ALTA_DOS = "- Contrato: ";
+
 	
 	public enum Error {
 		DataAccessException(102), InvalidResultSetAccessException(103), ParseException(104), Exception(
