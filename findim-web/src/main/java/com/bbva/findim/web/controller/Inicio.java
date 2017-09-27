@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,12 +41,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.bbva.findim.bck.service.ApprovalsService;
 import com.bbva.findim.bck.service.CatalogService;
-import com.bbva.findim.bck.service.CustomersService;
+import com.bbva.findim.bck.service.CustomerService;
 import com.bbva.findim.bck.service.LoanService;
 import com.bbva.findim.bck.service.PersonService;
 import com.bbva.findim.bck.service.ProposalService;
 import com.bbva.findim.bck.service.SeguridadBbvaService;
 import com.bbva.findim.bck.service.TariffService;
+import com.bbva.findim.bck.util.UtilDate;
 import com.bbva.findim.dom.CabeceraBean;
 import com.bbva.findim.dom.CalificacionClienteBean;
 import com.bbva.findim.dom.CatalogoBean;
@@ -88,7 +90,7 @@ public class Inicio {
 	ProposalService proposalService;
 
 	@Autowired
-	CustomersService customerService;
+	CustomerService customerService;
 
 	@Autowired
 	PersonService personService;
@@ -280,10 +282,11 @@ public class Inicio {
 					datosNoClienteReniec = restTemplate.getForObject(uriReniec, DatosReniecBean.class);
 					String newAdressHost = restTemplate.getForObject(uriGetAdressFormatHost+datosNoClienteReniec.getNumeroDni(), String.class);
 					clienteBean.setDireccion(newAdressHost);
+					clienteBean.setFechaExpiracionDocumento(datosNoClienteReniec.getFechaCaducidad());
 					clienteBean = mapperPersonForClient(clienteBean, null, datosNoClienteReniec, "PER");
 					clienteBean = customerService.altaCliente(seguridad.generarTSec(3), clienteBean, null);
 
-					if (clienteBean.getRespuestaService().getExitoDescription()!=null) {
+					if (clienteBean.getRespuestaService().getExitoDescription()!=null || clienteBean.getRespuestaService().getErrorCode().equals("PEE4727")) {
 						ContratoBean contratoUpdate = new ContratoBean();
 						contratoUpdate.setCodigoContrato(contratoBean.getCodigoContrato());
 						contratoUpdate.setTipoEnvio(contratoBean.getNombreEnvio());
@@ -306,16 +309,12 @@ public class Inicio {
 						if (rptaUpdatePropuesta == 1) {
 							empresa = (EmpresaBean) session.getAttribute("empresa");
 							if (empresa != null) {
-								List<ContratoBean> contratos = proposalService.listarPropuesta(seguridad.generarTSec(3),
-										empresa.getIndenticador(), empresa.getCdEmpresa(), "DNI",
-										clienteBean.getNumeroDocumento(), empresa.getFechaExpiracion());
+								List<ContratoBean> contratos = proposalService.listarPropuesta(seguridad.generarTSec(3), "DNI", clienteBean.getNumeroDocumento(), empresa);
 								clienteBean.setListaContrato(contratos);
 								session.setAttribute("clienteSession", clienteBean);
 							}
 						}
-					} else {
-						//Error al grabar cliente
-					}
+					} 
 				} else {// FLUJO CLIENTE
 					ContratoBean contratoUpdate = new ContratoBean();
 					contratoUpdate.setCodigoContrato(contratoBean.getCodigoContrato());
@@ -334,18 +333,13 @@ public class Inicio {
 					if (rptaUpdatePropuesta == 1) {
 						empresa = (EmpresaBean) session.getAttribute("empresa");
 						if (empresa != null) {
-							List<ContratoBean> contratos = proposalService.listarPropuesta(seguridad.generarTSec(3),
-									empresa.getIndenticador(), empresa.getCdEmpresa(), "DNI",
-									clienteBean.getNumeroDocumento(), empresa.getFechaExpiracion());
+							List<ContratoBean> contratos = proposalService.listarPropuesta(seguridad.generarTSec(3), "DNI", clienteBean.getNumeroDocumento(), empresa);
 							clienteBean.setListaContrato(contratos);
 							session.setAttribute("clienteSession", clienteBean);
 						}
 					}
 				}
-
-				List<ContratoBean> contratos = proposalService.listarPropuesta(seguridad.generarTSec(3),
-						empresa.getIndenticador(), empresa.getCdEmpresa(), "DNI", clienteBean.getNumeroDocumento(),
-						empresa.getFechaExpiracion());
+				List<ContratoBean> contratos = proposalService.listarPropuesta(seguridad.generarTSec(3), "DNI", clienteBean.getNumeroDocumento(),empresa);
 				clienteBean.setListaContrato(contratos);
 				gsonString = new Gson().toJson(clienteBean);
 				logger.info("ClienteBean:" + clienteBean);
@@ -419,10 +413,17 @@ public class Inicio {
 				String tipoDoc = "DNI";
 				String tipoDocws = "L";
 		
-				lista = proposalService.listarPropuesta(seguridad.generarTSec(3), empresa.getIndenticador(),empresa.getCdEmpresa(), tipoDoc, numeroDocumento, empresa.getFechaExpiracion());
+				lista = proposalService.listarPropuesta(seguridad.generarTSec(3), tipoDoc, numeroDocumento, empresa);
 					
 				if(lista!=null && lista.size()>0){
-					clienteAltaBean = customerService.obtenerDatosCliente(seguridad.generarTSec(3), tipoDoc,numeroDocumento);// OBTENEMOS LA INFORMACION DEL CLIENTE
+					
+					List<ParametroBean> listaZonasvias = new ArrayList<>();
+					final String uriComprbPago = uriServicio + "listaDetalleParametro/64";
+					ParametroBean parametros[] = restTemplate.getForObject(uriComprbPago, ParametroBean[].class);
+					listaZonasvias = Arrays.asList(parametros);
+					
+					
+					clienteAltaBean = customerService.obtenerDatosCliente(seguridad.generarTSec(3), tipoDoc,numeroDocumento, listaZonasvias);// OBTENEMOS LA INFORMACION DEL CLIENTE
 					
 					/*----------Seguridad INI-----------------------------------------------------------*/
 					clienteAltaBean.setSeguridad_data(seguridad_data);    
@@ -437,7 +438,7 @@ public class Inicio {
 					if(clienteAltaBean.getRespuestaService().getErrorCode()!=null && clienteAltaBean.getRespuestaService().getErrorDescription().indexOf("PERSONA INEXISTENTE")>0){//NO EXISTE EL CLIENTE
 						PersonaBean persona = null;
 						persona = personService.buscarNoCliente(tipoDocws, numeroDocumento, "2",seguridad.generarTSec(3));// OBTENIENDO INFORMACION DEL NO CLIENTE
-								if (persona.getRespuestaService() == null) {//se encontro persona
+								if (persona.getRespuestaService().getExitoCode().equals("0000")) {//se encontro persona
 									final String uriReniec = uriServicio + "obtenerDatoReniec/" + numeroDocumento;
 									DatosReniecBean datosNoClienteReniec = restTemplate.getForObject(uriReniec, DatosReniecBean.class);
 									persona.setDsDireccionAndocs(datosNoClienteReniec!=null?datosNoClienteReniec.getDireccionAmdocs():null);
@@ -486,6 +487,7 @@ public class Inicio {
 	
 	private ClienteBean mapperPersonForClient(ClienteBean clienteAltaBean, PersonaBean persona, DatosReniecBean clienteReniec, String cdPais) {
 		// TODO Auto-generated method stub
+		try {
 		clienteAltaBean.setEsCliente(false);
 		clienteAltaBean = cargaInicialClienteBean(clienteAltaBean);
 		clienteAltaBean.setCargo(obtenerCargo(clienteAltaBean.getIdTipoOcupacion(), clienteAltaBean.getListaCatalogo()));
@@ -524,6 +526,8 @@ public class Inicio {
 			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setPais(cdPais);
 			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setNroDocumento(persona.getNumeroDocumento());
 			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setTipoDocumentoIdentidad(persona.getTipoDocumento());
+			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setFechaExpiracion(persona.getFhNacimiento());
+			
 			
 			clienteAltaBean.setNacionalidades(new ArrayList<>());
 			clienteAltaBean.getNacionalidades().add(cdPais);
@@ -537,10 +541,14 @@ public class Inicio {
 			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setPais(cdPais);
 			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setNroDocumento(clienteAltaBean.getNumeroDocumento());
 			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setTipoDocumentoIdentidad(clienteAltaBean.getTipoDocumento());
+			clienteAltaBean.getLstDocumentoIdentidadBean().get(0).setFechaExpiracion(UtilDate.convertJUtilDateToString(UtilDate.sumarRestarHorasFecha(clienteAltaBean.getFechaExpiracionDocumento(), 8) , "yyyy-MM-dd"));
 			clienteAltaBean.setNacionalidades(new ArrayList<>());
 			clienteAltaBean.getNacionalidades().add(cdPais);
 		}
-
+		
+		} catch (ParseException e) {
+			logger.info(e);
+		}
 		
 
 		return clienteAltaBean;
@@ -553,6 +561,9 @@ public class Inicio {
 				cargo = catalogoBean.getStValue();
 				break;
 			}
+		}
+		if(cargo.equals("")) {
+			cargo = "OTROS";
 		}
 		return cargo;
 	}
@@ -642,19 +653,18 @@ public class Inicio {
 			contratoUpdate.setCorreo(correo);
 			contratoUpdate.setEstadoContrato(ProposalService.EstadoHost.SIGNED.getEstado());
 
-//			int rptaUpdatePropuesta = proposalService.updateProposal(seguridad.generarTSec(3), contratoUpdate);
-//
-//			if (rptaUpdatePropuesta == 1) {
-//				empresa = (EmpresaBean) session.getAttribute("empresa");
-//				if (empresa != null) {
-//					List<ContratoBean> contratos = proposalService.listarPropuesta(seguridad.generarTSec(3),
-//							empresa.getIndenticador(), empresa.getCdEmpresa(), clienteBean.getTipoDocumento(),
-//							clienteBean.getNumeroDocumento(), empresa.getFechaExpiracion());
-//					clienteBean.setListaContrato(contratos);
-//					session.setAttribute("clienteSession", clienteBean);
-//				}
-//			}
-//			clienteBean.setResultadoFirma(clienteBeanFirma.getResultadoFirma());
+			int rptaUpdatePropuesta = proposalService.updateProposal(seguridad.generarTSec(3), contratoUpdate);
+
+			if (rptaUpdatePropuesta == 1) {
+				empresa = (EmpresaBean) session.getAttribute("empresa");
+				if (empresa != null) {
+					List<ContratoBean> contratos = proposalService.listarPropuesta(seguridad.generarTSec(3),clienteBean.getTipoDocumento(), clienteBean.getNumeroDocumento(), empresa);
+					clienteBean.setListaContrato(contratos);
+					session.setAttribute("clienteSession", clienteBean);
+				}
+				
+			}
+			clienteBean.setResultadoFirma(clienteBeanFirma.getResultadoFirma());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

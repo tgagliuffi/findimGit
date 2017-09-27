@@ -137,7 +137,8 @@ function actualizarContenidos(){
         	}
             else if(listaContrato[i].estadoContrato ==="FIRMADO"){
             	destinoModal = "#modalContratosImprimir";
-        		textoBoton = "Imprimir";
+        		textoBoton = "Imprimir Constancia";
+        		estado +=  '<br />'+ "Doc. Firmados";
         	}
 
             alertaFormNoCompletado.hide();
@@ -146,13 +147,13 @@ function actualizarContenidos(){
 	        	"<tr>" +
 	            "<td>" + htmlEncode(listaContrato[i].fechaCreacion) + "</td>" +
 	            "<td>" + htmlEncode(listaContrato[i].tipoMoneda) + "</td>" +
-	            "<td>" + htmlEncode(listaContrato[i].importeBien) + "</td>" +
-	            "<td>" + htmlEncode(listaContrato[i].importeInicial) + "</td>" +
-	            "<td>" + htmlEncode(listaContrato[i].importePrestamo) +  "</td>" +
+	            "<td style='text-align: right'>" + htmlEncode(listaContrato[i].importeBien) + "</td>" +
+	            "<td style='text-align: right'>" + htmlEncode(listaContrato[i].importeInicial) + "</td>" +
+	            "<td style='text-align: right'>" + htmlEncode(listaContrato[i].importePrestamo) +  "</td>" +
 	            "<td>" + htmlEncode(listaContrato[i].codigoTarifa) + "</td>" +
 	            "<td>" + htmlEncode(listaContrato[i].numeroCuotas) + "</td>" +
 	            "<td>" + htmlEncode(listaContrato[i].tasaFinanciamiento) + "%" + "</td>" +
-	            "<td>" + htmlEncode(listaContrato[i].descripcionTasaSeguro + listaContrato[i].valorTasaSeguro) + "%" + "</td>" +
+	            "<td>" + htmlEncode(listaContrato[i].descripcionTasaSeguro + ' '+ listaContrato[i].importeSeguroDesgravamen) + "%" + "</td>" +
 	            "<td>" + htmlEncode(tipoEnvio) + "</td>" +
 	            "<td>" + htmlEncode(listaContrato[i].fechaDesembolso) + "</td>" +
 	            "<td>" + estado + "<br>";
@@ -203,7 +204,7 @@ function actualizarContenidos(){
     }
     
     // PROGRAMA LOS BOTONES
-    debugger;
+    
     $(".butStatusContrato").click(function() {
     		
 
@@ -251,7 +252,6 @@ $(function() {
 
     ///MODALS ///////////////////////////////////////////////////////////////////////////
     $('#btnFirmarDocumento').click(function() {
-    	debugger;
     	beginLoadingFirma();
     	if (constants.BIOMATCH_ACTIVO) {
     		verificarHuellaDactilar(objetoContenedor.tipoDocumento,
@@ -482,13 +482,13 @@ function procesarCompletarInformacion (e){
   objetoContenedor.idContrato=  completarInfoCodContrato.val();
   objetoContenedor.correo = completarInfoEmail.val();    
   objetoContenedor.idTipoEnvio = completarInfoEnvio.val();
-
+  debugger;
   objetoContenedor.centroTrabajo = completarInfoEmpresa.val();
   objetoContenedor.cargo= completarInfoCargo.val();
   objetoContenedor.idTipoModalidad = completarInfoModalidad.val();
   objetoContenedor.estadoContrato = estadoContratoUpdate;
   objetoContenedor.nombreEnvio = completarInfoEnvio.find('option:selected').text();
-  debugger;
+ 
   if(!objetoContenedor.esCliente){
 	  objetoContenedor.idTipoOcupacion = completarInfoProfesion.val();
   }
@@ -544,13 +544,14 @@ function actualizarModalContratos(i){
 	      }
   	//}
   }
-  
+ 
   /******************************************/
   var correoCliente = (
-	objetoContenedor==null?'':(  
-		objetoContenedor.listaContrato[i].correo==undefined?'':(
-				objetoContenedor.listaContrato[i].correo=null?'': $.trim(objetoContenedor.listaContrato[i].correo)
-		 )
+	objetoContenedor==null?'':( objetoContenedor.listaContrato[i]==undefined?'':(
+			 objetoContenedor.listaContrato[i].correo==undefined?'':(
+						objetoContenedor.listaContrato[i].correo=null?'': $.trim(objetoContenedor.listaContrato[i].correo)
+				 )		
+		    )
 	  )	
    );
 	/****************************************/

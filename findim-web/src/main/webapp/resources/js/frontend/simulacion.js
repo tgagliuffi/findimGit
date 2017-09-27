@@ -181,12 +181,12 @@ function actualizarContenidos (){
 		contenidoTabla.append(
 				"<tr>" + "<td>" + objetoContenedor.detalle[i].numeroCuota +  "</td>"
                 + "<td>" + objetoContenedor.detalle[i].fechaPago + "</td>"
-                + "<td>" + objetoContenedor.detalle[i].saldoAntesS + "</td>"
-                + "<td>" + objetoContenedor.detalle[i].amortizacion + "</td>"
-                + "<td>" + objetoContenedor.detalle[i].interesMensual + "</td>"
-                + "<td style='text-align: center'>" + objetoContenedor.detalle[i].seguro + "</td>"
-                + "<td style='text-align: center'>" + objetoContenedor.detalle[i].comisionEnvioPago + "</td>"
-                + "<td>" + objetoContenedor.detalle[i].cuotaTotal + "</td>"
+                + "<td style='text-align: right'>" + objetoContenedor.detalle[i].saldoAntesS + "</td>"
+                + "<td style='text-align: right'>" + objetoContenedor.detalle[i].amortizacion + "</td>"
+                + "<td style='text-align: right'>" + objetoContenedor.detalle[i].interesMensual + "</td>"
+                + "<td style='text-align: right'>" + objetoContenedor.detalle[i].seguro + "</td>"
+                + "<td style='text-align: right'>" + objetoContenedor.detalle[i].comisionEnvioPago + "</td>"
+                + "<td style='text-align: right'>" + objetoContenedor.detalle[i].cuotaTotal + "</td>"
                 + "</tr>"
 		);
 		

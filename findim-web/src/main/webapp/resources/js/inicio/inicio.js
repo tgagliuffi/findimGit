@@ -31,21 +31,21 @@ function filtroCliente(){
 	    data: {},
 	    context: document.body,
 	    success: function(response) {
-	    	debugger;
 	    	objetoContenedor = response;
-	    	if (constants.BIOMATCH_ACTIVO) {
+//	    	if (constants.BIOMATCH_ACTIVO) {
 		    	if (objetoContenedor.codigoResultado == COD_RESULTADO_APROBADO) {
-		    		verificarHuellaDactilar(tipoDocumento,
-		    				numeroDocumento,
-		    				PROCESO_BIOMETRIA_FILTRO,
-		    				callbackHuellaDactilarFiltroCliente,
-		    				callbackResultadoBiometriaFiltro);
-		    	} else {
-			    	respuesta();
+		    		respuesta();
+//		    		verificarHuellaDactilar(tipoDocumento,
+//		    				numeroDocumento,
+//		    				PROCESO_BIOMETRIA_FILTRO,
+//		    				callbackHuellaDactilarFiltroCliente,
+//		    				callbackResultadoBiometriaFiltro);
+//		    	} else {
+//			    	respuesta();
 		    	}
-	    	} else {
-	    		respuesta();
-	    	}
+//	    	} else {
+//	    		respuesta();
+//	    	}
 	    },
 	    error: function(e) {
 	    	console.log('Error: ' + e);
@@ -54,11 +54,7 @@ function filtroCliente(){
 }
 
 function verificarHuellaDactilar(tipoDocumento, numeroDocumento, codigoProceso, callback, callbackResultado) {
-	alert("tipo documentp : " +tipoDocumento);
-	alert("numeroDocumento : " +numeroDocumento);
-	alert("codigoProceso : " +codigoProceso);
-	alert("callback : " +callback);
-	alert("callbackResultado : " +callbackResultado);
+
 	// Validar maximo de intentos
 	$.ajax({
 		type: 'GET',
@@ -294,11 +290,7 @@ function findPurpose(purposeName){
 	return $.grep(purposeObjects, function(n, i){ return n.purpose == purposeName; }); 
 	};
 function guardarDatosComplementarios(objetoPrueba){	
-//	var idCliente = (
-//		objetoContenedor==null?0:(  
-//			objetoContenedor.idCliente==undefined?0:objetoContenedor.idCliente
-//		)
-//	);
+
 	objetoPrueba.idContrato = (
 			objetoContenedor==null?0:(  
 					objetoContenedor.idContrato==undefined?'':objetoContenedor.idContrato
@@ -352,19 +344,6 @@ function guardarDatosComplementarios(objetoPrueba){
 		contentType: 'application/json',
 	    url: gPath + '/guardarDatosComplementarios',
 	    data: JSON.stringify(objetoPrueba),
-//	    	idCliente: idCliente,
-//	    	codigoContrato: idContrato,
-//	    	correo: correoCliente,
-//	    	idTipoEnvio: idTipoEnvio,
-//	    	estadoContrato: estadoUpdate,
-//	    	tipoEnvio: tipoEnvioNombre,
-//	    	clienteContrato: objetoContenedor,
-	    	
-//	    	idTipoOcupacion: idTipoOcupacion,
-//	    	centroTrabajo: centroTrabajo,
-//	    	cargo: cargo,
-//	    	idTipoModalidad: idTipoModalidad
-//	    }),
 	    beforeSend: function() {
 	    	beginLoadingCargarDatosComplementarios();
 	    },
