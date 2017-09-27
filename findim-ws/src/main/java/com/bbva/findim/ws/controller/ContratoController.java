@@ -1,17 +1,12 @@
 package com.bbva.findim.ws.controller;
 
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +23,6 @@ import com.bbva.findim.ws.util.ConvertUtil;
 import com.bbva.findim.ws.util.Enumeradores.EnumRespuestaSignBox;
 import com.bbva.findim.ws.util.PropertyUtil;
 import com.bbva.findim.ws.util.Util;
-import com.google.gson.Gson;
 
 @Controller
 public class ContratoController {
@@ -80,7 +74,7 @@ public class ContratoController {
 
 			Util.deleteFilesByPrefix(rutasPdfBean.getRutaGeneracionContrato(),Constantes.PREFIJO_TEMPORAL);
 			
-			clienteBean = contratoService.generarPDF(clienteBean);
+			clienteBean = contratoService.generarPDF(clienteBean, false);
 		}catch(ParseException e){
 			clienteBean = null;
 			LOGGER.error("Error-[guardarDatosComplementarios]-", e); 
@@ -121,9 +115,7 @@ public class ContratoController {
 			bean.setTipoDocumento(tipoDocumento);
 			bean.setCodigoContrato(codigoContrato);
 			bean.setCodigoCliente(idCliente);
-
 			bean.setSeguridad_usertype(seguridad_usertype);  		
-			
 			bean.setRutaSignBoxContract(prop.getString("firma.contrato.service.location"));
 			bean.setRutaOrigen(prop.getString("sistema.ruta.generacion.contrato"));
 			bean.setRutaSalida(prop.getString("sistema.ruta.contrato.firmado"));

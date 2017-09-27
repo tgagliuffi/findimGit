@@ -11,6 +11,9 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
 
 	<context:component-scan base-package="com.bbva.findim.ws" />
+	<context:component-scan base-package="com.bbva.findim.bck.domain" />
+	<context:component-scan base-package="com.bbva.findim.bck.service" />
+	<context:component-scan base-package="com.bbva.findim.bck.common" />
 	<!-- ppazos: scan Oracle -->
 	<context:component-scan base-package="com.bbva.findim.sql.service" />
 	<context:component-scan base-package="com.bbva.findim.sql.dao" />
@@ -43,4 +46,5 @@
 	<bean class="com.bbva.findim.sql.dao.impl.EmpresaDaoImpl" id="empresaDaoImpl">
 		<property name="jdbcTemplate" ref="jdbcTemplateFindim"></property>
 	</bean>
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate"></bean>
 </beans>

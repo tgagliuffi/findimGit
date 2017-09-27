@@ -27,7 +27,6 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +46,7 @@ public class ContratoServiceImpl implements ContratoService{
 	
 	
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = { ServiceException.class, Exception.class })
-	public ClienteBean generarPDF(ClienteBean clienteBean) throws ParseException, Exception{
+	public ClienteBean generarPDF(ClienteBean clienteBean, Boolean esRegeneracion) throws ParseException, Exception{
 		logger.debug("> Inicio generarPDF");
 		SimulacionBean simulacionBean = clienteBean.getSimulacionBean();
 		RutasPdfBean  rutasPdfBean = null;
@@ -65,7 +64,7 @@ public class ContratoServiceImpl implements ContratoService{
 			
 			rutasPdfBean=new RutasPdfBean();
 			rutasPdfBean=clienteBean.getDatosPdf().getRutasPdfBean();
-			String  tceaWsdl = clienteBean.getTceaWsdl();
+//			String  tceaWsdl = clienteBean.getTceaWsdl();
 			String tea = "";
 			
 			tea = clienteBean.getSimulacionBean().getListaTarifa().get(0).getTasa();
@@ -91,7 +90,7 @@ public class ContratoServiceImpl implements ContratoService{
 				tceaBean.setFechaCuotas(listaFechaPagoCuota);
 				tceaBean.setMontoTotal(Double.parseDouble(contratoBean.getImportePrestamo()));
 				tceaBean.setFechaCurse(new Date());
-				tceaBean.setWsdlLocation(tceaWsdl);
+//				tceaBean.setWsdlLocation(tceaWsdl);
 				logger.info("WsdlLocation: " + tceaBean.getWsdlLocation());
 				logger.info("MontoCuotas: " + listaMontoCuota);
 				logger.info("FechaVencimiento: " + listaFechaPagoCuota);
@@ -104,7 +103,7 @@ public class ContratoServiceImpl implements ContratoService{
 				clienteBean.getDatosPdf().setRutasPdfBean(rutasPdfBean);
 				clienteBean.getDatosPdf().setListaCuota(simulacionBean.getDetalle());
 				clienteBean.setTipoRespuesta(Constantes.RespuestaContratoCierre.CierreIncorrecto.getInResultado());
-				resultadoGeneracionDocumentos = pdfService.generacionPDF(clienteBean,contratoBean);
+				resultadoGeneracionDocumentos = pdfService.generacionPDF(clienteBean,contratoBean, esRegeneracion);
 			    clienteBean.setNombreArchivo(resultadoGeneracionDocumentos == null ? "":resultadoGeneracionDocumentos);
 			
 			logger.debug("> FIN Generacion de PDF");			
