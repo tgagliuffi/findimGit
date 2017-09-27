@@ -82,7 +82,7 @@ public class ParametroDaoImpl implements ParametroDao {
 		return listaParametrosDetalle;
 	}
 	
-	public ParametroBean obtenerParametroDetalle(Integer idPadre, Integer idParamDetalle) {
+	public ParametroBean obtenerParametroDetallePorIdParamDetalle(Integer idPadre, Integer idParamDetalle) {
 		ParametroBean parametroBean = null;
 		try{
 			
@@ -102,6 +102,33 @@ public class ParametroDaoImpl implements ParametroDao {
 					}
 				},
 			    idPadre, idParamDetalle
+			);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}	
+		return parametroBean;
+	}
+	
+	public ParametroBean obtenerParametroDetallePorNbParamDetalle(Integer idPadre, String nbParamdetalle) {
+		ParametroBean parametroBean = null;
+		try{
+			
+			parametroBean = jdbcTemplate.queryForObject(
+				"SELECT cd_paramdetalle,nb_paramdetalle,cd_paramcabecera, nb_valorparamdeta, nb_auxparamdeta, st_paramdetalle "
+			    +" FROM tfindim_parametrodetalle WHERE cd_paramcabecera= ? AND nb_paramdetalle = ?",
+			    new RowMapper<ParametroBean>() {
+					public ParametroBean mapRow(ResultSet rs, int rowNum) throws SQLException {
+						ParametroBean bean = new ParametroBean();
+						bean.setCd_paramcabecera(rs.getInt("cd_paramcabecera"));
+						bean.setCd_paramdetalle(rs.getInt("cd_paramdetalle"));
+						bean.setNb_paramdetalle(rs.getString("nb_paramdetalle"));
+						bean.setNb_valorparamdeta(rs.getString("nb_valorparamdeta"));
+						bean.setNb_auxparamdeta(rs.getString("nb_auxparamdeta"));
+						bean.setSt_paramdetalle(rs.getInt("st_paramdetalle"));
+						return bean;
+					}
+				},
+			    idPadre, nbParamdetalle
 			);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -245,32 +272,6 @@ public class ParametroDaoImpl implements ParametroDao {
 	return direccionOutput;		
 	}
 
-//	public List<ParametroDetalleBean> listaTipoDocumentos() {
-//		List<ParametroDetalleBean> listaDetParametro=null;
-//		Integer st_paramdetalle;
-//		Integer cd_paramcabecera;
-//		try {
-//			List<Map<String, Object>> listaDetalleParametro;
-//			st_paramdetalle = Constantes.PARAM_DATOS_TIPOS_DOCUMENTOS;
-//			cd_paramcabecera = Constantes.PARAM_ACTIVOS;
-//			MapSqlParameterSource namedParameters = new MapSqlParameterSource()
-//					.addValue("st_paramdetalle", st_paramdetalle)
-//					.addValue("cd_paramcabecera", cd_paramcabecera);
-//			listaDetalleParametro=namedParameterJdbcTemplate.queryForList(
-//					" select cd_paramdetalle, nb_paramdetalle from tfindim_parametrodetalle where cd_paramcabecera=:cd_paramcabecera"
-//					+ "  and st_paramdetalle=:st_paramdetalle order by cd_paramdetalle ", namedParameters );
-//			ParametroDetalleBean parametroDetalleBean;
-//			listaDetParametro = new ArrayList<ParametroDetalleBean>();
-//			for(Map<String, Object> row : listaDetalleParametro){
-//				parametroDetalleBean = new ParametroDetalleBean();
-//				parametroDetalleBean.setCd_paramdetalle(row.get("cd_paramdetalle")!=null?Integer.valueOf(row.get("cd_paramdetalle").toString()):0);
-//				parametroDetalleBean.setNb_paramdetalle(row.get("nb_paramdetalle")!=null?row.get("nb_paramdetalle").toString():"");
-//				listaDetParametro.add(parametroDetalleBean);
-//			}
-//		} catch (Exception e) {
-//			logger.error(e.getMessage(), e);
-//		}
-//		return listaDetParametro;
-//	}
+
 
 }

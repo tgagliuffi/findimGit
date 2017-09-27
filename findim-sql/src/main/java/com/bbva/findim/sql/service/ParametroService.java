@@ -8,14 +8,9 @@ import com.bbva.findim.dom.ParametroDetalleBean;
 
 public interface ParametroService {
 	public List<ParametroBean> listarParametrosDetalle(Integer idPadre);
-
 	public List<ParametroCabeceraBean> listaDatosParametros();
-
 	public ParametroDetalleBean gestionarParametrosDetalle(ParametroDetalleBean parametroDetalleBean);
-
-	ParametroBean obtenerParametroDetalle(Integer idPadre, Integer idParamDetalle);
-	
+	public ParametroBean obtenerParametroDetallePorIdParamDetalle(Integer idPadre, Integer idParamDetalle);
+	public ParametroBean obtenerParametroDetallePorNbParamDetalle(Integer idPadre, String nbParamdetalle);
 	public String obtenerDireccionIngles(String direccionAmdocs);
-
-//	public List<ParametroDetalleBean> listaTipoDocumentos();
 }
