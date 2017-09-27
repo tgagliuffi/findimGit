@@ -1,12 +1,15 @@
 package com.bbva.findim.bck.service;
 
+import java.util.List;
+
 import com.bbva.findim.bck.domain.customers.Customer;
 import com.bbva.findim.dom.ClienteBean;
+import com.bbva.findim.dom.ParametroBean;
 
-public interface CustomersService {
+public interface CustomerService {
 
 	ClienteBean altaCliente(String tSec, ClienteBean clienteNuevo, Customer obj) throws Exception;
-	ClienteBean obtenerDatosCliente(String tSec, String tipoDocumento, String numeroDocumento)throws Exception;
+	ClienteBean obtenerDatosCliente(String tSec, String tipoDocumento, String numeroDocumento, List<ParametroBean> lstIndicadoresVia)throws Exception;
 
 	enum NivelDetalle {
 		

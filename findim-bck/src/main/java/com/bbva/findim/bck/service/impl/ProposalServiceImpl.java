@@ -3,6 +3,7 @@ package com.bbva.findim.bck.service.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -55,12 +56,14 @@ import com.bbva.findim.bck.domain.proposals.Tariff;
 import com.bbva.findim.bck.domain.proposals.ThirdPartyProvider;
 import com.bbva.findim.bck.service.ProposalService;
 import com.bbva.findim.bck.service.SeguridadBbvaService;
+import com.bbva.findim.bck.service.TariffService;
 import com.bbva.findim.bck.util.ConstantesConection.Parametro.PropuestaConstant;
 import com.bbva.findim.bck.util.PropertyUtilCnx;
 import com.bbva.findim.bck.util.Util;
 import com.bbva.findim.dom.ClienteBean;
 import com.bbva.findim.dom.ContratoAltaBean;
 import com.bbva.findim.dom.ContratoBean;
+import com.bbva.findim.dom.EmpresaBean;
 import com.bbva.findim.dom.RespuestaService;
 import com.bbva.findim.dom.common.ConstantResponseMessage;
 import com.bbva.findim.dom.common.Constantes;
@@ -72,6 +75,9 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 	
 	@Autowired
 	private PropertyUtilCnx propertyUtilCnx;
+	
+	@Autowired
+	TariffService tariffService;
 	
 	@Override
 	public ContratoAltaBean altaProposal(String tSec, ContratoAltaBean contratoBean) throws Exception {
@@ -187,10 +193,131 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 	}
 
 	@Override
-	public List<ContratoBean> listarPropuesta(String tSec,String pCategoria, String pProveed, String tipoDocumento, String nroDocumento, String pFromDate) {
+	public List<ContratoBean> listarPropuesta(String tSec, String tipoDocumento, String nroDocumento, EmpresaBean empresa) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(SeguridadBbvaService.HEADER_TSEC, tSec);
 		List<ContratoBean> lstContratos = null;
+		
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		String pToDate = formatter.format(new Date());
+		
+		try{
+			String pFromDate = DateUtil.convertFormatDate("yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd", empresa.getFechaExpiracion());
+			String url = propertyUtilCnx.getString(PropuestaConstant.CODIGO_URL_PROPOSALS_LIST).toString();
+			String terceros = propertyUtilCnx.getString(PropuestaConstant.CODIGO_PARAM_THIRDPARTPROV_ID_LIST);
+			String categoria = propertyUtilCnx.getString(PropuestaConstant.CODIGO_CATEGORY);
+			String tipoDoiKey = propertyUtilCnx.getString(PropuestaConstant.CODIGO_TYPEID_PROPOSALS_LIST).toString();
+			String numDoiKey = propertyUtilCnx.getString(PropuestaConstant.CODIGO_NUMID_PROPOSALS_LIST.toString());
+			String fromDate = propertyUtilCnx.getString(PropuestaConstant.CODIGO_FROM_DATE);
+			String toDate = propertyUtilCnx.getString(PropuestaConstant.CODIGO_TO_DATE);
+			MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+			
+			if( StringUtils.isNotBlank(empresa.getCdEmpresa()) ){
+				params.add(terceros, empresa.getCdEmpresa()); 
+			}if( StringUtils.isNotBlank(empresa.getIndenticador()) ){
+				params.add(categoria, empresa.getIndenticador());
+			}if( StringUtils.isNotBlank(tipoDocumento) ){
+				params.add(tipoDoiKey, tipoDocumento);
+			}if( StringUtils.isNotBlank(nroDocumento) ){
+				params.add(numDoiKey, nroDocumento);
+			}if( StringUtils.isNotBlank(pFromDate) ){
+				params.add(fromDate, pFromDate);
+			}if( StringUtils.isNotBlank(pToDate) ){
+				params.add(toDate, pToDate);
+			}
+			
+			UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).queryParams(params).build();	
+			ResponseEntity<ProposalResult> responseEntity = restTemplate.exchange(uriComponents.toUri(), HttpMethod.GET, new HttpEntity<String>(headers), ProposalResult.class);
+			ProposalResult proposalResult = responseEntity.getBody();
+			
+		
+			
+			if(proposalResult.getData()!=null){
+				
+				if(proposalResult.getData().size()>0){
+					lstContratos = new ArrayList<ContratoBean>();
+					for (int i = 0; i < proposalResult.getData().size(); i++) {
+						ContratoBean contrato = new ContratoBean();
+						
+						contrato.setCodigoContrato(proposalResult.getData().get(i).getId());
+						contrato.setFechaCreacion(proposalResult.getData().get(i).getRequestDate());
+						contrato.setTipoMoneda(proposalResult.getData().get(i).getCurrency());
+						contrato.setNombreArchivo(Util.generarNombreConsolidadoPDF(nroDocumento,proposalResult.getData().get(i).getId()));
+						
+						if(proposalResult.getData().get(i).getDelivery()!=null){
+							contrato.setCorreo(proposalResult.getData().get(i).getDelivery().getEmail());
+						}
+						
+						if(proposalResult.getData().get(i).getInitialAmount()!=null){
+							if(proposalResult.getData().get(i).getInitialAmount().getAmount()!=null){
+								contrato.setImporteBien(""+proposalResult.getData().get(i).getExternalProduct().getCommercialValue().getAmount().doubleValue());
+								contrato.setImportePrestamo(""+proposalResult.getData().get(i).getInitialAmount().getAmount().doubleValue());
+								double importeInicial =proposalResult.getData().get(i).getExternalProduct().getCommercialValue().getAmount().doubleValue()-proposalResult.getData().get(i).getInitialAmount().getAmount().doubleValue();
+								contrato.setImporteInicial(""+importeInicial);
+							}
+
+						if(proposalResult.getData().get(i).getInitialFee()!=null){
+							contrato.setNumeroCuotas(""+proposalResult.getData().get(i).getInitialFee().getAmount());
+						}
+						if(proposalResult.getData().get(i).getTariff()!=null && !proposalResult.getData().get(i).equals("")){
+							contrato.setCodigoTarifa(proposalResult.getData().get(i).getTariff().getId());
+						}
+						
+						if(proposalResult.getData().get(i).getRelatedProduct()!=null && !proposalResult.getData().get(i).getRelatedProduct().equals("") ){
+							if(proposalResult.getData().get(i).getRelatedProduct().getPercentage()!=null && !proposalResult.getData().get(i).getRelatedProduct().getPercentage().equals(""))
+							contrato.setImporteSeguroDesgravamen(proposalResult.getData().get(i).getRelatedProduct().getPercentage());
+							if(proposalResult.getData().get(i).getRelatedProduct().getRelatedProductType()!=null){
+							contrato.setDescripcionTasaSeguro(proposalResult.getData().get(i).getRelatedProduct().getRelatedProductType().getName());	
+							contrato.setValorTasaSeguro(new BigDecimal(proposalResult.getData().get(i).getRelatedProduct().getRelatedProductType().getId()).divide(new BigDecimal(100)).toString());
+							}
+						}
+						
+						if(proposalResult.getData().get(i).getHolder()!=null){
+							contrato.setClienteContrato(new ClienteBean());
+							contrato.getClienteContrato().setNombreCompleto(proposalResult.getData().get(i).getHolder().getName());
+							contrato.getClienteContrato().setApellidoPaterno(proposalResult.getData().get(i).getHolder().getLastName());
+							contrato.getClienteContrato().setApellidoMaterno(proposalResult.getData().get(i).getHolder().getMotherLastName());
+						}else{
+							contrato.setClienteContrato(new ClienteBean());
+						}
+						
+						if(proposalResult.getData().get(i).getDelivery()!=null){
+							if(proposalResult.getData().get(i).getDelivery().getType()!=null){
+								contrato.setTipoEnvio(proposalResult.getData().get(i).getDelivery().getType().getId());
+							}
+							contrato.getClienteContrato().setCorreoCliente(proposalResult.getData().get(i).getDelivery().getEmail());
+						}
+						
+						if(proposalResult.getData().get(i).getStatus()!=null){
+							String estado = determinarEstado(proposalResult.getData().get(i).getStatus().getId(),0);
+							contrato.setEstadoContrato(estado);
+
+							if(estado.equals(Estado.FIRMADO.name()))
+								contrato.setNombreArchivo(Constantes.DOCUMENTO_ACE + contrato.getCodigoContrato() + Constantes.EXTENSION_PDF);
+						}
+						if(proposalResult.getData().get(i).getTariff()!=null) {
+							contrato.setTasaFinanciamiento(
+									tariffService.obtenerTarifa(null,proposalResult.getData().get(i).getTariff().getId(), tSec, empresa).getTasa()
+									);
+							
+						}
+						contrato.setFechaDesembolso("");
+						lstContratos.add(contrato);
+					}
+				  }
+				}
+			}			
+		}catch (Exception e) {
+			LOGGER.error(e);
+			return null;
+		}
+		return lstContratos;
+	}
+	
+	public ContratoBean obtenerPropuesta(String tSec,String pCategoria, String pProveed, String tipoDocumento, String nroDocumento, String pFromDate, String cdPropuesta) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.add(SeguridadBbvaService.HEADER_TSEC, tSec);
+		ContratoBean contrato  = null;
 		
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		String pToDate = formatter.format(new Date());
@@ -226,77 +353,77 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 			
 			if(proposalResult.getData()!=null){
 				if(proposalResult.getData().size()>0){
-					lstContratos = new ArrayList<ContratoBean>();
 					for (int i = 0; i < proposalResult.getData().size(); i++) {
-						ContratoBean contrato = new ContratoBean();
-						
-						contrato.setCodigoContrato(proposalResult.getData().get(i).getId());
-						contrato.setFechaCreacion(proposalResult.getData().get(i).getRequestDate());
-						contrato.setTipoMoneda(proposalResult.getData().get(i).getCurrency());
-						contrato.setNombreArchivo(Util.generarNombreConsolidadoPDF(nroDocumento,proposalResult.getData().get(i).getId()));
-						
-						if(proposalResult.getData().get(i).getDelivery()!=null){
-							contrato.setCorreo(proposalResult.getData().get(i).getDelivery().getEmail());
-						}
-						
-						if(proposalResult.getData().get(i).getInitialAmount()!=null){
-							if(proposalResult.getData().get(i).getInitialAmount().getAmount()!=null){
+						 if(proposalResult.getData().get(i).getId().equals(cdPropuesta)) {
+							 contrato = new ContratoBean();
+								contrato.setCodigoContrato(proposalResult.getData().get(i).getId());
+								contrato.setFechaCreacion(proposalResult.getData().get(i).getRequestDate());
+								contrato.setTipoMoneda(proposalResult.getData().get(i).getCurrency());
+								contrato.setNombreArchivo(Util.generarNombreConsolidadoPDF(nroDocumento,proposalResult.getData().get(i).getId()));
 								
-								contrato.setImporteBien(""+proposalResult.getData().get(i).getExternalProduct().getCommercialValue().getAmount().doubleValue());
-								contrato.setImportePrestamo(""+proposalResult.getData().get(i).getInitialAmount().getAmount().doubleValue());
-								double importeInicial =proposalResult.getData().get(i).getExternalProduct().getCommercialValue().getAmount().doubleValue()-proposalResult.getData().get(i).getInitialAmount().getAmount().doubleValue();
-								contrato.setImporteInicial(""+importeInicial);
-							}
+								if(proposalResult.getData().get(i).getDelivery()!=null){
+									contrato.setCorreo(proposalResult.getData().get(i).getDelivery().getEmail());
+								}
+								
+								if(proposalResult.getData().get(i).getInitialAmount()!=null){
+									if(proposalResult.getData().get(i).getInitialAmount().getAmount()!=null){
+										
+										contrato.setImporteBien(""+proposalResult.getData().get(i).getExternalProduct().getCommercialValue().getAmount().doubleValue());
+										contrato.setImportePrestamo(""+proposalResult.getData().get(i).getInitialAmount().getAmount().doubleValue());
+										double importeInicial =proposalResult.getData().get(i).getExternalProduct().getCommercialValue().getAmount().doubleValue()-proposalResult.getData().get(i).getInitialAmount().getAmount().doubleValue();
+										contrato.setImporteInicial(""+importeInicial);
+									}
 
-						if(proposalResult.getData().get(i).getInitialFee()!=null){
-							contrato.setNumeroCuotas(""+proposalResult.getData().get(i).getInitialFee().getAmount());
-						}
-						if(proposalResult.getData().get(i).getTariff()!=null && !proposalResult.getData().get(i).equals("")){
-							contrato.setCodigoTarifa(proposalResult.getData().get(i).getTariff().getId());
-						}
-						
-						if(proposalResult.getData().get(i).getRelatedProduct()!=null && !proposalResult.getData().get(i).getRelatedProduct().equals("") ){
-							if(proposalResult.getData().get(i).getRelatedProduct().getPercentage()!=null && !proposalResult.getData().get(i).getRelatedProduct().getPercentage().equals(""))
-							contrato.setImporteSeguroDesgravamen(proposalResult.getData().get(i).getRelatedProduct().getPercentage());
-							if(proposalResult.getData().get(i).getRelatedProduct().getRelatedProductType()!=null){
-							contrato.setDescripcionTasaSeguro(proposalResult.getData().get(i).getRelatedProduct().getRelatedProductType().getName());	
-							contrato.setValorTasaSeguro(proposalResult.getData().get(i).getRelatedProduct().getRelatedProductType().getId());
-							}
-						}
-						
-						if(proposalResult.getData().get(i).getHolder()!=null){
-							contrato.setClienteContrato(new ClienteBean());
-							contrato.getClienteContrato().setNombreCompleto(proposalResult.getData().get(i).getHolder().getName());
-							contrato.getClienteContrato().setApellidoPaterno(proposalResult.getData().get(i).getHolder().getLastName());
-							contrato.getClienteContrato().setApellidoMaterno(proposalResult.getData().get(i).getHolder().getMotherLastName());
-						}else{
-							contrato.setClienteContrato(new ClienteBean());
-						}
-						
-						if(proposalResult.getData().get(i).getDelivery()!=null){
-							if(proposalResult.getData().get(i).getDelivery().getType()!=null){
-								contrato.setTipoEnvio(proposalResult.getData().get(i).getDelivery().getType().getId());
-							}
-							contrato.getClienteContrato().setCorreoCliente(proposalResult.getData().get(i).getDelivery().getEmail());
-						}
-						
-						if(proposalResult.getData().get(i).getStatus()!=null){
-							String estado = determinarEstado(proposalResult.getData().get(i).getStatus().getId(),0);
-							contrato.setEstadoContrato(estado);
+								if(proposalResult.getData().get(i).getInitialFee()!=null){
+									contrato.setNumeroCuotas(""+proposalResult.getData().get(i).getInitialFee().getAmount());
+								}
+								if(proposalResult.getData().get(i).getTariff()!=null && !proposalResult.getData().get(i).equals("")){
+									contrato.setCodigoTarifa(proposalResult.getData().get(i).getTariff().getId());
+								}
+								
+								if(proposalResult.getData().get(i).getRelatedProduct()!=null && !proposalResult.getData().get(i).getRelatedProduct().equals("") ){
+									if(proposalResult.getData().get(i).getRelatedProduct().getPercentage()!=null && !proposalResult.getData().get(i).getRelatedProduct().getPercentage().equals(""))
+									contrato.setImporteSeguroDesgravamen(proposalResult.getData().get(i).getRelatedProduct().getPercentage());
+									if(proposalResult.getData().get(i).getRelatedProduct().getRelatedProductType()!=null){
+									contrato.setDescripcionTasaSeguro(proposalResult.getData().get(i).getRelatedProduct().getRelatedProductType().getName());	
+//									contrato.setValorTasaSeguro(proposalResult.getData().get(i).getRelatedProduct().getRelatedProductType().getId());
+									}
+								}
+								
+								if(proposalResult.getData().get(i).getHolder()!=null){
+									contrato.setClienteContrato(new ClienteBean());
+									contrato.getClienteContrato().setNombreCompleto(proposalResult.getData().get(i).getHolder().getName());
+									contrato.getClienteContrato().setApellidoPaterno(proposalResult.getData().get(i).getHolder().getLastName());
+									contrato.getClienteContrato().setApellidoMaterno(proposalResult.getData().get(i).getHolder().getMotherLastName());
+								}else{
+									contrato.setClienteContrato(new ClienteBean());
+								}
+								
+								if(proposalResult.getData().get(i).getDelivery()!=null){
+									if(proposalResult.getData().get(i).getDelivery().getType()!=null){
+										contrato.setTipoEnvio(proposalResult.getData().get(i).getDelivery().getType().getId());
+									}
+									contrato.getClienteContrato().setCorreoCliente(proposalResult.getData().get(i).getDelivery().getEmail());
+								}
+								
+								if(proposalResult.getData().get(i).getStatus()!=null){
+									String estado = determinarEstado(proposalResult.getData().get(i).getStatus().getId(),0);
+									contrato.setEstadoContrato(estado);
 
-							if(estado.equals(Estado.FIRMADO.name()))
-								contrato.setNombreArchivo(Constantes.DOCUMENTO_ACE + contrato.getCodigoContrato() + Constantes.EXTENSION_PDF);
-						}
-						lstContratos.add(contrato);
+									if(estado.equals(Estado.FIRMADO.name()))
+										contrato.setNombreArchivo(Constantes.DOCUMENTO_ACE + contrato.getCodigoContrato() + Constantes.EXTENSION_PDF);
+								}
+								
+							}
+						 }
 					}
-				  }
 				}
 			}			
 		}catch (Exception e) {
 			LOGGER.error(e);
 			return null;
 		}
-		return lstContratos;
+		return contrato;
 	}
 	
 	public ProposalsUpdate mapperProposalsUpdateFromContratoBean(ContratoBean contrato) throws ParseException{

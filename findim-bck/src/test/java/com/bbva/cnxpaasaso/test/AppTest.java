@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.bbva.findim.bck.service.ApprovalsService;
 import com.bbva.findim.bck.service.CatalogService;
-import com.bbva.findim.bck.service.CustomersService;
+import com.bbva.findim.bck.service.CustomerService;
 import com.bbva.findim.bck.service.LoanService;
 import com.bbva.findim.bck.service.PersonService;
 import com.bbva.findim.bck.service.ProposalService;
@@ -53,7 +53,7 @@ import com.bbva.findim.dom.ValorIngresoBean;
 public class AppTest {
 
 	@Autowired
-	CustomersService customerService;
+	CustomerService customerService;
 	
 	@Autowired
 	LoanService loanService;
@@ -199,10 +199,10 @@ public class AppTest {
 	public void listarCliente(String tipoDocumento, String nroDocumento) throws Exception{
         System.out.println("########################## INICIO LISTAR CLIENTE ##########################");
 		String tsecPublic= seguridad.generarTSec(2);
-    	ClienteBean customer = customerService.obtenerDatosCliente(tsecPublic,tipoDocumento, nroDocumento);
+    	ClienteBean customer = customerService.obtenerDatosCliente(tsecPublic,tipoDocumento, nroDocumento, null);
         System.out.println(ToStringBuilder.reflectionToString(customer));
 		try {
-	    	customer = customerService.obtenerDatosCliente(tsecPublic,tipoDocumento, nroDocumento);
+	    	customer = customerService.obtenerDatosCliente(tsecPublic,tipoDocumento, nroDocumento, null);
 //	    	if(customer.getRptErrorService()!=null){
 //	            System.out.println("Sucedio un error : " +  customer.getRptErrorService());
 //	    	}else{
@@ -436,7 +436,7 @@ public class AppTest {
     public void listarPropuesta(String tipoDocumento, String nroDocumento)throws Exception{
         System.out.println("########################### INICIO LISTAR PROPUESTA ##########################");
         String tsecApp = seguridad.generarTSec(3);
-	  	List<ContratoBean> lista = proposalService.listarPropuesta(tsecApp, "CE","TELF", tipoDocumento, nroDocumento, "2017-01-01");
+	  	List<ContratoBean> lista = proposalService.listarPropuesta(tsecApp,  tipoDocumento, nroDocumento , null);
 	  	System.out.println(ToStringBuilder.reflectionToString(lista));
 	    System.out.println("#############################################################################");
 
@@ -445,7 +445,7 @@ public class AppTest {
     public List<ContratoBean> listarPropuesta2(String tipoDocumento, String nroDocumento)throws Exception{
         System.out.println("########################### INICIO LISTAR PROPUESTA ##########################");
         String tsecApp = seguridad.generarTSec(3);
-	  	List<ContratoBean> lista = proposalService.listarPropuesta(tsecApp, "CE","TELF", tipoDocumento, nroDocumento, "2017-01-01");
+	  	List<ContratoBean> lista = proposalService.listarPropuesta(tsecApp, tipoDocumento, nroDocumento, null);
 	  	System.out.println(ToStringBuilder.reflectionToString(lista));
 	    System.out.println("#############################################################################");
 	    return lista;

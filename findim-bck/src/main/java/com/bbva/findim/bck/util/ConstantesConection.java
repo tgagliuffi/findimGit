@@ -33,7 +33,8 @@ public final class ConstantesConection {
 		public final static class GENERAL {
 			public static final String TIPO = "PLD_GENERAL";
 			public static final String CODIGO_CAMPANHA = "PLD_COD_CAMPANHA";
-			public static final String ESPACIO = "";
+			public static final String STR_VACIO = "";
+			public static final String STR_ESPACIO = " ";
 			public static final String COD_UBIGEO = "UBIGEO";
 			
 			public static final String DEPARTMENT = "DEPARTMENT";
@@ -83,22 +84,13 @@ public final class ConstantesConection {
 			public static final String CODIGO_TIPDOI_CUSTOMERS_KEY = "customers.codigo.tipdoi.key";
 
 		}
-		/*
-		 * tariff.codigo.url.lisTariffSchemas = http://150.250.140.61:7700/tariff-schemas/V01/tariff-schemas
-			tariff.codigo.thirdPartyProvider.id = thirdPartyProvider.id
-			tariff.codigo.externalProduct.category.type.id = externalProduct.category.type.id
-			tariff.codigo.status.key = status
-			tariff.codigo.paginationKey.key = paginationKey
-			tariff.codigo.pageSize.key = pageSize
-		 * */
-		
+	
 		public final class TarifaConstant {	
 			public static final String CODIGO_URL_TARIFF_LIST = "tariff.codigo.url.lisTariffSchemas";
 			public static final String CODIGO_PARAMETER_THIRDPARTY = "tariff.codigo.thirdPartyProvider.id";
 			public static final String CODIGO_PARAMETER_EXTERNALPRODUCT = "tariff.codigo.externalProduct.category.type.id";
 			public static final String CODIGO_CATEGOTY_TARIFF_TERM = "TERM";
 			public static final String CODIGO_CATEGOTY_TARIFF_EAR = "EAR";
-		
 		}
 		
 		public final class Reniec {			

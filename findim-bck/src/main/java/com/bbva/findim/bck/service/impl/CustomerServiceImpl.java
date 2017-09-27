@@ -1,5 +1,6 @@
 package com.bbva.findim.bck.service.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ import com.bbva.findim.bck.domain.customers.PersonalTitle;
 import com.bbva.findim.bck.domain.customers.Residence;
 import com.bbva.findim.bck.domain.customers.ResidenceType;
 import com.bbva.findim.bck.domain.customers.WorkPlace;
-import com.bbva.findim.bck.service.CustomersService;
+import com.bbva.findim.bck.service.CustomerService;
 import com.bbva.findim.bck.service.SeguridadBbvaService;
 import com.bbva.findim.bck.util.ConstantesConection;
 import com.bbva.findim.bck.util.ConstantesConection.Parametro.ClienteConstant;
@@ -62,17 +63,18 @@ import com.bbva.findim.dom.DireccionClienteBean;
 import com.bbva.findim.dom.DireccionDetalleclienteBean;
 import com.bbva.findim.dom.DocumentoIdentidadBean;
 import com.bbva.findim.dom.GrupoGeografico;
+import com.bbva.findim.dom.ParametroBean;
 import com.bbva.findim.dom.RespuestaService;
 import com.bbva.findim.dom.UbicacionDireccionBean;
 import com.bbva.findim.dom.common.ConstantResponseMessage;
 
 @Service
-public class CustomersServiceImpl extends BaseServiceBackImpl implements CustomersService {	
+public class CustomerServiceImpl extends BaseServiceBackImpl implements CustomerService {	
 	
 	@Autowired
 	private PropertyUtilCnx propertyUtilCnx;
 	
-	public ClienteBean obtenerDatosCliente(String tSec, String tipoDocumento, String numeroDocumento) throws ParseException {
+	public ClienteBean obtenerDatosCliente(String tSec, String tipoDocumento, String numeroDocumento, List<ParametroBean> lstIndicadoresVia) throws ParseException {
 		String cadenaRptaError = "";
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(SeguridadBbvaService.HEADER_TSEC, tSec);
@@ -112,6 +114,7 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 						clienteBean.setApellidoPaterno(customerResult.getData().get(i).getLastName());
 						clienteBean.setPrimerNombre(customerResult.getData().get(i).getFirstName());
 						clienteBean.setApellidoMaterno(customerResult.getData().get(i).getSurnames());
+						clienteBean.setNombreCompleto(customerResult.getData().get(i).getLastName() + " " + customerResult.getData().get(i).getFirstName() + " " + customerResult.getData().get(i).getSurnames());
 						
 						if(customerResult.getData().get(i).getIdentityDocuments().size()>0){ 
 							clienteBean.setLstDocumentoIdentidadBean(new ArrayList<DocumentoIdentidadBean>());
@@ -185,7 +188,7 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 									if(customerResult.getData().get(i).getAddresses().get(i).getLocation().getCountry()!=null){
 										clienteBean.getDireccionCliente().getUbicacion().setNbPais(customerResult.getData().get(i).getAddresses().get(i).getLocation().getCountry().getName());
 									}
-									String direccionCompleta = GENERAL.ESPACIO;	
+									String direccionCompleta = GENERAL.STR_VACIO;	
 									if(customerResult.getData().get(i).getAddresses().get(i).getLocation().getGeographicGroups()!=null){	
 										clienteBean.getDireccionCliente().getUbicacion().setLstDetalleDireccion(new ArrayList<DireccionDetalleclienteBean>());
 										boolean esAnexoDireccion = false;
@@ -214,19 +217,21 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 														direccionDetalle.setUbigeo(customerResult.getData().get(i).getAddresses().get(i).getLocation().getGeographicGroups().get(j2).getGeographicGroupType().getName());
 													}
 													if(esAnexoDireccion)
-														direccionCompleta = direccionCompleta  + customerResult.getData().get(i).getAddresses().get(i).getLocation().getGeographicGroups().get(j2).getGeographicGroupType().getName() + GENERAL.ESPACIO;
+														direccionCompleta = (direccionCompleta!=null?direccionCompleta:GENERAL.STR_VACIO)  + 
+																			 (customerResult.getData().get(i).getAddresses().get(i).getLocation().getGeographicGroups().get(j2).getGeographicGroupType().getName()!=null?customerResult.getData().get(i).getAddresses().get(i).getLocation().getGeographicGroups().get(j2).getGeographicGroupType().getName():GENERAL.STR_VACIO)+		
+																			 GENERAL.STR_ESPACIO;
 												}
 												if(customerResult.getData().get(i).getAddresses().get(i).getLocation().getGeographicGroups().get(j2).getName()!=null){
 													direccionDetalle.setNbGrupoGeo(customerResult.getData().get(i).getAddresses().get(i).getLocation().getGeographicGroups().get(j2).getName());
 													if(esAnexoDireccion)
-														direccionCompleta = direccionCompleta  + customerResult.getData().get(i).getAddresses().get(i).getLocation().getGeographicGroups().get(j2).getName() + GENERAL.ESPACIO;
+														direccionCompleta = (direccionCompleta!=null?direccionCompleta:GENERAL.STR_VACIO)  + customerResult.getData().get(i).getAddresses().get(i).getLocation().getGeographicGroups().get(j2).getName() + GENERAL.STR_ESPACIO;
 		
 												}
 											
 												direccionDetalle.setVwDescripcion(direccionCompleta);
 												clienteBean.getDireccionCliente().getUbicacion().getLstDetalleDireccion().add(direccionDetalle);
 												}
-											clienteBean.getDireccionCliente().getUbicacion().setDsDireccionCompleta(direccionCompleta(clienteBean.getDireccionCliente().getUbicacion()));
+											clienteBean.getDireccionCliente().getUbicacion().setDsDireccionCompleta(direccionCompleta(clienteBean.getDireccionCliente().getUbicacion(), lstIndicadoresVia));
 									}
 								}
 							}
@@ -290,6 +295,13 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 			}else if(customerIn!=null){
 				customerBack=customerIn;
 			}
+			ObjectMapper mapper = new ObjectMapper();
+			   //Object to JSON in file
+			mapper.writeValue(new File("D:\\file.json"), customerBack);
+			//Object to JSON in String
+			@SuppressWarnings("unused")
+			String jsonInString = mapper.writeValueAsString(customerBack);
+			
 			String url = propertyUtilCnx.getString(ClienteConstant.CODIGO_URL_CUSTOMERS_CREATE).toString();
 			UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).build();		
 			HttpEntity<Customer> entity = new HttpEntity<Customer>(customerBack, headers);
@@ -390,7 +402,7 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 		clienteBack.getResidence().setCountry(new Country());
 		clienteBack.getResidence().getCountry().setId(ConstantesConection.VALUE_PERU.getId());
 		clienteBack.getResidence().setResidenceType(new ResidenceType());
-		clienteBack.getResidence().getResidenceType().setId(CustomersService.Residencia.PERMANENTE.getTipo());//TODO : validar si es constante
+		clienteBack.getResidence().getResidenceType().setId(CustomerService.Residencia.PERMANENTE.getTipo());//TODO : validar si es constante
 	
 		String  idUrbano  = "EXTERIOR_NUMBER";
 		if(esUrbano(clienteNuevo.getDireccion(), idUrbano)){
@@ -473,14 +485,14 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 	private Value determinarEstadoCivilBack(Customer cliente) {
 		Value estadoCivil;
 		if ("1".equals(cliente.getMaritalStatus().getId())) {
-			estadoCivil = new Value(CustomersService.EstadoCivilBack.SOLTERO.getEstado());
+			estadoCivil = new Value(CustomerService.EstadoCivilBack.SOLTERO.getEstado());
 		} else if ("2".equals(cliente.getMaritalStatus().getId())) {
-			estadoCivil = new Value(CustomersService.EstadoCivilBack.CASADO.getEstado());
+			estadoCivil = new Value(CustomerService.EstadoCivilBack.CASADO.getEstado());
 		} else if ("3".equals(cliente.getMaritalStatus().getId())) {
-			estadoCivil = new Value(CustomersService.EstadoCivilBack.DIVORCIADO.getEstado());
+			estadoCivil = new Value(CustomerService.EstadoCivilBack.DIVORCIADO.getEstado());
 		} else {// TODO En reniec existe Divorciado en BBVA no | En BBVA esiste
 				// Conviviente en Reniec no. Pro defecto se pone Casado.
-			estadoCivil = new Value(CustomersService.EstadoCivilBack.CASADO.getEstado());
+			estadoCivil = new Value(CustomerService.EstadoCivilBack.CASADO.getEstado());
 		}
 		return estadoCivil;
 	}
@@ -488,16 +500,16 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 	private Value determinarEstadoCivilFront(String value) {
 		Value estadoCivil;
 		if (value.equals("SINGLE")) {
-			estadoCivil = new Value(CustomersService.EstadoCivilFront.SOLTERO.getEstado());
+			estadoCivil = new Value(CustomerService.EstadoCivilFront.SOLTERO.getEstado());
 		} else if (value.equals("MARRIED")) {
-			estadoCivil = new Value(CustomersService.EstadoCivilFront.CASADO.getEstado());
+			estadoCivil = new Value(CustomerService.EstadoCivilFront.CASADO.getEstado());
 		} else if (value.equals("COHABITANT")) {
-			estadoCivil = new Value(CustomersService.EstadoCivilFront.CASADO.getEstado());
+			estadoCivil = new Value(CustomerService.EstadoCivilFront.CASADO.getEstado());
 		}else if (value.equals("WIDOWED")) {
-				estadoCivil = new Value(CustomersService.EstadoCivilFront.VIUDO.getEstado());
+				estadoCivil = new Value(CustomerService.EstadoCivilFront.VIUDO.getEstado());
 		}else {// TODO En reniec existe Divorciado en BBVA no | En BBVA esiste
 				// Conviviente en Reniec no. Pro defecto se pone Casado.
-			estadoCivil = new Value(CustomersService.EstadoCivilFront.CASADO.getEstado());
+			estadoCivil = new Value(CustomerService.EstadoCivilFront.CASADO.getEstado());
 		}
 		return estadoCivil;
 	}
@@ -505,14 +517,14 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 	/*Genero (Reniec) 1 = Masculino 2 = Femenino */
 	private Value determinarGenero(String generoCliente) {
 		Value genero = null;
-		if (CustomersService.GeneroFront.FEMALE.getDescipcion().equals(generoCliente)) {
-			genero = new Value(CustomersService.Genero.MASCULINO.getDescipcion());
-		}else if(CustomersService.GeneroFront.MALE.getDescipcion().equals(generoCliente)) {
-			genero = new Value(CustomersService.Genero.FENEMINO.getDescipcion());
-		}else if(CustomersService.GeneroFront.FEMALE.toString().equals(generoCliente)) {
-			genero = new Value(CustomersService.GeneroFront.FEMALE.getDescipcion());
-		}else if(CustomersService.GeneroFront.MALE.toString().equals(generoCliente)) {
-			genero = new Value(CustomersService.GeneroFront.MALE.getDescipcion());
+		if (CustomerService.GeneroFront.FEMALE.getDescipcion().equals(generoCliente)) {
+			genero = new Value(CustomerService.Genero.MASCULINO.getDescipcion());
+		}else if(CustomerService.GeneroFront.MALE.getDescipcion().equals(generoCliente)) {
+			genero = new Value(CustomerService.Genero.FENEMINO.getDescipcion());
+		}else if(CustomerService.GeneroFront.FEMALE.toString().equals(generoCliente)) {
+			genero = new Value(CustomerService.GeneroFront.FEMALE.getDescipcion());
+		}else if(CustomerService.GeneroFront.MALE.toString().equals(generoCliente)) {
+			genero = new Value(CustomerService.GeneroFront.MALE.getDescipcion());
 		}
 		
 		return genero;
@@ -520,25 +532,38 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 		
 	private Value determinarTitle(Customer cliente) {
 		Value title = new Value();
-		if (CustomersService.Genero.MASCULINO.getDescipcion().equals(cliente.getGender().getId())) {
-			title.setValue(CustomersService.TituloPersona.SR.getTitulo());
-		} else if (CustomersService.Genero.FENEMINO.getDescipcion().equals(cliente.getGender().getId())) {
-			if (CustomersService.EstadoCivilBack.SOLTERO.getEstado().equals(cliente.getMaritalStatus().getId())) {
-				title.setValue(CustomersService.TituloPersona.SRTA.getTitulo());
-			} else if (CustomersService.EstadoCivilBack.CASADO.getEstado().equals(cliente.getMaritalStatus().getId())
-					|| CustomersService.EstadoCivilBack.DIVORCIADO.getEstado().equals(cliente.getMaritalStatus().getId())) {
-				title.setValue(CustomersService.TituloPersona.SRA.getTitulo());
+		if (CustomerService.Genero.MASCULINO.getDescipcion().equals(cliente.getGender().getId())) {
+			title.setValue(CustomerService.TituloPersona.SR.getTitulo());
+		} else if (CustomerService.Genero.FENEMINO.getDescipcion().equals(cliente.getGender().getId())) {
+			if (CustomerService.EstadoCivilBack.SOLTERO.getEstado().equals(cliente.getMaritalStatus().getId())) {
+				title.setValue(CustomerService.TituloPersona.SRTA.getTitulo());
+			} else if (CustomerService.EstadoCivilBack.CASADO.getEstado().equals(cliente.getMaritalStatus().getId())
+					|| CustomerService.EstadoCivilBack.DIVORCIADO.getEstado().equals(cliente.getMaritalStatus().getId())) {
+				title.setValue(CustomerService.TituloPersona.SRA.getTitulo());
 			}
 		}
 
 		if (title.getValue() == null) {
-			title.setValue(CustomersService.TituloPersona.SR_A.getTitulo());
+			title.setValue(CustomerService.TituloPersona.SR_A.getTitulo());
 		}
 
 		return title;
 	}
 	
-	public String direccionCompleta(UbicacionDireccionBean ubicacion){
+	public String traducirDireccion(String alias, List<ParametroBean> lstIndicadoresVia) {
+		String rpta = GENERAL.STR_VACIO;
+		for (int i = 0; i < lstIndicadoresVia.size(); i++) {
+			if(lstIndicadoresVia.get(i).getNb_paramdetalle().equals(alias)) {
+				rpta= lstIndicadoresVia.get(i).getNb_valorparamdeta();
+				break;
+			}
+			 
+		}
+		return rpta;
+	}
+	
+	
+	public String direccionCompleta(UbicacionDireccionBean ubicacion, List<ParametroBean> lstIndicadoresVia){
 		String[] arrCodigoVia = GENERAL.codigosTipoVia;
 		String[] arrCogigoZona = GENERAL.codigosTipoZona;
 		String strVia = "", strDesVia = "", strZona = "", strDesZona = "", strDesNumExt = "", strNumExt = "", strDesNumInt = "",strNumInt = "";
@@ -550,17 +575,17 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 					
 					if(detalle.getIdTipoGrupoGeo()!=null){
 						if(esAnexoDireccion(arrCodigoVia, detalle.getIdTipoGrupoGeo())){
-							strVia = detalle.getNbTipoGrupoGeo();
-							strDesVia = detalle.getNbGrupoGeo();
+							strVia = traducirDireccion(detalle.getIdTipoGrupoGeo(), lstIndicadoresVia);
+							strDesVia =  detalle.getNbGrupoGeo();
 						}else if(esAnexoDireccion(arrCogigoZona, detalle.getIdTipoGrupoGeo())){
-							strZona =  detalle.getNbTipoGrupoGeo();
-							strDesZona = detalle.getNbGrupoGeo();;
+							strZona =  traducirDireccion(detalle.getIdTipoGrupoGeo(), lstIndicadoresVia);
+							strDesZona = detalle.getNbGrupoGeo();
 						}else if(detalle.getIdTipoGrupoGeo().equals("EXTERIOR_NUMBER")){
 							strDesNumExt = "Nro Ext.";
-							strNumExt  = detalle.getNbGrupoGeo();;
+							strNumExt  = detalle.getNbGrupoGeo()!=null?detalle.getNbGrupoGeo():GENERAL.STR_VACIO;
 						}else if(detalle.getIdTipoGrupoGeo().equals("INTERIOR_NUMBER")){
 							strDesNumInt = "Nro Int.";
-							strNumInt  = detalle.getNbGrupoGeo();
+							strNumInt  = detalle.getNbGrupoGeo()!=null?detalle.getNbGrupoGeo():GENERAL.STR_VACIO;
 						}
 					}
 				}
@@ -568,10 +593,10 @@ public class CustomersServiceImpl extends BaseServiceBackImpl implements Custome
 			}
 		}
 		
-		String direccion = 	(strVia.isEmpty()?"":strVia) + " " + (strDesVia.isEmpty()?"":strDesVia) + " " +  
-							(strDesNumExt.isEmpty()?"":strDesNumExt)+ " " + (strNumExt.isEmpty()?"":strNumExt) + " " + 
-							(strDesNumInt.isEmpty()?"":strDesNumInt) + " " + (strNumInt.isEmpty()?"":strNumInt) + " " + 
-							(strZona.isEmpty()?"":strZona) + " " + (strDesZona.isEmpty()?"":strDesZona);
+		String direccion = 	(strDesVia.isEmpty()?GENERAL.STR_VACIO:strVia + GENERAL.STR_ESPACIO + strDesVia) + GENERAL.STR_ESPACIO +  
+							(strNumExt.isEmpty()?GENERAL.STR_VACIO:strDesNumExt + GENERAL.STR_ESPACIO + strNumExt)  + GENERAL.STR_ESPACIO +
+							(strNumInt.isEmpty()?GENERAL.STR_VACIO:strDesNumInt + GENERAL.STR_ESPACIO + strNumInt)  + GENERAL.STR_ESPACIO + 
+							(strDesZona.isEmpty()?GENERAL.STR_VACIO:strZona + GENERAL.STR_ESPACIO + strDesZona) ;
 		
 		return direccion;
 		

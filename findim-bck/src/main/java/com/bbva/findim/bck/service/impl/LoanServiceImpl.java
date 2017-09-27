@@ -33,10 +33,11 @@ import com.bbva.findim.dom.CabeceraBean;
 import com.bbva.findim.dom.DetalleBean;
 import com.bbva.findim.dom.SimulacionBean;
 import com.bbva.findim.dom.TotalesBean;
+import com.bbva.findim.dom.util.NumberUtil;
 import com.bbva.findim.dom.CondicionBean;
 import com.bbva.findim.dom.PrestamoBean;
 
-@Service
+@Service("loanService")
 public class LoanServiceImpl extends BaseServiceBackImpl  implements LoanService{
 	@Autowired
 	private PropertyUtilCnx propertyUtilCnx;
@@ -83,13 +84,11 @@ public class LoanServiceImpl extends BaseServiceBackImpl  implements LoanService
 					if(loanResult.getInterests()!=null){
 						for (int i = 0; i < loanResult.getInterests().size(); i++) {
 							if(loanResult.getInterests().get(i).getType().equals("01"))//annualPercentageRate
-								prestamoBean.setImpTCEA(new BigDecimal(loanResult.getInterests().get(i).getPercentage()));
+								prestamoBean.setImpTCEA(NumberUtil.formaterBigDecimal(loanResult.getInterests().get(i).getPercentage(), null, null,null));
 							if(loanResult.getInterests().get(i).getType().equals("02"))//nominalInterestRate 
-								prestamoBean.setImpTEA(new BigDecimal(loanResult.getInterests().get(i).getPercentage()));
+								prestamoBean.setImpTEA(NumberUtil.formaterBigDecimal(loanResult.getInterests().get(i).getPercentage(), null, null,null));
 							if(loanResult.getInterests().get(i).getType().equals("07"))//int moratorio
-								prestamoBean.setImpIntMoratorio(new BigDecimal(loanResult.getInterests().get(i).getPercentage()));
-//							if(loanResult.getInterests().get(i).getType().equals("09"))//tcea refenrecial
-//								prestamoBean.getCabecera().setTcea(new BigDecimal(loanResult.getInterests().get(i).getPercentage()));
+								prestamoBean.setImpIntMoratorio(NumberUtil.formaterBigDecimal(loanResult.getInterests().get(i).getPercentage(), null, null,null));
 					}
 					if(loanResult.getQualification()!=null){
 							prestamoBean.setNbCalification(loanResult.getQualification().getResult());
@@ -184,16 +183,16 @@ public class LoanServiceImpl extends BaseServiceBackImpl  implements LoanService
 							cuota.setFechaVencimiento(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getDueDate());
 							
 							if(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getCapitalAmount()!=null){
-								cuota.setAmortizacion(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getCapitalAmount().getAmount().toString());
+								cuota.setAmortizacion(NumberUtil.formaterString(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getCapitalAmount().getAmount(), null, null,null));
 							}
 							
 							if(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getInterestAmount()!=null){
-								cuota.setInteresMensual(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getInterestAmount().getAmount().toString());
+								cuota.setInteresMensual(NumberUtil.formaterString(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getInterestAmount().getAmount(), null, null,null));
 							}
 							
 							if(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getPendingAmount()!=null){
-								cuota.setSaldoCapital(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getPendingAmount().getAmount());
-								cuota.setSaldoAntesS(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getPendingAmount().getAmount().toString());
+								cuota.setSaldoCapital(NumberUtil.formaterDouble(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getPendingAmount().getAmount(), null, null, null));
+								cuota.setSaldoAntesS(NumberUtil.formaterString(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getPendingAmount().getAmount(), null, null,null));
 							}
 							
 							if(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getExpensesAmount()!=null){
@@ -204,9 +203,7 @@ public class LoanServiceImpl extends BaseServiceBackImpl  implements LoanService
 												if(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getExpensesAmount().getDetailedExpenses().get(j2).getType()!=null){
 													if(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getExpensesAmount().getDetailedExpenses().get(j2).getType().getId().equals("01")){//GASTOS
 														if(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getExpensesAmount().getDetailedExpenses().get(j2).getAmount()!=null){
-															String comisionEnvioPago = loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getExpensesAmount().getDetailedExpenses().get(j2).getAmount()!=null?
-																	loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getExpensesAmount().getDetailedExpenses().get(j2).getAmount().getAmount().toString():"0.00";
-															cuota.setComisionEnvioPago(Double.parseDouble(comisionEnvioPago));
+															cuota.setComisionEnvioPago(NumberUtil.formaterDouble(null,null,null,loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getExpensesAmount().getDetailedExpenses().get(j2).getAmount().getAmount()));
 														}
 													}
 												}
@@ -217,15 +214,11 @@ public class LoanServiceImpl extends BaseServiceBackImpl  implements LoanService
 								}
 							}
 							if(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getSubsidizedAmount()!=null){
-									cuota.setSeguro(
-									(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getSubsidizedAmount().getAmount()!=null?
-									Double.parseDouble(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getSubsidizedAmount().getAmount().toString()):0.00));
+									cuota.setSeguro(NumberUtil.formaterDouble(null, null, null, loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getSubsidizedAmount().getAmount()));
 							}
-							if(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getAmount()!=null){
-								double cuotaTotal = Double.parseDouble((loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getAmount().getAmount()!=null?
-										 loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getAmount().getAmount().toString():"0.00"));
-								cuota.setCuotaTotal(cuotaTotal);
-							}
+							if(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getAmount()!=null)
+								cuota.setCuotaTotal(NumberUtil.formaterDouble(null, null, null, loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getAmount().getAmount()));
+							
 							if(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getDueDate()!=null){
 								cuota.setFechaPago(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getDueDate()!=null?
 										UtilDate.changeFormatString(loanResult.getLoan().getAmortizationSchedule().getDetailedAmortizationPayments().get(i).getDueDate(), "dd-MM-YYYY"):"");
@@ -245,33 +238,35 @@ public class LoanServiceImpl extends BaseServiceBackImpl  implements LoanService
 				for (int i = 0; i < loanResult.getLoan().getInterests().size(); i++) {
 					if(loanResult.getLoan().getInterests().get(i).getType()!=null){
 						if(loanResult.getLoan().getInterests().get(i).getType().getId().equals("09"))
-							simulacionFromt.getCabecera().setTcea(loanResult.getLoan().getInterests().get(i).getPercentage()!=null?loanResult.getLoan().getInterests().get(i).getPercentage().toString():null);
+							simulacionFromt.getCabecera().setTcea(NumberUtil.formaterString(loanResult.getLoan().getInterests().get(i).getPercentage(), null, null, null)
+							);
 					}
 				}
 			}
 			
 			if(loanResult.getLoan().getCommercialValueAmount()!=null){
-				simulacionFromt.getCabecera().setValorEquipo(new BigDecimal(loanResult.getLoan().getCommercialValueAmount().getAmount()));
+				simulacionFromt.getCabecera().setValorEquipo(NumberUtil.formaterBigDecimal(null, null, null, loanResult.getLoan().getCommercialValueAmount().getAmount()));
 			}
-			if(simulacion.getCabecera().getSeguroDesgravamen()!=null && !simulacion.getCabecera().getSeguroDesgravamen().equals(""))
+			if(simulacion.getCabecera().getSeguroDesgravamen()!=null && !simulacion.getCabecera().getSeguroDesgravamen().equals("")) {
 				 seguro = Double.parseDouble(simulacion.getCabecera().getSeguroDesgravamen())/100;
-			simulacionFromt.getCabecera().setSeguroDesgravamen(seguro.toString());
+				 simulacionFromt.getCabecera().setSeguroDesgravamen(NumberUtil.formaterString(seguro, null, null,null));
+			}
 			
 			simulacionFromt.setTotales(new TotalesBean());
 			if(loanResult.getLoan().getPaymentTotalAmount()!=null){//Total a Pagar
-				simulacionFromt.getTotales().setTotalCuotaTotal(loanResult.getLoan().getPaymentTotalAmount().getAmount()!=null?loanResult.getLoan().getPaymentTotalAmount().getAmount().toString():"0.00");
+				simulacionFromt.getTotales().setTotalCuotaTotal(NumberUtil.formaterString(null, null, null,loanResult.getLoan().getPaymentTotalAmount().getAmount()));
 			}
 			if(loanResult.getLoan().getSubsidizedTotalAmount()!=null){//SeguroDegravamen
-				simulacionFromt.getTotales().setTotalSeguroDesgravamen(loanResult.getLoan().getSubsidizedTotalAmount().getAmount()!=null?loanResult.getLoan().getSubsidizedTotalAmount().getAmount().toString():"0.00");
+				simulacionFromt.getTotales().setTotalSeguroDesgravamen(NumberUtil.formaterString(null, null, null,loanResult.getLoan().getSubsidizedTotalAmount().getAmount()));
 			}
 			if(loanResult.getLoan().getInterestTotalAmount()!=null){//Total interes
-				simulacionFromt.getTotales().setTotalIntereses(loanResult.getLoan().getInterestTotalAmount().getAmount()!=null?loanResult.getLoan().getInterestTotalAmount().getAmount().toString():"0.00");
+				simulacionFromt.getTotales().setTotalIntereses(NumberUtil.formaterString(null, null, null,loanResult.getLoan().getInterestTotalAmount().getAmount()));
 			}
 			if(loanResult.getLoan().getExpensesTotalAmount()!=null){//Total Gastos
-				simulacionFromt.getTotales().setComisionEnvio(loanResult.getLoan().getExpensesTotalAmount().getAmount()!=null?loanResult.getLoan().getExpensesTotalAmount().getAmount().toString():"0.00");
+				simulacionFromt.getTotales().setComisionEnvio(NumberUtil.formaterString(null, null, null,loanResult.getLoan().getExpensesTotalAmount().getAmount()));
 			}
 			if(loanResult.getLoan().getAwardedAmount()!=null){//Total Gastos
-				simulacionFromt.getTotales().setTotalSaldoCapital(loanResult.getLoan().getAwardedAmount().getAmount()!=null?loanResult.getLoan().getAwardedAmount().getAmount().toString():"0.00");
+				simulacionFromt.getTotales().setTotalSaldoCapital(NumberUtil.formaterString(null, null, null, loanResult.getLoan().getAwardedAmount().getAmount()));
 			}
 		}
 		return simulacionFromt;
