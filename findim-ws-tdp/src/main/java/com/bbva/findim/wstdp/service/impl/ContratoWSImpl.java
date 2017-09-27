@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
 import com.bbva.findim.bck.service.ApprovalsService;
-import com.bbva.findim.bck.service.CustomersService;
+import com.bbva.findim.bck.service.CustomerService;
 import com.bbva.findim.bck.service.LoanService;
 import com.bbva.findim.bck.service.PersonService;
 import com.bbva.findim.bck.service.ProposalService;
@@ -62,7 +62,7 @@ public class ContratoWSImpl implements ContratoWS {
 	SeguridadBbvaService seguridad;
 
 	@Autowired
-	CustomersService customerService;
+	CustomerService customerService;
 
 	@Autowired
 	PersonService personService;
@@ -418,7 +418,7 @@ public class ContratoWSImpl implements ContratoWS {
 		ClienteBean clienteValida = new ClienteBean();
 		ClienteBean clienteEs = null;
 		try {
-			clienteEs = customerService.obtenerDatosCliente(seguridad.generarTSec(3), tipoDoc, numeroDocumento);
+			clienteEs = customerService.obtenerDatosCliente(seguridad.generarTSec(3), tipoDoc, numeroDocumento, null);
 
 			if (clienteEs.getRespuestaService().getExitoCode() != null ) {
 				clienteValida.setIdNaturaleza(3);
