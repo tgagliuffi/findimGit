@@ -33,7 +33,6 @@ public class DatoReniecDaoImpl implements DatoReniecDao{
 	public DatosReniecBean obtenerDatosReniec(String numeroDni) {
 		DatosReniecBean datosReniecBean = null;
 		try{
-			
 			datosReniecBean = jdbcTemplate.queryForObject(
 				"SELECT numero_dni,fecha_caducidad,direccion_amdocs "
 			    +" FROM tfindim_datos_reniec WHERE numero_dni= ? ",

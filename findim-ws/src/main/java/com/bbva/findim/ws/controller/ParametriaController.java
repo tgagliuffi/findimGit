@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bbva.findim.dom.ParametroBean;
+import com.bbva.findim.dom.ProcesoBatchLogBean;
+import com.bbva.findim.dom.ProcesoBatchLogDtBean;
+import com.bbva.findim.dom.ProcesoTareaBean;
+import com.bbva.findim.sql.service.BatchLogDtService;
+import com.bbva.findim.sql.service.BatchLogService;
 import com.bbva.findim.sql.service.ParametroService;		
 		
 @Controller		
@@ -21,7 +26,13 @@ public class ParametriaController {
 			
 			
 	@Autowired		
-	private ParametroService parametroService;		
+	private ParametroService parametroService;
+	
+	@Autowired		
+	private BatchLogService batchLogService;
+	
+	@Autowired		
+	private BatchLogDtService batchLogDtService;
 			
 			
 	@RequestMapping(value = "/listaDetalleParametro/{idPadre}",method = RequestMethod.GET,headers="Accept=application/json")		
@@ -51,6 +62,38 @@ public class ParametriaController {
 			return dirIngles;
 		}			
 		return dirIngles;	
+	}
+	
+	@RequestMapping(value = "/listarDetalleProceso/{cdProceso}",method = RequestMethod.GET,headers="Accept=application/json")		
+	@ResponseBody	
+	public List<ProcesoBatchLogDtBean> listarDetalleProceso(@PathVariable("cdProceso") String cdProceso) {		
+		List<ProcesoBatchLogDtBean> listaDetalleProceso = null;		
+		try {		
+			ProcesoBatchLogBean beanBatch =batchLogService.obtenerProcesoBatch(cdProceso);
+			LOGGER.info("[InicioController contratoService.busquedaContrato]"); 			
+			//Oracle	
+			listaDetalleProceso = batchLogDtService.listarDetallesProcesoBatch(beanBatch.getIdProceso().toString());		
+			LOGGER.info("[InicioController listaDetalleProceso]:" + listaDetalleProceso); 		
+		} catch (Exception e) {		
+			LOGGER.error(e.getMessage(), e);		
+		}			
+		return listaDetalleProceso;		
+	}
+	
+	@RequestMapping(value = "/obtenerTarea/{idTarea}",method = RequestMethod.GET,headers="Accept=application/json")		
+	@ResponseBody	
+	public ProcesoTareaBean obtenerTarea(@PathVariable("idTarea") String idTarea) {		
+//		ProcesoTareaBean procesoTareaBean = null;		
+//		try {		
+//			ProcesoTareaBean procesoTareaBean =batchLogService.obtenerProcesoBatch(idTarea);
+//			LOGGER.info("[InicioController contratoService.busquedaContrato]"); 			
+//			//Oracle	
+//			listaDetalleProceso = batchLogDtService.listarDetallesProcesoBatch(beanBatch.getIdProceso().toString());		
+//			LOGGER.info("[InicioController listaDetalleProceso]:" + listaDetalleProceso); 		
+//		} catch (Exception e) {		
+//			LOGGER.error(e.getMessage(), e);		
+//		}			
+		return null;		
 	}
 	
 			
