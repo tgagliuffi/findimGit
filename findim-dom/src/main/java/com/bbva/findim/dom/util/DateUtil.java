@@ -22,6 +22,12 @@ public class DateUtil {
 	    	return getFecha(date, sdfPeru);
 	    }
 	 
+	 public static String getFechaActual(String format){
+		 	Date date = new Date();
+	    	SimpleDateFormat sdfPeru = new SimpleDateFormat(format, new Locale(LOCALE_NAME, COUNTRY_NAME));
+	    	return getFecha(date, sdfPeru);
+	    }
+	 
 	 public static String getFecha(Date date, DateFormat formateador){
 	    	try{
 	    		return formateador.format(date);
@@ -67,6 +73,19 @@ public class DateUtil {
 		    return outDate;
 	 }
 	
-	
+	public  static Date convertFormat(String inFormat,String outFormat,String inDate) throws ParseException{
+		 Date outDate = null;
+		 DateFormat inDF = new SimpleDateFormat(inFormat);
+		 DateFormat outDF = new SimpleDateFormat(outFormat);
+		    if (inDate != null) {
+		        try {
+		            Date date = inDF.parse(inDate);
+		            outDate = outDF.parse(outDF.format(date));
+		            
+		        } catch (ParseException ex){ 
+		        }
+		    }
+		    return outDate;
+	 }
 	
 }

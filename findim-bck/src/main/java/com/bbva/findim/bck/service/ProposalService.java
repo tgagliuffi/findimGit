@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.bbva.findim.dom.ContratoAltaBean;
 import com.bbva.findim.dom.ContratoBean;
+import com.bbva.findim.dom.EmpresaBean;
 
 public interface ProposalService {
 	
@@ -11,7 +12,9 @@ public interface ProposalService {
 	
 	int updateProposal(String tSec, ContratoBean contratoBean) throws Exception;
 	
-	List<ContratoBean> listarPropuesta(String tSec,String pCategoria, String pProveed, String tipoDocumento, String nroDocumento, String pFromDate);
+	List<ContratoBean> listarPropuesta(String tSec, String tipoDocumento, String nroDocumento, EmpresaBean empresa);
+	
+	ContratoBean obtenerPropuesta(String tSec,String pCategoria, String pProveed, String tipoDocumento, String nroDocumento, String pFromDate, String cdPropuesta);
 	
 	enum Moneda {
 		

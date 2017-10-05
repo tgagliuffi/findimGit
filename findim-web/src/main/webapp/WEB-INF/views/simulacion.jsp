@@ -276,7 +276,7 @@
 									<th>Amortizaci&#243;n</th>
 									<th>Intereses</th>
 									<th>Seguro desgravamen</th>
-									<th>Com. env&#237;o Comp. pago</th>
+									<th>Com. env&#237;o </br> Comp. pago</th>
 									<th>Cuota total</th>
 								</tr>
 							</thead>

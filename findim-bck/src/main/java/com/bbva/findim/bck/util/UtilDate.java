@@ -3,6 +3,7 @@ package com.bbva.findim.bck.util;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class UtilDate {
@@ -39,5 +40,11 @@ public class UtilDate {
 		 return text;
 	 }
 	 
-	
+		
+	 public static Date sumarRestarHorasFecha(Date fecha, int horas){
+	      Calendar calendar = Calendar.getInstance();
+	      calendar.setTime(fecha); // Configuramos la fecha que se recibe
+	      calendar.add(Calendar.YEAR, horas);  // numero de horas a añadir, o restar en caso de horas<0
+	      return calendar.getTime(); // Devuelve el objeto Date con las nuevas horas añadidas
+	 }
 }

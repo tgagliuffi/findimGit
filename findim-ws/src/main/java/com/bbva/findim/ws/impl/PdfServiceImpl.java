@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +30,6 @@ import com.bbva.findim.dom.FileUnicoMetadata;
 import com.bbva.findim.dom.ParametroBean;
 import com.bbva.findim.dom.RutasPdfBean;
 import com.bbva.findim.dom.common.Constantes;
-import com.bbva.findim.dom.GrupoGeografico;
 import com.bbva.findim.sql.dao.ParametroDao;
 import com.bbva.findim.ws.service.PdfAsyncService;
 import com.bbva.findim.ws.service.PdfService;
@@ -55,25 +52,25 @@ public class PdfServiceImpl implements PdfService{
 	
 	
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = { ServiceException.class, Exception.class })
-	public String generacionPDF(ClienteBean clienteBean, ContratoBean contratoBean) {
+	public String generacionPDF(ClienteBean clienteBean, ContratoBean contratoBean, Boolean esRegeneracion) {
 		DatosPdfBean datosPdfBeanAux=new  DatosPdfBean();
 		
 		String nombreGenerado=null;
 		Map<String, Object> parametros = null;
 		try {			
-			ParametroBean parametroRuc = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_12,Constantes.CD_DETALLE_1);
-			ParametroBean parametroDomicilio = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_12,Constantes.CD_DETALLE_2);
-			ParametroBean parametroNomRep1 = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_13,Constantes.CD_DETALLE_1);
-			ParametroBean parametroDNIRep1 = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_13,Constantes.CD_DETALLE_2);
-			ParametroBean parametroPoderRep1 = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_13,Constantes.CD_DETALLE_3);
-			ParametroBean parametroNomRep2 = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_13,Constantes.CD_DETALLE_4);
-			ParametroBean parametroDNIRep2 = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_13,Constantes.CD_DETALLE_5);
-			ParametroBean parametroPoderRep2 = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_13,Constantes.CD_DETALLE_6);
-			ParametroBean parametroNomComp = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_14,Constantes.CD_DETALLE_1);
-			ParametroBean parametroNumPoliza = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_14,Constantes.CD_DETALLE_2);
-			ParametroBean parametroTipoSimboloMoneda = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_4,Constantes.CD_DETALLE_1);
-			ParametroBean parametroTipoPrestamo = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_22,Constantes.CD_DETALLE_1);			
-			ParametroBean parametroPenalidad = parametroDao.obtenerParametroDetalle(Constantes.CD_CABECERA_25,Constantes.CD_DETALLE_1);
+			ParametroBean parametroRuc = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_12,Constantes.CD_DETALLE_1);
+			ParametroBean parametroDomicilio = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_12,Constantes.CD_DETALLE_2);
+			ParametroBean parametroNomRep1 = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_13,Constantes.CD_DETALLE_1);
+			ParametroBean parametroDNIRep1 = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_13,Constantes.CD_DETALLE_2);
+			ParametroBean parametroPoderRep1 = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_13,Constantes.CD_DETALLE_3);
+			ParametroBean parametroNomRep2 = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_13,Constantes.CD_DETALLE_4);
+			ParametroBean parametroDNIRep2 = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_13,Constantes.CD_DETALLE_5);
+			ParametroBean parametroPoderRep2 = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_13,Constantes.CD_DETALLE_6);
+			ParametroBean parametroNomComp = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_14,Constantes.CD_DETALLE_1);
+			ParametroBean parametroNumPoliza = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_14,Constantes.CD_DETALLE_2);
+			ParametroBean parametroTipoSimboloMoneda = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_4,Constantes.CD_DETALLE_1);
+			ParametroBean parametroTipoPrestamo = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_22,Constantes.CD_DETALLE_1);			
+			ParametroBean parametroPenalidad = parametroDao.obtenerParametroDetallePorIdParamDetalle(Constantes.CD_CABECERA_25,Constantes.CD_DETALLE_1);
 			
 			
 			
@@ -106,7 +103,7 @@ public class PdfServiceImpl implements PdfService{
 			 datosPdfBeanAux.setSimboloMonedaPdf(parametroTipoSimboloMoneda.getNb_valorparamdeta());
 			 datosPdfBeanAux.setNombreCompleto(clienteBean.getNombreCompleto());			 
 			 datosPdfBeanAux.setPoderRepresentante2(parametroPoderRep2.getNb_valorparamdeta());
-			 datosPdfBeanAux.setCorreoCliente(clienteBean.getCorreoCliente());
+			 datosPdfBeanAux.setCorreoCliente(clienteBean.getCorreoCliente()!=null?clienteBean.getCorreoCliente():contratoBean.getCorreo());
 			 datosPdfBeanAux.setEstadoCivil(clienteBean.getEstadoCivil()+"");
 			 datosPdfBeanAux.setTipoDocumento(clienteBean.getTipoDocumento());
 			 datosPdfBeanAux.setNumeroDocumentoPdf(clienteBean.getNumeroDocumento());
@@ -166,14 +163,14 @@ public class PdfServiceImpl implements PdfService{
 			parametros.put("strcargo", clienteBean.getCargo());
 			parametros.put("strmodalidad", clienteBean.getIdTipoModalidad());
 			parametros.put("strenvioMail", clienteBean.getIdTipoEnvio());
-			nombreGenerado=exporJasperToPdf(parametros,datosPdfBeanAux.getRutasPdfBean());
+			nombreGenerado=exporJasperToPdf(parametros,datosPdfBeanAux.getRutasPdfBean(), esRegeneracion);
 		} catch (Exception e) {
 			logger.error("Error al generar el PDF...[PdfServiceImpl - generacionPDF]"+e);
 		}
 		return nombreGenerado;
 	}
 	
-	private String exporJasperToPdf(Map<String, Object> parametros,RutasPdfBean rutasPdfBean){
+	private String exporJasperToPdf(Map<String, Object> parametros,RutasPdfBean rutasPdfBean, Boolean esRegeneracion){
 		String nombrePDF = null;
 		String nroDNI = null;
 		String codigoContrato = null;
@@ -187,76 +184,133 @@ public class PdfServiceImpl implements PdfService{
 			List<DetalleBean> listaCuotas = (List<DetalleBean>)parametros.get("strListaCuota");
 			codigoContrato = parametros.get("strIDContrato").toString();//TODO: quedara con el strIDContrato???
 			nroDNI = parametros.get("strDNI").toString();//TODO: PEDIENTE
-
-			Boolean hri = pdfAsyncService.generarDocumentoHRI(parametros, rutasPdfBean, codigoContrato, !Constantes.RUTA_FIRMADO);
-			Boolean con = pdfAsyncService.generarDocumentoCON(parametros, rutasPdfBean, codigoContrato);
-			Boolean pre = pdfAsyncService.generarDocumentoPRE(parametros, rutasPdfBean, codigoContrato);
-			Boolean cro = pdfAsyncService.generarDocumentoCRO(parametros, rutasPdfBean, codigoContrato, listaCuotas, !Constantes.RUTA_FIRMADO);
-			Boolean pag = pdfAsyncService.generarDocumentoPAG(parametros, rutasPdfBean, codigoContrato);
-			Boolean seg = true;//pdfAsyncService.generarDocumentoSEG(parametros, rutasPdfBean, codigoContrato);
-			Boolean ace = pdfAsyncService.generarDocumentoACE(parametros, rutasPdfBean, codigoContrato);
-
-			Boolean documentosGeneradosOk = true;
-			if (!hri || !con || !pre || !cro || !pag || !seg || !ace) {
-				documentosGeneradosOk = false;
-			}
-			else{
-				
-				FileUnicoMetadata metadata = new FileUnicoMetadata();		
-				metadata.setDoi(String.valueOf(parametros.get("strDNI")));
-				metadata.setTipoDoi(String.valueOf(parametros.get("strTipoDocumento")));
-				metadata.setNumeroContrato(codigoContrato);
-				/*
-				metadata.setCodigoCentral(titular.getCodigoCentral());				
-				metadata.setOficinaGestora(firmaContrato.getOficinaGestora());				
-				metadata.setProcedencia(firmaContrato.getProcedencia());
-				metadata.setDocumento(template.getNbTipoFileunico());
-				*/
-				metadata.setEstadoConciliacion("NA");
-				metadata.setEstadoValidacion("OK");
-				
-				String rutaHRI=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_HRI +codigoContrato + Constantes.EXTENSION_TXT;
-				Util.generarMetadata(rutaHRI,metadata);
-				
-				String rutaCON=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_CON +codigoContrato + Constantes.EXTENSION_TXT;
-				Util.generarMetadata(rutaCON,metadata);
-				
-				String rutaPRE=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_PREPAG +codigoContrato + Constantes.EXTENSION_TXT;
-				Util.generarMetadata(rutaPRE,metadata);
-				
-				String rutaCRO=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_CRO +codigoContrato + Constantes.EXTENSION_TXT;
-				Util.generarMetadata(rutaCRO,metadata);
-				
-				String rutaPAG=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_PAG +codigoContrato + Constantes.EXTENSION_TXT;
-				Util.generarMetadata(rutaPAG,metadata);
-				
-				String rutaACE=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_ACE +codigoContrato + Constantes.EXTENSION_TXT;
-				Util.generarMetadata(rutaACE,metadata);
-			}
 			
+			Boolean hri = false;
+			Boolean con = false;
+			Boolean pre = false;
+			Boolean cro = false;
+			Boolean pag = false;
+			Boolean seg = true;//pdfAsyncService.generarDocumentoSEG(parametros, rutasPdfBean, codigoContrato);
+			Boolean ace = false;
+			
+			if(!esRegeneracion) {
+				 hri = pdfAsyncService.generarDocumentoHRI(parametros, rutasPdfBean, codigoContrato, !Constantes.RUTA_FIRMADO);
+				 con = pdfAsyncService.generarDocumentoCON(parametros, rutasPdfBean, codigoContrato);
+				 pre = pdfAsyncService.generarDocumentoPRE(parametros, rutasPdfBean, codigoContrato);
+				 cro = pdfAsyncService.generarDocumentoCRO(parametros, rutasPdfBean, codigoContrato, listaCuotas, !Constantes.RUTA_FIRMADO);
+				 pag = pdfAsyncService.generarDocumentoPAG(parametros, rutasPdfBean, codigoContrato);
+				 seg = true;//pdfAsyncService.generarDocumentoSEG(parametros, rutasPdfBean, codigoContrato);
+				 ace = pdfAsyncService.generarDocumentoACE(parametros, rutasPdfBean, codigoContrato);
+				 
+				 Boolean documentosGeneradosOk = true;
+					if (!hri || !con || !pre || !cro || !pag || !seg || !ace) {
+						documentosGeneradosOk = false;
+					}
+					else{
+						
+						FileUnicoMetadata metadata = new FileUnicoMetadata();		
+						metadata.setDoi(String.valueOf(parametros.get("strDNI")));
+						metadata.setTipoDoi(String.valueOf(parametros.get("strTipoDocumento")));
+						metadata.setNumeroContrato(codigoContrato);
+						/*
+						metadata.setCodigoCentral(titular.getCodigoCentral());				
+						metadata.setOficinaGestora(firmaContrato.getOficinaGestora());				
+						metadata.setProcedencia(firmaContrato.getProcedencia());
+						metadata.setDocumento(template.getNbTipoFileunico());
+						*/
+						metadata.setEstadoConciliacion("NA");
+						metadata.setEstadoValidacion("OK");
+						
+						String rutaHRI=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_HRI +codigoContrato + Constantes.EXTENSION_TXT;
+						Util.generarMetadata(rutaHRI,metadata);
+						
+						String rutaCON=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_CON +codigoContrato + Constantes.EXTENSION_TXT;
+						Util.generarMetadata(rutaCON,metadata);
+						
+						String rutaPRE=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_PREPAG +codigoContrato + Constantes.EXTENSION_TXT;
+						Util.generarMetadata(rutaPRE,metadata);
+						
+						String rutaCRO=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_CRO +codigoContrato + Constantes.EXTENSION_TXT;
+						Util.generarMetadata(rutaCRO,metadata);
+						
+						String rutaPAG=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_PAG +codigoContrato + Constantes.EXTENSION_TXT;
+						Util.generarMetadata(rutaPAG,metadata);
+						
+						String rutaACE=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_ACE +codigoContrato + Constantes.EXTENSION_TXT;
+						Util.generarMetadata(rutaACE,metadata);
+					}
+					
 
-			if (!documentosGeneradosOk) {
-				Util.deleteFilesByPrefix(rutasPdfBean.getRutaGeneracionContrato(), codigoContrato);
-				Util.deleteFilesByPrefix(rutasPdfBean.getRutaConsolidado(), codigoContrato);
-				throw new ServiceException("Error al exportar PDF contrato:" + codigoContrato);
+					if (!documentosGeneradosOk) {
+						Util.deleteFilesByPrefix(rutasPdfBean.getRutaGeneracionContrato(), codigoContrato);
+						Util.deleteFilesByPrefix(rutasPdfBean.getRutaConsolidado(), codigoContrato);
+						throw new ServiceException("Error al exportar PDF contrato:" + codigoContrato);
+					}
+
+					logger.info("fin proceso hilos pdf...inicio generando consolidado");			
+					 //Consolidado
+					pdfs = new ArrayList<>();
+					pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_HRI + codigoContrato + Constantes.EXTENSION_PDF));
+					pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_CRO + codigoContrato + Constantes.EXTENSION_PDF));
+					pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_CON + codigoContrato + Constantes.EXTENSION_PDF));
+					pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_PAG + codigoContrato + Constantes.EXTENSION_PDF));
+					pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_SOL + codigoContrato + Constantes.EXTENSION_PDF));
+					pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_ACE + codigoContrato + Constantes.EXTENSION_PDF));
+
+//					Date date = new Date();
+//					SimpleDateFormat sdf = new SimpleDateFormat(Constantes.FORMATO_FECHA);
+//					String strDate = sdf.format(date);
+					nombrePDF = Util.generarNombreConsolidadoPDF(nroDNI,codigoContrato);//Constantes.DOCUMENTO_T + codigoCliente + codigoContrato + "" + strDate + Constantes.EXTENSION_PDF;
+					OutputStream output = new FileOutputStream(rutasPdfBean.getRutaConsolidado() + nombrePDF);
+					Util.concatenaPDF(pdfs, output, true);
+					
+			}else {
+				 hri = pdfAsyncService.generarDocumentoHRI(parametros, rutasPdfBean, codigoContrato, !Constantes.RUTA_FIRMADO);
+				 cro = pdfAsyncService.generarDocumentoCRO(parametros, rutasPdfBean, codigoContrato, listaCuotas, !Constantes.RUTA_FIRMADO);
+			
+				 Boolean documentosGeneradosOk = true;
+					if (!hri || !cro ) {
+						documentosGeneradosOk = false;
+					}
+					else{
+						
+						FileUnicoMetadata metadata = new FileUnicoMetadata();		
+						metadata.setDoi(String.valueOf(parametros.get("strDNI")));
+						metadata.setTipoDoi(String.valueOf(parametros.get("strTipoDocumento")));
+						metadata.setNumeroContrato(codigoContrato);
+						metadata.setEstadoConciliacion("NA");
+						metadata.setEstadoValidacion("OK");
+						
+						String rutaHRI=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_HRI +codigoContrato + Constantes.EXTENSION_TXT;
+						Util.generarMetadata(rutaHRI,metadata);
+						
+						String rutaCRO=rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_CRO +codigoContrato + Constantes.EXTENSION_TXT;
+						Util.generarMetadata(rutaCRO,metadata);
+						
+						}
+					
+
+					if (!documentosGeneradosOk) {
+						Util.deleteFilesByPrefix(rutasPdfBean.getRutaGeneracionContrato(), codigoContrato);
+						Util.deleteFilesByPrefix(rutasPdfBean.getRutaConsolidado(), codigoContrato);
+						throw new ServiceException("Error al exportar PDF contrato:" + codigoContrato);
+					}
+
+					logger.info("fin proceso hilos pdf...inicio generando consolidado");			
+					 //Consolidado
+					pdfs = new ArrayList<>();
+					pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_HRI + codigoContrato + Constantes.EXTENSION_PDF));
+					pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_CRO + codigoContrato + Constantes.EXTENSION_PDF));
+				
+//					Date date = new Date();
+//					SimpleDateFormat sdf = new SimpleDateFormat(Constantes.FORMATO_FECHA);
+					//String strDate = sdf.format(date);
+					nombrePDF = Util.generarNombreConsolidadoPDF(nroDNI,codigoContrato);//Constantes.DOCUMENTO_T + codigoCliente + codigoContrato + "" + strDate + Constantes.EXTENSION_PDF;
+					OutputStream output = new FileOutputStream(rutasPdfBean.getRutaConsolidado() + nombrePDF);
+					Util.concatenaPDF(pdfs, output, true);
 			}
 
-			logger.info("fin proceso hilos pdf...inicio generando consolidado");			
-			 //Consolidado
-			pdfs = new ArrayList<>();
-			pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_HRI + codigoContrato + Constantes.EXTENSION_PDF));
-			pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_CRO + codigoContrato + Constantes.EXTENSION_PDF));
-			pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_CON + codigoContrato + Constantes.EXTENSION_PDF));
-			pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_PAG + codigoContrato + Constantes.EXTENSION_PDF));
-			pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_SOL + codigoContrato + Constantes.EXTENSION_PDF));
-			pdfs.add(new FileInputStream(rutasPdfBean.getRutaGeneracionContrato() + Constantes.DOCUMENTO_ACE + codigoContrato + Constantes.EXTENSION_PDF));
-
-			Date date = new Date();
-			SimpleDateFormat sdf = new SimpleDateFormat(Constantes.FORMATO_FECHA);
-			//String strDate = sdf.format(date);
-			nombrePDF = Util.generarNombreConsolidadoPDF(nroDNI,codigoContrato);//Constantes.DOCUMENTO_T + codigoCliente + codigoContrato + "" + strDate + Constantes.EXTENSION_PDF;
-			OutputStream output = new FileOutputStream(rutasPdfBean.getRutaConsolidado() + nombrePDF);
-			Util.concatenaPDF(pdfs, output, true);
+			
 			logger.info("fin proceso generar consolidado pdf:" + nombrePDF);
 		}catch(Exception e){
 			logger.error("error al exportar PDF", e);

@@ -131,13 +131,14 @@ function actualizarContenidos(){
 	        		break;
 	        }
             
-            if(listaContrato[i].estadoContrato=="EN TRAMITE"){
+            if(listaContrato[i].estadoContrato=="EN TRAMITE"  && listaContrato[i].tipoEnvio== "NONE"){
             	destinoModal = "#modalInformacion";
         		textoBoton = "Completar datos";
         	}
             else if(listaContrato[i].estadoContrato ==="FIRMADO"){
             	destinoModal = "#modalContratosImprimir";
-        		textoBoton = "Imprimir";
+        		textoBoton = "Imprimir Constancia";
+        		estado +=  '<br />'+ "Doc. Firmados";
         	}
 
             alertaFormNoCompletado.hide();
@@ -146,13 +147,13 @@ function actualizarContenidos(){
 	        	"<tr>" +
 	            "<td>" + htmlEncode(listaContrato[i].fechaCreacion) + "</td>" +
 	            "<td>" + htmlEncode(listaContrato[i].tipoMoneda) + "</td>" +
-	            "<td>" + htmlEncode(listaContrato[i].importeBien) + "</td>" +
-	            "<td>" + htmlEncode(listaContrato[i].importeInicial) + "</td>" +
-	            "<td>" + htmlEncode(listaContrato[i].importePrestamo) +  "</td>" +
+	            "<td style='text-align: right'>" + htmlEncode(listaContrato[i].importeBien) + "</td>" +
+	            "<td style='text-align: right'>" + htmlEncode(listaContrato[i].importeInicial) + "</td>" +
+	            "<td style='text-align: right'>" + htmlEncode(listaContrato[i].importePrestamo) +  "</td>" +
 	            "<td>" + htmlEncode(listaContrato[i].codigoTarifa) + "</td>" +
 	            "<td>" + htmlEncode(listaContrato[i].numeroCuotas) + "</td>" +
 	            "<td>" + htmlEncode(listaContrato[i].tasaFinanciamiento) + "%" + "</td>" +
-	            "<td>" + htmlEncode(listaContrato[i].descripcionTasaSeguro + listaContrato[i].valorTasaSeguro) + "%" + "</td>" +
+	            "<td>" + htmlEncode(listaContrato[i].descripcionTasaSeguro + ' '+ listaContrato[i].importeSeguroDesgravamen) + "%" + "</td>" +
 	            "<td>" + htmlEncode(tipoEnvio) + "</td>" +
 	            "<td>" + htmlEncode(listaContrato[i].fechaDesembolso) + "</td>" +
 	            "<td>" + estado + "<br>";
@@ -203,13 +204,15 @@ function actualizarContenidos(){
     }
     
     // PROGRAMA LOS BOTONES
+    
     $(".butStatusContrato").click(function() {
-    	console.log( $(this).attr("data-contrato"));
-    	actualizarModalContratos($(this).attr("data-valor"));
+    		
 
     	if ($(this).attr("data-pdf") != null) {
 			cargarPDF($(this).attr("data-pdf"),$(this).attr("estado-contrato"), $(this).data('cod-auxiliar'), $(this).data('contrato'));
     	}
+    	console.log( $(this).attr("data-contrato"));
+		actualizarModalContratos($(this).attr("data-valor"));
     });
 } 
 
@@ -453,9 +456,6 @@ var contratosCompletarInfoForm = $("#form-completar-informacion"),
   completarInfoModalidad= $("#completar_info_modalidad"),
   alertaPDF = $("#alert_contratos_resultado"),
   completarInfoDireccion= $("#completar_info_direccion"),
-//  completarInfoIndicador= $("#completar_info_indicador"),
-//  completarInfoDirNom= $("#completar_info_dir_nom"),
-//  completarInfoDirNum= $("#completar_info_dir_num"),  
   conteoUpdate = 0;
 
 contratosCompletarInfoForm.validate({
@@ -482,19 +482,13 @@ function procesarCompletarInformacion (e){
   objetoContenedor.idContrato=  completarInfoCodContrato.val();
   objetoContenedor.correo = completarInfoEmail.val();    
   objetoContenedor.idTipoEnvio = completarInfoEnvio.val();
-
+  debugger;
   objetoContenedor.centroTrabajo = completarInfoEmpresa.val();
   objetoContenedor.cargo= completarInfoCargo.val();
   objetoContenedor.idTipoModalidad = completarInfoModalidad.val();
   objetoContenedor.estadoContrato = estadoContratoUpdate;
   objetoContenedor.nombreEnvio = completarInfoEnvio.find('option:selected').text();
-  
-//  objetoContenedor.lstGrupoGeografico[0].id =completarInfoIndicador.find('option:selected').val();
-//  objetoContenedor.lstGrupoGeografico[0].nombre =completarInfoDirNom.val();
-//  
-//  objetoContenedor.lstGrupoGeografico[1].id ="exterior_number";
-//  objetoContenedor.lstGrupoGeografico[1].nombre =completarInfoDirNum.val();
-  
+ 
   if(!objetoContenedor.esCliente){
 	  objetoContenedor.idTipoOcupacion = completarInfoProfesion.val();
   }
@@ -514,19 +508,14 @@ function actualizarModalContratos(i){
   if(objetoContenedor.esCliente){
 		$('#completar_info_email').attr('disabled', false);
 		$('#completar_info_envio').attr('disabled', false);
-		$('#completar_info_profesion').attr('disabled', true);
-		$('#completar_info_empresa').attr('disabled', true);
 		$('#modalInformacionCerrar').attr('disabled', false);
-		$('#completar_info_profesion').attr('disabled', true);
+	    $('#completar_info_empresa').attr('disabled', true);
+	    $('#completar_info_profesion').attr('disabled', true);
 		$('#div_direccion_ref').hide();
-//		$('#div_direccion_via').hide();
-//	  $('#completar_info_cargo').prop('readonly', true);
-	  
-	  $('#completar_info_empresa').attr('disabled', true);
-	  $('#completar_info_profesion').attr('disabled', true);
+
 	  
   }
-  //Parametria
+  debugger;
   if(conteoUpdate == 0) {
 	  conteoUpdate = 1;
 	  if(objetoContenedor.idTipoEnvio !=null){
@@ -534,12 +523,8 @@ function actualizarModalContratos(i){
 	      for(j=0;j<objetoContenedor.listaTipoEnvio.length; j++){
 	          completarInfoEnvio.append('<option value=' + htmlEncode(objetoContenedor.listaTipoEnvio[j].cd_paramdetalle) + '>' + htmlEncode(objetoContenedor.listaTipoEnvio[j].nb_paramdetalle) + '</option>');
 	      }
-	
-	  } else {
-//	      completarInfoEnvio.append('<option value=' + '0' + '>' + 'Lista Vacia' + '</option>');
 	  }
 	 
-	  
 	  for (var i = 0; i < objetoContenedor.listaComprobantePago.length ; i++){
 			$("#completar_info_envio").append(
 				"<option value='" + objetoContenedor.listaComprobantePago[i].nb_valorparamdeta + "'>" + objetoContenedor.listaComprobantePago[i].nb_paramdetalle+ "</option>"
@@ -547,7 +532,7 @@ function actualizarModalContratos(i){
 		}
 	  
 	  
-//	 if(objetoContenedor.idTipoOcupacion !=null){
+	// if(objetoContenedor.idTipoOcupacion !=null){
 		 completarInfoProfesion.find('option:not(:first)').remove();
 	      for(k=0;k<objetoContenedor.listaCatalogo.length; k++){
 	    	  if(objetoContenedor.idTipoOcupacion == objetoContenedor.listaCatalogo[k].idCatalogo){
@@ -557,31 +542,16 @@ function actualizarModalContratos(i){
 	    	  }
 	    	  
 	      }
-//	 }else {
-//		 completarInfoProfesion.append('<option value=' + '0' + '>' + 'Lista Vacia' + '</option>');
-//	 }
-	      
-	      completarInfoIndicador.find('option:not(:first)').remove();
-	      for(k=0;k<objetoContenedor.listaCatalogoDireccion.length; k++){
-	    	  completarInfoIndicador.append('<option value="'+ objetoContenedor.listaCatalogoDireccion[k].idCatalogo +'">' + htmlEncode(objetoContenedor.listaCatalogoDireccion[k].stValue) + '</option>');
-	      }
-	 
-	 if(objetoContenedor.idTipoModalidad !=null){
-		 completarInfoModalidad.find('option:not(:first)').remove();
-	      for(k=0;k<objetoContenedor.listaTipoModalidad.length; k++){
-	    	  completarInfoModalidad.append('<option value=' + htmlEncode(objetoContenedor.listaTipoModalidad[k].cd_paramdetalle) + '>' + htmlEncode(objetoContenedor.listaTipoModalidad[k].nb_paramdetalle) + '</option>');
-	      }
-	 }else {
-		 completarInfoModalidad.append('<option value=' + '0' + '>' + 'Lista Vacia' + '</option>');
-	 }	
+  	//}
   }
-  
+ 
   /******************************************/
   var correoCliente = (
-	objetoContenedor==null?'':(  
-		objetoContenedor.listaContrato[i].correo==undefined?'':(
-				objetoContenedor.listaContrato[i].correo=null?'': $.trim(objetoContenedor.listaContrato[i].correo)
-		 )
+	objetoContenedor==null?'':( objetoContenedor.listaContrato[i]==undefined?'':(
+			 objetoContenedor.listaContrato[i].correo==undefined?'':(
+						objetoContenedor.listaContrato[i].correo=null?'': $.trim(objetoContenedor.listaContrato[i].correo)
+				 )		
+		    )
 	  )	
    );
 	/****************************************/
@@ -594,7 +564,7 @@ function actualizarModalContratos(i){
 }
 
 function cargarPDF(rutaCargaPDF, estadoContrato, codAuxiliar, codContrato) {
-	
+	debugger;
 	var linkRutaPDF = "";
 	
 	if(estadoContrato ==="FIRMADO"){

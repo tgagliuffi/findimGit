@@ -22,28 +22,25 @@ public class ParametroServiceImpl implements ParametroService {
 	}
 
 	public List<ParametroCabeceraBean> listaDatosParametros() {
-		// TODO Auto-generated method stub
 		return parametroDAO.listaDatosParametros();
 	}
 
 	public ParametroDetalleBean gestionarParametrosDetalle(ParametroDetalleBean parametroDetalleBean) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public ParametroBean obtenerParametroDetalle(Integer idPadre, Integer idParamDetalle) {
-		// TODO Auto-generated method stub
-		return parametroDAO.obtenerParametroDetalle(idPadre, idParamDetalle);
+	public ParametroBean obtenerParametroDetallePorIdParamDetalle(Integer idPadre, Integer idParamDetalle) {
+		return parametroDAO.obtenerParametroDetallePorIdParamDetalle(idPadre, idParamDetalle);
 	}
 
 	public String obtenerDireccionIngles(String nroDni) {
-		// TODO Auto-generated method stub
 		return parametroDAO.obtenerDireccionIngles(nroDni);
 	}
+	
+	public ParametroBean obtenerParametroDetallePorNbParamDetalle(Integer idPadre, String nbParamdetalle) {
+		return parametroDAO.obtenerParametroDetallePorNbParamDetalle(idPadre, nbParamdetalle);
+	}
 
-//	public List<ParametroDetalleBean> listaTipoDocumentos() {
-//		// TODO Auto-generated method stub
-//		return parametroDAO.listaTipoDocumentos();
-//	}
+
 
 }

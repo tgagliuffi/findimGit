@@ -184,7 +184,7 @@
 					<button type="button" data-dismiss="modal" aria-label="Close" class="close" id="btnCerrarModalFirma">
 						<span aria-hidden="true">&times;</span>
 					</button>
-					<h4>Imprimir contrato</h4>
+					<h4>Constancia de Financiamiento</h4>
 				</div>
 				<div class="modal-body">
 					<!-- 

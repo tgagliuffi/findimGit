@@ -11,6 +11,8 @@ public class RespuestaService implements Serializable
 		private String requestId;
 		private String errorDescription;
 		private String exitoDescription;
+		private String status;
+		 
 		
 		public String getErrorCode() {
 			return errorCode;
@@ -41,6 +43,15 @@ public class RespuestaService implements Serializable
 		}
 		public void setExitoDescription(String exitoDescription) {
 			this.exitoDescription = exitoDescription;
+		}
+		public String getStatus() {
+			return status;
+		}
+		public void setStatus(String status) {
+			this.status = status;
+		}
+		public static long getSerialversionuid() {
+			return serialVersionUID;
 		}
 		
 		

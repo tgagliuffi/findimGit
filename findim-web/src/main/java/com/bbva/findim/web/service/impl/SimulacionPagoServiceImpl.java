@@ -29,9 +29,6 @@ public class SimulacionPagoServiceImpl implements SimulacionPagoService {
 	
 	private static final Logger LOGGER = LogManager.getLogger(SimulacionPagoService.class);
 
-//    @Autowired
-//    private RestTemplate restTemplate;
-
     @Autowired
 	private PropertyUtil prop;
     
@@ -129,32 +126,6 @@ public class SimulacionPagoServiceImpl implements SimulacionPagoService {
 	public double redondearDosDecimales(double numero) {
 		return Math.rint(numero * 100) / 100;
 	}
-
-//	@Override
-//	public String calcularTcea(SimulacionBean simulacion) {
-//		Double montoTotal = simulacion.getCabecera().getSaldoFinanciar().doubleValue();
-//		Date fechaCurse = new Date();
-//
-//		List<DetalleBean> detalles = simulacion.getDetalle();
-//
-//		List<String> fechaCuotas = new ArrayList<>(detalles == null ? 0 : detalles.size());
-//		List<Double> montoCuotas = new ArrayList<>(detalles == null ? 0 : detalles.size());		
-//
-//		for (DetalleBean item : detalles) {
-//			String fecha = item.getFechaPago();			
-//			fechaCuotas.add(fecha);
-//			montoCuotas.add(ConvertUtil.convertToDouble(item.getCuotaTotal()));
-//		}
-//
-//		bean.setMontoTotal(montoTotal);
-//		bean.setFechaCurse(fechaCurse);
-//		bean.setFechaCuotas(fechaCuotas);
-//		bean.setMontoCuotas(montoCuotas);
-//
-//		String uriServicio = prop.getString("sistema.uriservicio") + "tcea";
-//
-//		return restTemplate.postForObject(uriServicio, bean, String.class);
-//	}
 
 	public List<String> fechasPago(List<DetalleBean> detalles) {
 		int indice = 0;
