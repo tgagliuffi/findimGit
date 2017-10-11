@@ -91,7 +91,7 @@ public class CustomerServiceImpl extends BaseServiceBackImpl implements Customer
 			if(StringUtils.isNotBlank(numeroDocumento) && StringUtils.isNotBlank(tipoDocumento)){
 				params.add(numDoiKey, numeroDocumento);
 				params.add(tipoDoiKey, tipoDocumento);
-				params.add("expands","addresses,contactDetails,indicators,terms,economicData,classifications");
+				params.add("expand","addresses,contactDetails,indicators,terms,economicData,classifications");
 			}
 		}
 		
@@ -718,5 +718,6 @@ public class CustomerServiceImpl extends BaseServiceBackImpl implements Customer
 		}
 		return false;
 	}
+	
 	
 }

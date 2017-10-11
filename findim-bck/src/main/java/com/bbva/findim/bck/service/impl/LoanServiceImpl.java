@@ -249,7 +249,7 @@ public class LoanServiceImpl extends BaseServiceBackImpl  implements LoanService
 			}
 			if(simulacion.getCabecera().getSeguroDesgravamen()!=null && !simulacion.getCabecera().getSeguroDesgravamen().equals("")) {
 				 seguro = Double.parseDouble(simulacion.getCabecera().getSeguroDesgravamen())/100;
-				 simulacionFromt.getCabecera().setSeguroDesgravamen(NumberUtil.formaterString(seguro, null, null,null));
+				 simulacionFromt.getCabecera().setSeguroDesgravamen(seguro.toString());
 			}
 			
 			simulacionFromt.setTotales(new TotalesBean());
@@ -305,7 +305,7 @@ public class LoanServiceImpl extends BaseServiceBackImpl  implements LoanService
 				simulateLoan.getIndicators().getInsuranceCoverage().setId(propertyUtilCnx.getString(PrestamoConstant.CODIGO_PARAMETER_IND_INSURANCECOVERAGE));//VER VALOR DE SETEO
 				simulateLoan.setInterests(new ArrayList<com.bbva.findim.bck.domain.loanInput.Interest>());
 				simulateLoan.getInterests().add(new com.bbva.findim.bck.domain.loanInput.Interest());
-				simulateLoan.getInterests().get(0).setPercentage(Integer.parseInt(simulacionBean.getCabecera().getTea()));
+				simulateLoan.getInterests().get(0).setPercentage(null);
 				simulateLoan.setRelatedContracts(new ArrayList<com.bbva.findim.bck.domain.loanInput.RelatedContract>());
 				simulateLoan.getRelatedContracts().add(new com.bbva.findim.bck.domain.loanInput.RelatedContract());
 				simulateLoan.getRelatedContracts().get(0).setProduct(new com.bbva.findim.bck.domain.loanInput.Product());

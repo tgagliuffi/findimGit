@@ -20,7 +20,7 @@ public class SubsidizedTotalAmount {
     @JsonProperty("currency")
     private String currency;
     @JsonProperty("amount")
-    private Integer amount;
+    private Double amount;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -35,12 +35,12 @@ public class SubsidizedTotalAmount {
     }
 
     @JsonProperty("amount")
-    public Integer getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
     @JsonProperty("amount")
-    public void setAmount(Integer amount) {
+    public void setAmount(Double amount) {
         this.amount = amount;
     }
 
