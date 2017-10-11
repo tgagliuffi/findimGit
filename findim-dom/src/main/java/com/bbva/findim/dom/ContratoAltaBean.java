@@ -75,6 +75,8 @@ public class ContratoAltaBean {
 	private String 	productoExterno;
 	private String	codTipoEnvio;
 	
+	private String cdOficina;
+	
 	private RespuestaService repuestaService;
 	
 	public ContratoAltaBean() {
@@ -585,4 +587,13 @@ public class ContratoAltaBean {
 		this.repuestaService = repuestaService;
 	}
 
+	public String getCdOficina() {
+		return cdOficina;
+	}
+
+	public void setCdOficina(String cdOficina) {
+		this.cdOficina = cdOficina;
+	}
+
+	
 }

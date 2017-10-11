@@ -41,6 +41,8 @@ public class Constantes {
 	
 	public static final Integer C_CUOTA_PREPAGO =999;
 	
+	public static final String OFICINA_DEFAULT_LIMA = "0486";
+	
 
 	
 	public enum Error {

@@ -8,6 +8,7 @@ public class EmpresaBean {
 	private String cdEmpresa;
 	private String nombreEmpresa;
 	private String indenticador;
+	private String cdProdExt;
 	
 	private String fechaInscripcion;
 	private String fechaExpiracion;
@@ -56,5 +57,11 @@ public class EmpresaBean {
 	public void setLstEmpresaDetalle(List<EmpresaDetalle> lstEmpresaDetalle) {
 		this.lstEmpresaDetalle = lstEmpresaDetalle;
 	}
-
+	public String getCdProdExt() {
+		return cdProdExt;
+	}
+	public void setCdProdExt(String cdProdExt) {
+		this.cdProdExt = cdProdExt;
+	}
+	
 }
