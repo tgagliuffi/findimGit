@@ -30,4 +30,6 @@ public class DatoReniecController {
 		}	
 		return datosReniecBean;
 	}
+	
+	
 }

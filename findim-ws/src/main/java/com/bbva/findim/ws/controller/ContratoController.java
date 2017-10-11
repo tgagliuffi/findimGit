@@ -19,7 +19,6 @@ import com.bbva.findim.dom.FirmaContratoBean;
 import com.bbva.findim.dom.RutasPdfBean;
 import com.bbva.findim.dom.common.Constantes;
 import com.bbva.findim.ws.service.ContratoService;
-import com.bbva.findim.ws.util.ConvertUtil;
 import com.bbva.findim.ws.util.Enumeradores.EnumRespuestaSignBox;
 import com.bbva.findim.ws.util.PropertyUtil;
 import com.bbva.findim.ws.util.Util;
@@ -46,32 +45,30 @@ public class ContratoController {
 		try {
 
 			RutasPdfBean rutasPdfBean = new RutasPdfBean();
-			rutasPdfBean.setRutaContrato1Jasper(prop.getString("sistema.ruta.contrato1.jasper").trim());
-			rutasPdfBean.setRutaContrato2Jasper(prop.getString("sistema.ruta.contrato2.jasper").trim());
-			rutasPdfBean.setRutaCronogramaJasper(prop.getString("sistema.ruta.cronograma.jasper").trim());
+			String configPath = System.getProperty("findim-ws.config.path");
+			rutasPdfBean.setRutaContrato1Jasper(configPath+prop.getString("sistema.ruta.contrato1.jasper").trim());
+			rutasPdfBean.setRutaContrato2Jasper(configPath+prop.getString("sistema.ruta.contrato2.jasper").trim());
+			rutasPdfBean.setRutaCronogramaJasper(configPath+prop.getString("sistema.ruta.cronograma.jasper").trim());
 			rutasPdfBean.setRutaGeneracionContrato(prop.getString("sistema.ruta.generacion.contrato").trim());
-			rutasPdfBean.setRutaHRIinformativaDescJasper(prop.getString("sistema.ruta.hriinformativadesc.jasper").trim());
-			rutasPdfBean.setRutaHRIinformativaJasper(prop.getString("sistema.ruta.hriinformativa.jasper").trim());
-			rutasPdfBean.setRutaImagenBBVACF(prop.getString("sistema.ruta.logo.bbvacf").trim());
-			rutasPdfBean.setRutaImagenFirmaRepresentante1(prop.getString("sistema.ruta.firma.representante1").trim());
-			rutasPdfBean.setRutaImagenFirmaRepresentante2(prop.getString("sistema.ruta.firma.representante2").trim());
+			rutasPdfBean.setRutaHRIinformativaDescJasper(configPath+prop.getString("sistema.ruta.hriinformativadesc.jasper").trim());
+			rutasPdfBean.setRutaHRIinformativaJasper(configPath+prop.getString("sistema.ruta.hriinformativa.jasper").trim());
+			rutasPdfBean.setRutaImagenBBVACF(configPath+prop.getString("sistema.ruta.logo.bbvacf").trim());
+			rutasPdfBean.setRutaImagenFirmaRepresentante1(configPath+prop.getString("sistema.ruta.firma.representante1").trim());
+			rutasPdfBean.setRutaImagenFirmaRepresentante2(configPath+prop.getString("sistema.ruta.firma.representante2").trim());
+			rutasPdfBean.setRutaImagenLogoRimac(configPath+prop.getString("sistema.ruta.logo.rimac").trim());
+			rutasPdfBean.setRutaPagareJasper(configPath+prop.getString("sistema.ruta.pagare.jasper").trim());
+			rutasPdfBean.setRutaAceptacionJasper(configPath+prop.getString("sistema.ruta.aceptacion.jasper").trim());
+			rutasPdfBean.setRutaPrestamoJasper(configPath+prop.getString("sistema.ruta.prestamo.jasper"));
+			rutasPdfBean.setRutaSeguroDesgravamenJasper(configPath+prop.getString("sistema.ruta.seguro.desgravamen.jasper").trim());			
 			rutasPdfBean.setRutaImagenLogoRimac(prop.getString("sistema.ruta.logo.rimac").trim());
-			rutasPdfBean.setRutaPagareJasper(prop.getString("sistema.ruta.pagare.jasper").trim());
-			rutasPdfBean.setRutaAceptacionJasper(prop.getString("sistema.ruta.aceptacion.jasper").trim());
-			rutasPdfBean.setRutaPrestamoJasper(prop.getString("sistema.ruta.prestamo.jasper"));
-			rutasPdfBean.setRutaSeguroDesgravamenJasper(prop.getString("sistema.ruta.seguro.desgravamen.jasper").trim());			
-			rutasPdfBean.setRutaImagenLogoRimac(prop.getString("sistema.ruta.logo.rimac").trim());
-			rutasPdfBean.setRutaContratoFijo(prop.getString("sistema.ruta.contrato.archivoFijo.contratofijo").trim());
-			rutasPdfBean.setRutaPrestamoFijo(prop.getString("sistema.ruta.contrato.archivoFijo.prestamofijo").trim());
-			rutasPdfBean.setRutaSeguroFijo(prop.getString("sistema.ruta.contrato.archivoFijo.segurofijo").trim());
+			rutasPdfBean.setRutaContratoFijo(configPath+prop.getString("sistema.ruta.contrato.archivoFijo.contratofijo").trim());
+			rutasPdfBean.setRutaPrestamoFijo(configPath+prop.getString("sistema.ruta.contrato.archivoFijo.prestamofijo").trim());
+			rutasPdfBean.setRutaSeguroFijo(configPath+prop.getString("sistema.ruta.contrato.archivoFijo.segurofijo").trim());
 			rutasPdfBean.setRutaConsolidado(prop.getString("sistema.ruta.contrato.consolidado").trim());
 			
 			DatosPdfBean datosPdfBean = new DatosPdfBean();
 			datosPdfBean.setRutasPdfBean(rutasPdfBean);
 			clienteBean.setDatosPdf(datosPdfBean);		
-			clienteBean.setTceaWsdl(prop.getString("calculo.tcea.wsdl.location"));
-			clienteBean.setTceaTimeout(ConvertUtil.convertToLong(prop.getString("calculo.tcea.timeout.millis")));
-
 			Util.deleteFilesByPrefix(rutasPdfBean.getRutaGeneracionContrato(),Constantes.PREFIJO_TEMPORAL);
 			
 			clienteBean = contratoService.generarPDF(clienteBean, false);
@@ -91,7 +88,6 @@ public class ContratoController {
 	@RequestMapping(value = "firmarContrato/{tipoDocumento}/{numeroDocumento}/{codigoContrato}/{idCliente}/{seguridad_usertype}/{seguridad_user}", method = RequestMethod.GET)
 	@ResponseBody
 	public ClienteBean firmarContrato(
-			//@PathVariable("codigoAuxiliar") String codigoAuxiliar,
 			@PathVariable("tipoDocumento") String tipoDocumento,
 			@PathVariable("numeroDocumento") String numeroDocumento,
 			@PathVariable("codigoContrato") String codigoContrato,
@@ -110,7 +106,6 @@ public class ContratoController {
 		
 		ClienteBean clienteBean = new ClienteBean();
 		try{
-			//bean.setCodigoAuxiliar(codigoAuxiliar);
 			bean.setNumeroDocumento(numeroDocumento);
 			bean.setTipoDocumento(tipoDocumento);
 			bean.setCodigoContrato(codigoContrato);
@@ -119,9 +114,7 @@ public class ContratoController {
 			bean.setRutaSignBoxContract(prop.getString("firma.contrato.service.location"));
 			bean.setRutaOrigen(prop.getString("sistema.ruta.generacion.contrato"));
 			bean.setRutaSalida(prop.getString("sistema.ruta.contrato.firmado"));
-			//INI HENRY 31/01/2017	
 			bean.setRutaConsolidado(prop.getString("sistema.ruta.contrato.consolidado"));
-			//FIN HENRY 31/01/2017	
 			bean.setSeguridad_user(seguridad_user);
 
 			int rptaFirmaContrato = contratoService.firmarContrato(bean);
