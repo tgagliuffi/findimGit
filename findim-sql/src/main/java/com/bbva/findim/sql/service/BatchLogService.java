@@ -9,4 +9,5 @@ import com.bbva.findim.dom.ProcesoBatchLogBean;
 
 public interface BatchLogService {
 	ProcesoBatchLogBean obtenerProcesoBatch(String cdProceso);
+	List<ProcesoBatchLogBean> listarUltimosProcesosBatch(String cantidad);
 }

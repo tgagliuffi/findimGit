@@ -1,8 +1,11 @@
 package com.bbva.findim.sql.dao.impl;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -13,6 +16,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.bbva.findim.dom.ProcesoBatchLogBean;
+import com.bbva.findim.dom.ProcesoSubTareaBean;
 import com.bbva.findim.dom.ProcesoTareaBean;
 import com.bbva.findim.sql.dao.BatchLogDao;
 import com.bbva.findim.sql.dao.ProcesoTareaDao;
@@ -62,6 +66,31 @@ public class ProcesoTareaDaoImpl implements ProcesoTareaDao {
 	}
 	public List<ProcesoTareaBean> listarUltimosProceosTarea() {
 		// TODO Auto-generated method stub
+//		List<ProcesoTareaBean> listaProcesoTarea=null;
+//		ProcesoTareaBean tareaBean=null;
+//		try{
+//			listaProcesoTarea= new ArrayList<ProcesoTareaBean>();
+//			List<Map<String, Object>> lista;
+//			
+//			lista=jdbcTemplate.queryForList(
+//				"SELECT * FROM TFINDIM_PROCESO_SUBTAREA where ID_TAREA= ? order by ID_SUBTAREA");
+//			
+//			for(Map<String, Object> row : lista){
+//				tareaBean= new ProcesoTareaBean();
+//				
+//				tareaBean.setIdSubTarea(new BigDecimal(row.get("ID_SUBTAREA").toString()));
+//				tareaBean.setIdTarea(row.get("ID_TAREA").toString());
+//				tareaBean.setNbSubTarea(row.get("NB_SUBTAREA").toString());
+//				tareaBean.setStTarea(row.get("ST_TAREA").toString());
+//				tareaBean.setDtSubtarea(row.get("DT_SUBTAREA").toString());
+//				tareaBean.setIdPredecesora(row.get("ID_PREDECESORA").toString());
+//				
+//				listaProcesoTarea.add(tareaBean);     
+//		    }
+//			logger.info("listaProcesoDetalle.size():"+listaProcesoTarea.size()); 
+//		} catch (Exception e) {
+//			logger.error(e.getMessage(), e);
+//		}	
 		return null;
 	}
 

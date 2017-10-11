@@ -80,6 +80,19 @@ public class ParametriaController {
 		return listaDetalleProceso;		
 	}
 	
+	@RequestMapping(value = "/listarUltimosProcesos/{cdProceso}",method = RequestMethod.GET,headers="Accept=application/json")		
+	@ResponseBody	
+	public List<ProcesoBatchLogBean> listarUltimosProcesos(@PathVariable("cantidad") String cdProceso) {		
+		List<ProcesoBatchLogBean> listaProcesos = null;		
+		try {		
+			listaProcesos =batchLogService.listarUltimosProcesosBatch(cdProceso);
+			LOGGER.info("[InicioController contratoService.busquedaContrato]"); 			
+		} catch (Exception e) {		
+			LOGGER.error(e.getMessage(), e);		
+		}			
+		return listaProcesos;		
+	}
+	
 	@RequestMapping(value = "/obtenerTarea/{idTarea}",method = RequestMethod.GET,headers="Accept=application/json")		
 	@ResponseBody	
 	public ProcesoTareaBean obtenerTarea(@PathVariable("idTarea") String idTarea) {		

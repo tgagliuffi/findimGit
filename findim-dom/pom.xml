@@ -4,7 +4,7 @@
 	<groupId>com.bbva.findim</groupId>
 	<artifactId>findim-dom</artifactId>
 	<packaging>jar</packaging>
-	<version>0.0.1-SNAPSHOT</version> 
+	<version>0.0.1-SNAPSHOT</version>
  
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
