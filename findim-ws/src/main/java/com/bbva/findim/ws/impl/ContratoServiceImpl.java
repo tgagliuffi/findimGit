@@ -64,7 +64,7 @@ public class ContratoServiceImpl implements ContratoService{
 			
 			rutasPdfBean=new RutasPdfBean();
 			rutasPdfBean=clienteBean.getDatosPdf().getRutasPdfBean();
-//			String  tceaWsdl = clienteBean.getTceaWsdl();
+
 			String tea = "";
 			
 			tea = clienteBean.getSimulacionBean().getListaTarifa().get(0).getTasa();

@@ -38,7 +38,7 @@ public class EmpresaDaoImpl implements EmpresaDao {
 		try{
 		
 				empresaBean = jdbcTemplate.queryForObject(
-				"SELECT ID_EMPRESA, CD_EMPRESA, NB_EMPRESA, NB_IDENT_EMPRESA, FH_VIGENCIA, ST_ESTADO "
+				"SELECT ID_EMPRESA, CD_EMPRESA, NB_EMPRESA, NB_IDENT_EMPRESA, FH_VIGENCIA, ST_ESTADO,CD_PROD_EXT  "
 			    +" FROM TFINDIM_EMPRESA WHERE CD_EMPRESA = ? AND ST_ESTADO = 'A' ",
 			    new RowMapper<EmpresaBean>() {
 					public EmpresaBean mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -49,6 +49,7 @@ public class EmpresaDaoImpl implements EmpresaDao {
 						bean.setIndenticador(rs.getString("NB_IDENT_EMPRESA"));
 						bean.setFechaInscripcion(rs.getString("FH_VIGENCIA"));
 						bean.setFechaExpiracion(rs.getString("FH_VIGENCIA"));
+						bean.setCdProdExt(rs.getString("CD_PROD_EXT"));
 						return bean;
 					}
 				},

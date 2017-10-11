@@ -27,6 +27,7 @@ public class RutasPdfBean {
 	private String rutaDestinoPdf;
 	private String rutaArchivosPrepago;
 	
+	
 	public String getRutaGeneracionContrato() {
 		return rutaGeneracionContrato;
 	}

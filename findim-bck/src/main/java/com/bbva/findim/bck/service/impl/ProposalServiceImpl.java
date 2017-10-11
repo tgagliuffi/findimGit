@@ -85,6 +85,7 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(SeguridadBbvaService.HEADER_TSEC, tSec);
 		ResponseEntity<String> responseEntity = null;
+		contratoBean.setRepuestaService(new RespuestaService());
 		try {
 			Proposals proposals = new Proposals();
 			if(contratoBean!=null){
@@ -472,8 +473,9 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 		    proposal.setPaymentDay(contrato.getDiaPago());
 		    
 		    proposal.setDelivery(new Delivery());
-		    proposal.getDelivery().setType(new Type());
-		    proposal.getDelivery().getType().setId(determinarTipoEnvio(contrato.getCodTipoEnvio()).getId());
+		    proposal.getDelivery().setType(new Type());//ProposalService.TipoEnvio.NINGUNO.getTipoEnvio()
+		    proposal.getDelivery().getType().setId(contrato.getCodTipoEnvio()!=null?determinarTipoEnvio(contrato.getCodTipoEnvio()).getId():
+		    	ProposalService.TipoEnvio.NINGUNO.getTipoEnvio());
 		    proposal.getDelivery().setEmail(contrato.getClienteBean().getCorreoCliente());
 		    
 		    proposal.setOperation(new Operation());
@@ -493,7 +495,7 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 		    proposal.getThirdPartyProvider().getExternalSalesChannel().setId(contrato.getDescripcionCanal());
 		    
 		    proposal.setBranch(new Branch());
-		    proposal.getBranch().setId("0130");
+		    proposal.getBranch().setId(contrato.getCdOficina());
 			    
 		return proposal;
 	}
@@ -628,4 +630,14 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
               }
           }
       }
+	  
+	  public String oficinizar(ClienteBean cliente) {
+		  String oficina = null;
+		  if(cliente.getEsCliente()) {
+			  
+		  }
+		  
+
+		  return oficina;
+	  }
 }

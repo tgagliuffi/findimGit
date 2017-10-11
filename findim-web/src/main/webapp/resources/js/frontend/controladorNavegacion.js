@@ -70,7 +70,7 @@ function cambiarVentana(e){
 
 // Respuesta es el controlador 
 function respuesta() {
-	
+	debugger;
 	$('#alertaFiltroTexto').text(objetoContenedor.codigoError || '');
     switch(objetoContenedor.tipoRespuesta){
         case 0:

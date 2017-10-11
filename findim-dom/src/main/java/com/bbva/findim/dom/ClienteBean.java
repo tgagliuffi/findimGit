@@ -64,8 +64,7 @@ public class ClienteBean {
 	private String rutatemp;
 	private String rutaPdf;
 	private String rutaFija;
-	private String tceaWsdl;
-	private Long tceaTimeout;
+
 	private Integer resultadoFirma;
 
 	private String seguridad_data;
@@ -577,13 +576,6 @@ public class ClienteBean {
 		this.rutaFija = rutaFija;
 	}
 
-	public String getTceaWsdl() {
-		return tceaWsdl;
-	}
-
-	public void setTceaWsdl(String tceaWsdl) {
-		this.tceaWsdl = tceaWsdl;
-	}
 
 	public Integer getResultadoFirma() {
 		return resultadoFirma;
@@ -639,22 +631,6 @@ public class ClienteBean {
 
 	public void setSeguridad_status(String seguridad_status) {
 		this.seguridad_status = seguridad_status;
-	}
-
-//	public String getDescError() {
-//		return descError;
-//	}
-//
-//	public void setDescError(String descError) {
-//		this.descError = descError;
-//	}
-
-	public Long getTceaTimeout() {
-		return tceaTimeout;
-	}
-
-	public void setTceaTimeout(Long tceaTimeout) {
-		this.tceaTimeout = tceaTimeout;
 	}
 
 	@Deprecated // Deprecado en Sprint 9, usar listaTipoEnvio

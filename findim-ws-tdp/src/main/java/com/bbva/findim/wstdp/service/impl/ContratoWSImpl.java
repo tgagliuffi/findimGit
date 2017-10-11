@@ -42,6 +42,7 @@ import com.bbva.findim.dom.reniec.Ciudadano;
 import com.bbva.findim.dom.util.DateUtil;
 import com.bbva.findim.sql.service.DatoReniecService;
 import com.bbva.findim.sql.service.LogAltaContratoService;
+import com.bbva.findim.sql.service.OficinaService;
 import com.bbva.findim.sql.service.ParametroService;
 import com.bbva.findim.wstdp.model.AltaContratoModel;
 import com.bbva.findim.wstdp.service.ContratoWS;
@@ -84,6 +85,9 @@ public class ContratoWSImpl implements ContratoWS {
 	
 	@Autowired
 	ParametroService parametroService;
+	
+	@Autowired
+	OficinaService oficinaService;
 	
 	private Properties prop = new Properties();
 
@@ -244,6 +248,7 @@ public class ContratoWSImpl implements ContratoWS {
 					    		personaCreada.setEstadoCivil(ciudadano.getCodigoEstadoCivil());
 					    		personaCreada.setSexo(ciudadano.getSexo());
 					    		clienteAlta = cargarDatosClienteAlta(null, personaCreada, correo);
+					    		
 								if(datoReniecService.obtenerDatosReniecPersona(personaCreada.getNumeroDocumento())==null){
 									DatosReniecBean datoReniec = new DatosReniecBean();
 									datoReniec.setDireccionAmdocs(contratoAltaBean.getDomicilio().getDireccion());
@@ -251,7 +256,7 @@ public class ContratoWSImpl implements ContratoWS {
 									datoReniec.setNumeroDni(contratoAltaBean.getClienteBean().getNumeroDocumento());
   									datoReniecService.guardarDatoReniecPersona(datoReniec);
 								}
-								contratoAltaBean =transaccionAltaContrato(contratoAltaBean,clienteAlta,request.getTarifa());
+								contratoAltaBean =transaccionAltaContrato(contratoAltaBean,clienteAlta,request.getTarifa(), empresa);
 					    	} else{//ERROR AL CREAR LA PERSONA
 				        		request.setTpIndicadorProceso(ConstantResponseMessage.CODE_RPTA_ERROR);
 				    			request.setTxMensajeFuncional("ERROR AL CREAR LA PERSONA");
@@ -278,7 +283,7 @@ public class ContratoWSImpl implements ContratoWS {
 				        	}
 			        	}
 			        	//reforzar validación
-				        	contratoAltaBean =transaccionAltaContrato(contratoAltaBean,clienteAlta,request.getTarifa());
+				        contratoAltaBean =transaccionAltaContrato(contratoAltaBean,clienteAlta,request.getTarifa(), empresa);
 			        }
 					//VALIDAR REPUESTA DEL ALTA CONTRATO
 				  	if(contratoAltaBean.getRepuestaService().getExitoDescription()!=null){
@@ -317,7 +322,7 @@ public class ContratoWSImpl implements ContratoWS {
 			
 			logAltaContratoService.insert(request);
 		  	
-		} catch (Exception ex) {
+	} catch (Exception ex) {
 			LOGGER.error(ex.getMessage(), ex);
 			
 			request.setTpIndicadorProceso(ConstantResponseMessage.CODE_RPTA_ERROR);
@@ -340,7 +345,7 @@ public class ContratoWSImpl implements ContratoWS {
 		return respuestaTDP;
 	}
 
-	private ContratoAltaBean transaccionAltaContrato(ContratoAltaBean contratoAltaBean, ClienteBean clienteAlta, String tarifa)throws Exception {
+	private ContratoAltaBean transaccionAltaContrato(ContratoAltaBean contratoAltaBean, ClienteBean clienteAlta, String tarifa, EmpresaBean empresa)throws Exception {
 		ContratoAltaBean contrato = new ContratoAltaBean();
 		contrato.setClienteBean(clienteAlta);
 		contrato.setAddNombreTarifa(tarifa);
@@ -349,12 +354,12 @@ public class ContratoWSImpl implements ContratoWS {
 		contrato.setDiaPago(contratoAltaBean.getDiaPago());
 		contrato.setAdddiaFacturacion(contratoAltaBean.getAdddiaFacturacion());
 		contrato.setTelefonoFinanciado(contratoAltaBean.getTelefonoFinanciado());
-		contrato.setCodTipoEnvio("");
 		contrato.setNumeroContrato(contratoAltaBean.getKeyUnica());
 		contrato.setValorEquipo(contratoAltaBean.getValorEquipo());
-		contrato.setProveedorTercero("TELF");
+		contrato.setProveedorTercero(empresa.getCdEmpresa());
 		contrato.setDescripcionCanal(contratoAltaBean.getDescripcionCanal());
-		contrato.setProductoExterno("CTEL000985674");
+		contrato.setProductoExterno(empresa.getCdProdExt());
+		contrato.setCdOficina(oficinaService.oficinaAsignadaPorUbigeoReniec(contratoAltaBean, clienteAlta.getIdNaturaleza()));
 		contrato = proposalService.altaProposal(seguridad.generarTSec(2), contrato);
 		return contrato;
 	}

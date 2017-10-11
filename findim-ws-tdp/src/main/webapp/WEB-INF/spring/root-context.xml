@@ -53,9 +53,14 @@
 	<bean class="com.bbva.findim.sql.dao.impl.DatoReniecDaoImpl" id="datoReniecDaoImpl" >
 		<property name="jdbcTemplate" ref="jdbcTemplate"></property>
 	</bean>
+	<bean class="com.bbva.findim.sql.dao.impl.OficinaDaoImpl" id="oficinaDaoImpl" >
+		<property name="jdbcTemplate" ref="jdbcTemplate"></property>
+	</bean>
+
 	<bean id="logAltaContratoService" class="com.bbva.findim.sql.service.impl.LogAltaContratoServiceImpl"/>
 	<bean id="parametroService" class="com.bbva.findim.sql.service.impl.ParametroServiceImpl"/>
 	<bean id="datoReniecService" class="com.bbva.findim.sql.service.impl.DatoReniecServiceImpl"/>
+	<bean id="oficinaService" class="com.bbva.findim.sql.service.impl.OficinaServiceImpl"/>
 	<bean id="batchLogService" class="com.bbva.findim.sql.service.impl.BatchLogServiceImpl"/>
 	<bean id="batchLogDtService" class="com.bbva.findim.sql.service.impl.BatchLogDtServiceImpl"/>
 	
