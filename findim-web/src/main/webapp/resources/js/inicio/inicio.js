@@ -32,20 +32,20 @@ function filtroCliente(){
 	    context: document.body,
 	    success: function(response) {
 	    	objetoContenedor = response;
-//	    	if (constants.BIOMATCH_ACTIVO) {
+	    	if (false) {
 		    	if (objetoContenedor.codigoResultado == COD_RESULTADO_APROBADO) {
 		    		respuesta();
-//		    		verificarHuellaDactilar(tipoDocumento,
-//		    				numeroDocumento,
-//		    				PROCESO_BIOMETRIA_FILTRO,
-//		    				callbackHuellaDactilarFiltroCliente,
-//		    				callbackResultadoBiometriaFiltro);
-//		    	} else {
-//			    	respuesta();
+		    		verificarHuellaDactilar(tipoDocumento,
+		    				numeroDocumento,
+		    				PROCESO_BIOMETRIA_FILTRO,
+		    				callbackHuellaDactilarFiltroCliente,
+		    				callbackResultadoBiometriaFiltro);
+		    	} else {
+			    	respuesta();
 		    	}
-//	    	} else {
-//	    		respuesta();
-//	    	}
+	    	} else {
+	    		respuesta();
+	    	}
 	    },
 	    error: function(e) {
 	    	console.log('Error: ' + e);

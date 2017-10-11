@@ -179,8 +179,8 @@ function actualizarContenidos (){
 	//contenidoTabla
 	for(i=0;i < totalArrayTabla ;i++){
 		contenidoTabla.append(
-				"<tr>" + "<td>" + objetoContenedor.detalle[i].numeroCuota +  "</td>"
-                + "<td>" + objetoContenedor.detalle[i].fechaPago + "</td>"
+				"<tr >" + "<td style='text-align: center'>" + objetoContenedor.detalle[i].numeroCuota +  "</td>"
+                + "<td style='text-align: center'>" + objetoContenedor.detalle[i].fechaPago + "</td>"
                 + "<td style='text-align: right'>" + objetoContenedor.detalle[i].saldoAntesS + "</td>"
                 + "<td style='text-align: right'>" + objetoContenedor.detalle[i].amortizacion + "</td>"
                 + "<td style='text-align: right'>" + objetoContenedor.detalle[i].interesMensual + "</td>"
@@ -196,14 +196,12 @@ function actualizarContenidos (){
 	}
 	
 	// table Footer
-//	totalSaldoCapital.text( objetoContenedor.totales.totalSaldoCapital );
-	totalAmortizacion.text( objetoContenedor.totales.totalAmortizacion );
+	totalSaldoCapital.text( objetoContenedor.totales.totalSaldoCapital );
+	totalAmortizacion.text( objetoContenedor.totales.totalSaldoCapital );
 	totalIntereses.text( objetoContenedor.totales.totalIntereses);
-//	totalSeguroDesgravamen.text((objetoContenedor.totales.totalSeguroDesgravamen).toFixed(2));
-	totalSeguroDesgravamen.text(parseFloat(((objetoContenedor.totales.totalSeguroDesgravamen).replace(',', '.'))).toFixed(2));
+	totalSeguroDesgravamen.text(objetoContenedor.totales.totalSeguroDesgravamen);
 	totalComisionEnvio.text( objetoContenedor.totales.comisionEnvio );
 	totalCuotaTotal.text( objetoContenedor.totales.totalCuotaTotal );
-	
 	console.log(objetoContenedor);
 	
 	

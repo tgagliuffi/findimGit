@@ -270,14 +270,14 @@
 						<table id="tablaContenido" class="table">
 							<thead>
 								<tr>
-									<th>Num Cuotas</th>
-									<th>Fecha de Pago</th>
-									<th>Saldo Capital</th>
-									<th>Amortizaci&#243;n</th>
-									<th>Intereses</th>
-									<th>Seguro desgravamen</th>
-									<th>Com. env&#237;o </br> Comp. pago</th>
-									<th>Cuota total</th>
+									<td>Num Cuotas</td>
+									<td>Fecha de Pago</td>
+									<td>Saldo Capital</td>
+									<td>Amortizaci&#243;n</td>
+									<td>Intereses</td>
+									<td>Seguro desgravamen</td>
+									<td>Com. env&#237; Comp. pago</td>
+									<td>Cuota total</td>
 								</tr>
 							</thead>
 
