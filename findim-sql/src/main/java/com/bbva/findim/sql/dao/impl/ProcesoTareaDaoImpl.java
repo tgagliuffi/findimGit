@@ -64,34 +64,38 @@ public class ProcesoTareaDaoImpl implements ProcesoTareaDao {
 		}	
 		return procesoTareaBean;
 	}
-	public List<ProcesoTareaBean> listarUltimosProceosTarea() {
-		// TODO Auto-generated method stub
-//		List<ProcesoTareaBean> listaProcesoTarea=null;
-//		ProcesoTareaBean tareaBean=null;
-//		try{
-//			listaProcesoTarea= new ArrayList<ProcesoTareaBean>();
-//			List<Map<String, Object>> lista;
-//			
-//			lista=jdbcTemplate.queryForList(
-//				"SELECT * FROM TFINDIM_PROCESO_SUBTAREA where ID_TAREA= ? order by ID_SUBTAREA");
-//			
-//			for(Map<String, Object> row : lista){
-//				tareaBean= new ProcesoTareaBean();
-//				
-//				tareaBean.setIdSubTarea(new BigDecimal(row.get("ID_SUBTAREA").toString()));
-//				tareaBean.setIdTarea(row.get("ID_TAREA").toString());
-//				tareaBean.setNbSubTarea(row.get("NB_SUBTAREA").toString());
-//				tareaBean.setStTarea(row.get("ST_TAREA").toString());
-//				tareaBean.setDtSubtarea(row.get("DT_SUBTAREA").toString());
-//				tareaBean.setIdPredecesora(row.get("ID_PREDECESORA").toString());
-//				
-//				listaProcesoTarea.add(tareaBean);     
-//		    }
-//			logger.info("listaProcesoDetalle.size():"+listaProcesoTarea.size()); 
-//		} catch (Exception e) {
-//			logger.error(e.getMessage(), e);
-//		}	
-		return null;
+	
+	
+	public List<ProcesoTareaBean> listarTareas() {
+		
+		
+		List<ProcesoTareaBean> listaTareas=null;
+		ProcesoTareaBean tareaBean=null;
+		try{
+			listaTareas= new ArrayList<ProcesoTareaBean>();
+			
+			List<Map<String, Object>> lista;
+			
+			lista=jdbcTemplate.queryForList(
+				"select * from tfindim_proceso_tarea");
+			
+			for(Map<String, Object> row : lista){
+				tareaBean= new ProcesoTareaBean();
+				
+				tareaBean.setIdTarea(new BigDecimal(row.get("ID_TAREA").toString()));
+				tareaBean.setNbTarea(row.get("NB_TAREA").toString());
+				tareaBean.setStTarea(row.get("ST_TAREA").toString());
+				tareaBean.setCdTarea(row.get("CD_TAREA").toString());
+				tareaBean.setIdPredecesora(row.get("ID_PREDECESORA")!=null?row.get("ID_PREDECESORA").toString():"");
+//				batchLogBean.setFhIniProceso(new Date());
+//				batchLogBean.setFhFinProceso(new Date());
+				listaTareas.add(tareaBean);     
+		    }
+			logger.info("listaTareas.size():"+listaTareas.size()); 
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}	
+		return listaTareas;
 	}
 
 }

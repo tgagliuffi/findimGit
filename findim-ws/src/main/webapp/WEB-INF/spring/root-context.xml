@@ -55,6 +55,12 @@
 	<bean class="com.bbva.findim.sql.dao.impl.BatchLogDtDaoImpl" id="batchLogDtDaoImpl">
 		<property name="jdbcTemplate" ref="jdbcTemplateFindim"></property>
 	</bean>
+	 <bean class="com.bbva.findim.sql.dao.impl.ProcesoTareaDaoImpl" id="procesoTareaDaoImpl">
+		<property name="jdbcTemplate" ref="jdbcTemplateFindim"></property>
+	</bean>
+	<bean class="com.bbva.findim.sql.dao.impl.ProcesoSubTareaDaoImpl" id="procesoSubTareaDaoImpl">
+		<property name="jdbcTemplate" ref="jdbcTemplateFindim"></property>
+	</bean>
 
 
 	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate"></bean>

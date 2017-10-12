@@ -57,7 +57,7 @@ public class BatchLogDtDaoImpl implements BatchLogDtDao {
 	}
 
 	
-	public List<ProcesoBatchLogDtBean> listarDetalleProceso(String cdProceso) {
+	public List<ProcesoBatchLogDtBean> listarDetalleProceso(String cdProceso,String tarea) {
 		// TODO Auto-generated method stub
 		List<ProcesoBatchLogDtBean> listaProcesoDetalle=null;
 		ProcesoBatchLogDtBean detalleBean=null;
@@ -66,8 +66,8 @@ public class BatchLogDtDaoImpl implements BatchLogDtDao {
 			List<Map<String, Object>> lista;
 			
 			lista=jdbcTemplate.queryForList(
-				"SELECT * FROM TFINDIM_PROCESO_BATCH_LOG_DT where id_proceso= ? order by nombre_archivo,id_proceso_dt",
-				cdProceso
+				"SELECT * FROM TFINDIM_PROCESO_BATCH_LOG_DT where id_proceso= ? and tarea= ? order by nombre_archivo,id_proceso_dt",
+				cdProceso,tarea
 			);
 
 			for(Map<String, Object> row : lista){

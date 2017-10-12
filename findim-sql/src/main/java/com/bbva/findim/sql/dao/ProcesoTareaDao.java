@@ -9,6 +9,6 @@ public interface ProcesoTareaDao {
 
 	ProcesoTareaBean obtenerProcesoTareaDao(String idTarea);
 	
-	List<ProcesoTareaBean> listarUltimosProceosTarea();
+	List<ProcesoTareaBean> listarTareas();
 
 }
