@@ -6,6 +6,7 @@ import com.bbva.findim.ws.util.PropertyUtil;
 public class BaseController {
 
 	public static RutasPdfBean obtenerRutasPDFBean(PropertyUtil prop) {
+		//TODO : borrar
 		RutasPdfBean rutasPdfBean = new RutasPdfBean();
 		String configPath = System.getProperty("findim-ws.config.path");
 		rutasPdfBean.setRutaContrato1Jasper(configPath+prop.getString("sistema.ruta.contrato1.jasper"));
