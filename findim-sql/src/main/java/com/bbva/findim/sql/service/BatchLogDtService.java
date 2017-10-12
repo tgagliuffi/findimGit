@@ -8,6 +8,6 @@ import com.bbva.findim.dom.ParametroDetalleBean;
 import com.bbva.findim.dom.ProcesoBatchLogDtBean;
 
 public interface BatchLogDtService {
-	public List<ProcesoBatchLogDtBean> listarDetallesProcesoBatch(String idProceso);
+	public List<ProcesoBatchLogDtBean> listarDetallesProcesoBatch(String idProceso,String tarea);
 //	public List<ParametroDetalleBean> listaTipoDocumentos();
 }

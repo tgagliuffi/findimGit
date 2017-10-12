@@ -20,9 +20,9 @@ public class ProcesoTareaServiceImpl implements ProcesoTareaService{
 		return procesoTareaDao.obtenerProcesoTareaDao(idTarea);
 	}
 
-	public List<ProcesoTareaBean> listarUltimasTareas() {
+	public List<ProcesoTareaBean> listarTareas() {
 		// TODO Auto-generated method stub
-		return procesoTareaDao.listarUltimosProceosTarea();
+		return procesoTareaDao.listarTareas();
 	}
 
 	

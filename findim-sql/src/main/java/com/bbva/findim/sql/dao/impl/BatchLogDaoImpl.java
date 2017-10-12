@@ -79,8 +79,8 @@ public class BatchLogDaoImpl implements BatchLogDao {
 				batchLogBean.setStProceso(row.get("ST_PROCESO")!=null?row.get("ST_PROCESO").toString():"");
 				batchLogBean.setObProceso(row.get("OB_PROCESO")!=null?row.get("OB_PROCESO").toString():"");
 				batchLogBean.setIdTpProceso(row.get("ID_TP_PROCESO")!=null?row.get("ID_TP_PROCESO").toString():"");
-				batchLogBean.setFhIniProceso(new Date());
-				batchLogBean.setFhFinProceso(new Date());
+//				batchLogBean.setFhIniProceso(new Date());
+//				batchLogBean.setFhFinProceso(new Date());
 				listaProcesoBatch.add(batchLogBean);     
 		    }
 			logger.info("listaProcesoDetalle.size():"+listaProcesoBatch.size()); 

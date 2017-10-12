@@ -14,10 +14,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.bbva.findim.dom.ParametroBean;
 import com.bbva.findim.dom.ProcesoBatchLogBean;
 import com.bbva.findim.dom.ProcesoBatchLogDtBean;
+import com.bbva.findim.dom.ProcesoSubTareaBean;
 import com.bbva.findim.dom.ProcesoTareaBean;
 import com.bbva.findim.sql.service.BatchLogDtService;
 import com.bbva.findim.sql.service.BatchLogService;
-import com.bbva.findim.sql.service.ParametroService;		
+import com.bbva.findim.sql.service.ParametroService;
+import com.bbva.findim.sql.service.ProcesoSubTareaService;
+import com.bbva.findim.sql.service.ProcesoTareaService;		
 		
 @Controller		
 public class ParametriaController {		
@@ -33,6 +36,12 @@ public class ParametriaController {
 	
 	@Autowired		
 	private BatchLogDtService batchLogDtService;
+	
+	@Autowired		
+	private ProcesoTareaService procesoTareaService;
+	
+	@Autowired		
+	private ProcesoSubTareaService procesoSubTareaService;
 			
 			
 	@RequestMapping(value = "/listaDetalleParametro/{idPadre}",method = RequestMethod.GET,headers="Accept=application/json")		
@@ -64,15 +73,15 @@ public class ParametriaController {
 		return dirIngles;	
 	}
 	
-	@RequestMapping(value = "/listarDetalleProceso/{cdProceso}",method = RequestMethod.GET,headers="Accept=application/json")		
+	@RequestMapping(value = "/listarDetalleProceso/{cdProceso}/{tarea}",method = RequestMethod.GET,headers="Accept=application/json")		
 	@ResponseBody	
-	public List<ProcesoBatchLogDtBean> listarDetalleProceso(@PathVariable("cdProceso") String cdProceso) {		
+	public List<ProcesoBatchLogDtBean> listarDetalleProceso(@PathVariable("cdProceso") String cdProceso,@PathVariable("tarea") String tarea) {		
 		List<ProcesoBatchLogDtBean> listaDetalleProceso = null;		
 		try {		
 			ProcesoBatchLogBean beanBatch =batchLogService.obtenerProcesoBatch(cdProceso);
 			LOGGER.info("[InicioController contratoService.busquedaContrato]"); 			
 			//Oracle	
-			listaDetalleProceso = batchLogDtService.listarDetallesProcesoBatch(beanBatch.getIdProceso().toString());		
+			listaDetalleProceso = batchLogDtService.listarDetallesProcesoBatch(beanBatch.getIdProceso().toString(),tarea);		
 			LOGGER.info("[InicioController listaDetalleProceso]:" + listaDetalleProceso); 		
 		} catch (Exception e) {		
 			LOGGER.error(e.getMessage(), e);		
@@ -80,17 +89,28 @@ public class ParametriaController {
 		return listaDetalleProceso;		
 	}
 	
-	@RequestMapping(value = "/listarUltimosProcesos/{cdProceso}",method = RequestMethod.GET,headers="Accept=application/json")		
+	@RequestMapping(value = "/listarUltimosProcesos/{cantidad}",method = RequestMethod.GET,headers="Accept=application/json")		
 	@ResponseBody	
-	public List<ProcesoBatchLogBean> listarUltimosProcesos(@PathVariable("cantidad") String cdProceso) {		
+	public List<ProcesoBatchLogBean> listarUltimosProcesos(@PathVariable("cantidad") String cantidad) {		
 		List<ProcesoBatchLogBean> listaProcesos = null;		
 		try {		
-			listaProcesos =batchLogService.listarUltimosProcesosBatch(cdProceso);
-			LOGGER.info("[InicioController contratoService.busquedaContrato]"); 			
+			listaProcesos =batchLogService.listarUltimosProcesosBatch(cantidad);
 		} catch (Exception e) {		
 			LOGGER.error(e.getMessage(), e);		
 		}			
 		return listaProcesos;		
+	}
+	
+	@RequestMapping(value = "/listarTareas/",method = RequestMethod.GET,headers="Accept=application/json")		
+	@ResponseBody	
+	public List<ProcesoTareaBean> listarTareas() {		
+		List<ProcesoTareaBean> listaTareas = null;		
+		try {		
+			listaTareas =procesoTareaService.listarTareas();
+		} catch (Exception e) {		
+			LOGGER.error(e.getMessage(), e);		
+		}			
+		return listaTareas;		
 	}
 	
 	@RequestMapping(value = "/obtenerTarea/{idTarea}",method = RequestMethod.GET,headers="Accept=application/json")		
@@ -107,6 +127,21 @@ public class ParametriaController {
 //			LOGGER.error(e.getMessage(), e);		
 //		}			
 		return null;		
+	}
+	
+	@RequestMapping(value = "/listarSubTareasID/{idTarea}",method = RequestMethod.GET,headers="Accept=application/json")		
+	@ResponseBody	
+	public List<ProcesoSubTareaBean> listarSubTareasID(@PathVariable("idTarea") String idTarea) {		
+		List<ProcesoSubTareaBean> listaSubTareas = null;		
+		try {		
+			LOGGER.info("[InicioController contratoService.busquedaContrato]"); 			
+			//Oracle	
+			listaSubTareas = procesoSubTareaService.listarSubTareas(idTarea);		
+			LOGGER.info("[InicioController listaSubTareas]:" + listaSubTareas); 		
+		} catch (Exception e) {		
+			LOGGER.error(e.getMessage(), e);		
+		}			
+		return listaSubTareas;		
 	}
 	
 			

@@ -9,12 +9,11 @@ import java.util.GregorianCalendar;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 
 public final class ConvertUtil {
 
-	private static final Logger LOGGER = LogManager.getLogger(ConvertUtil.class);
+	//private static final Logger LOGGER = LogManager.getLogger(ConvertUtil.class);
 
 	private ConvertUtil() {
 	}
@@ -25,7 +24,7 @@ public final class ConvertUtil {
 		try {
 			return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
 		} catch (DatatypeConfigurationException e) {
-			LOGGER.error(e.getMessage(), e);
+		//	LOGGER.error(e.getMessage(), e);
 			return null;
 		}
 	}
@@ -38,7 +37,7 @@ public final class ConvertUtil {
 			DateFormat df = new SimpleDateFormat(format);
 			return df.format(date);
 		} catch (Exception e) {
-			LOGGER.warn("Error al convertir a fecha: " + e.getMessage());
+		//	LOGGER.warn("Error al convertir a fecha: " + e.getMessage());
 			return null;
 		}
 	}
@@ -79,7 +78,7 @@ public final class ConvertUtil {
 			DateFormat df = new SimpleDateFormat(format);
 			return df.parse(dateStr);
 		} catch (ParseException e) {
-			LOGGER.warn("Error al convertir a fecha: " + e.getMessage());
+		//	LOGGER.warn("Error al convertir a fecha: " + e.getMessage());
 			return null;
 		}
 	}

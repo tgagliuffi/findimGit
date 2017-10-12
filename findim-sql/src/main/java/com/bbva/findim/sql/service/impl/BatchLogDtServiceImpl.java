@@ -18,9 +18,9 @@ public class BatchLogDtServiceImpl implements BatchLogDtService{
 	@Autowired
 	BatchLogDtDao batchLogDtDao;
 
-	public List<ProcesoBatchLogDtBean> listarDetallesProcesoBatch(String idProceso) {
+	public List<ProcesoBatchLogDtBean> listarDetallesProcesoBatch(String idProceso,String tarea) {
 		// TODO Auto-generated method stub
-		return batchLogDtDao.listarDetalleProceso(idProceso);
+		return batchLogDtDao.listarDetalleProceso(idProceso,tarea);
 	}
 	
 	

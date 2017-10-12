@@ -76,7 +76,7 @@ public class ProcesoSubTareaDaoImpl implements ProcesoSubTareaDao {
 				subTareaBean.setNbSubTarea(row.get("NB_SUBTAREA").toString());
 				subTareaBean.setStTarea(row.get("ST_TAREA").toString());
 				subTareaBean.setDtSubtarea(row.get("DT_SUBTAREA").toString());
-				subTareaBean.setIdPredecesora(row.get("ID_PREDECESORA").toString());
+				subTareaBean.setIdPredecesora(row.get("ID_PREDECESORA")!=null?row.get("ID_PREDECESORA").toString():"");
 				
 				listaProcesoSubTarea.add(subTareaBean);     
 		    }

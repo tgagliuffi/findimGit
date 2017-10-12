@@ -11,5 +11,5 @@ import com.bbva.findim.dom.ProcesoTareaBean;
 public interface ProcesoTareaService {
 	ProcesoTareaBean obtenerProcesoTarea(String idTarea);
 	
-	List<ProcesoTareaBean> listarUltimasTareas();
+	List<ProcesoTareaBean> listarTareas();
 }
