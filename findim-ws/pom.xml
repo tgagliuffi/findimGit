@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.bbva.findim</groupId>
 	<artifactId>findim-ws</artifactId>
-	<name>findim-ws</name> 
+	<name>findim-ws</name>
 	<packaging>war</packaging>
 	<version>1.0.0-BUILD-SNAPSHOT</version>
 	<properties>
