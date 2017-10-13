@@ -1,5 +1,7 @@
 package com.bbva.findim.dom;
 
+import java.util.Date;
+
 public class LogContratoBean {
 	
 	private Integer codigoContrato;
@@ -11,7 +13,39 @@ public class LogContratoBean {
 	private String detalleTecnico;
 	private String detalleFuncional;
 	private String rutaServicioRest;
+	
+	//reporte
+	private String cdDocIdentidad;
+	private String rtFiltro;
+	private String nbMotivoRechazo;
+	private Date fhPeticion;
+	
+	
 
+	public Date getFhPeticion() {
+		return fhPeticion;
+	}
+	public void setFhPeticion(Date fhPeticion) {
+		this.fhPeticion = fhPeticion;
+	}
+	public String getCdDocIdentidad() {
+		return cdDocIdentidad;
+	}
+	public void setCdDocIdentidad(String cdDocIdentidad) {
+		this.cdDocIdentidad = cdDocIdentidad;
+	}
+	public String getRtFiltro() {
+		return rtFiltro;
+	}
+	public void setRtFiltro(String rtFiltro) {
+		this.rtFiltro = rtFiltro;
+	}
+	public String getNbMotivoRechazo() {
+		return nbMotivoRechazo;
+	}
+	public void setNbMotivoRechazo(String nbMotivoRechazo) {
+		this.nbMotivoRechazo = nbMotivoRechazo;
+	}
 	public Integer getCodigoContrato() {
 		return codigoContrato;
 	}

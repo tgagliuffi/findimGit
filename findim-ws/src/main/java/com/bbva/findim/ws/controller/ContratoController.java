@@ -31,8 +31,6 @@ public class ContratoController {
 	@Autowired
 	private ContratoService contratoService;
 	
-//	@Autowired
-	//private AltasService altasService;
 
 	@Autowired
 	private PropertyUtil prop;

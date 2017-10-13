@@ -1,13 +1,24 @@
 package com.bbva.findim.sql.dao.impl;
 
+import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
+import javax.sql.DataSource;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.bbva.findim.dom.AltaContratoRequest;
+import com.bbva.findim.dom.LogContratoBean;
+import com.bbva.findim.dom.ProcesoBatchLogBean;
 import com.bbva.findim.dom.RespuestaBean;
 import com.bbva.findim.sql.connection.DBConnection;
 import com.bbva.findim.sql.dao.LogAltaContratoDao;
@@ -15,12 +26,19 @@ import com.bbva.findim.sql.dao.LogAltaContratoDao;
 @Repository
 public class LogAltaContratoDaoImpl implements LogAltaContratoDao {
 
+	private static final Logger logger = LogManager.getLogger(ParametroDaoImpl.class);
+	
 	private JdbcTemplate jdbcTemplate;
 	
 	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {  
 	    this.jdbcTemplate = jdbcTemplate;  
 	    jdbcTemplate.setResultsMapCaseInsensitive(true);
 	} 
+	
+	public void setDatasource(DataSource dataSource) {
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		jdbcTemplate.setResultsMapCaseInsensitive(true);
+	}
 
 	public Long insert(AltaContratoRequest input) {
 			Connection con = null;
@@ -94,6 +112,35 @@ public class LogAltaContratoDaoImpl implements LogAltaContratoDao {
 				+ " WHERE cd_log_alta_contrato = ?",
 				output.getIndicadorProceso(), output.getMensajeFuncional(), output.getMensajeTecnico(), id
 				);
+	}
+
+	public List<LogContratoBean> obtenerClientesAprobadosRechazadosMes(String fhInicio, String fhFin) {
+		// TODO Auto-generated method stub
+		List<LogContratoBean> listaClientes=null;
+		LogContratoBean logContratoBean=null;
+		try{
+			listaClientes= new ArrayList<LogContratoBean>();
+			
+			List<Map<String, Object>> lista;
+			
+			lista=jdbcTemplate.queryForList(
+				"select cd_doc_identidad,rt_filtro,nb_motivo_rechazo,fh_peticion from"
+			  + " tfindim_log_alta_contrato where fh_peticion >= TO_DATE(?) AND fh_peticion <=TO_DATE(?)",fhInicio,fhFin);
+			
+			for(Map<String, Object> row : lista){
+				logContratoBean= new LogContratoBean();
+				
+				logContratoBean.setCdDocIdentidad(row.get("cd_doc_identidad").toString());
+				logContratoBean.setRtFiltro(row.get("rt_filtro")!=null?row.get("rt_filtro").toString():"");
+				logContratoBean.setNbMotivoRechazo(row.get("nb_motivo_rechazo")!=null?row.get("nb_motivo_rechazo").toString():"");
+				logContratoBean.setFhPeticion(row.get("fh_peticion")!=null?(Date)row.get("fh_peticion"):null);
+				listaClientes.add(logContratoBean);     
+		    }
+			logger.info("listaClientes.size():"+listaClientes.size()); 
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}	
+		return listaClientes;
 	}
 
 }

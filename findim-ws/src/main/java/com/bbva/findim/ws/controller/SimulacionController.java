@@ -106,7 +106,7 @@ public class SimulacionController {
 			rutasPdfBean.setRutaContrato1Jasper(configPath+prop.getString("sistema.ruta.contrato1.jasper").trim());
 			rutasPdfBean.setRutaContrato2Jasper(configPath+prop.getString("sistema.ruta.contrato2.jasper").trim());
 			rutasPdfBean.setRutaCronogramaJasper(configPath+prop.getString("sistema.ruta.cronograma.jasper").trim());
-			rutasPdfBean.setRutaGeneracionContrato(configPath+prop.getString("sistema.ruta.generacion.contrato").trim());
+			rutasPdfBean.setRutaGeneracionContrato(prop.getString("sistema.ruta.generacion.contrato").trim());
 			rutasPdfBean.setRutaHRIinformativaDescJasper(configPath+prop.getString("sistema.ruta.hriinformativadesc.jasper").trim());
 			rutasPdfBean.setRutaHRIinformativaJasper(configPath+prop.getString("sistema.ruta.hriinformativa.jasper").trim());
 			rutasPdfBean.setRutaImagenBBVACF(configPath+prop.getString("sistema.ruta.logo.bbvacf").trim());
