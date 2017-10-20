@@ -168,7 +168,7 @@ public class ContratoWSImpl implements ContratoWS {
 		String uriServicio = prop.getProperty("sistema.uriservicio").toString();
 		String uriEmpresa = uriServicio + "empresaService/obtenerEmpresa/" + prop.getProperty("empresa.telefonica");
 		EmpresaBean empresa = restTemplate.getForObject(uriEmpresa, EmpresaBean.class);
-		
+		Double importeCuota = 0.0;
 		AltaContratoRequest request = new AltaContratoRequest();
 		request.setLlaveUnica(llaveunica);
 		request.setAtributo(atributo);
@@ -233,12 +233,15 @@ public class ContratoWSImpl implements ContratoWS {
 			String tipoDocws="L";
 			PersonaBean personaCreada = null;
 			CalificacionClienteBean beanClasificacion = null;
-			Double importeCuota = 0.0;
+			
 			beanClasificacion = approvalsService.evaluarCliente(tipoDocIdentidad, numeroDocIdentidad, seguridad.generarTSec(2));
 			
 			if(beanClasificacion.getDescErrorServicio()==null || beanClasificacion.getDescErrorServicio().equals("")){
-				if(beanClasificacion.getCodigoResultado()==1){//APROBADO PARAMETRIZAR =1
+				
+				if(beanClasificacion.getCodigoResultado()==1){//APROBADO
+					request.setRtFiltroCliente(beanClasificacion.getTituloMostrar().toString());
 					clienteAlta = validarTipoCliente(contratoAltaBean.getClienteBean().getNumeroDocumento(),tipoDoc,tipoDocws,contratoAltaBean.getClienteBean().getCorreoCliente());
+					
 					if(clienteAlta.getRespuestaService()!=null && clienteAlta.getIdNaturaleza()==1){//NO ES CLIENTE 
 						Ciudadano ciudadano = AltaContratoModel.obtenerInformacionReniec(contratoAltaBean.getClienteBean().getNumeroDocumento(), prop, wS_PersonaReniec_Service);
 			        	if(ciudadano.getMensajeRespuesta().equals("Exito en Consulta a RENIEC")){
@@ -301,48 +304,52 @@ public class ContratoWSImpl implements ContratoWS {
 				  			request.setTxMensajeFuncional(contratoAltaBean.getRepuestaService().getErrorCode());
 							request.setTxMensajeTecnico(contratoAltaBean.getRepuestaService().getErrorCode());
 				  		}
+					}else {
+						request.setTxCodigoError(contratoAltaBean.getRepuestaService().getErrorCode());
+			  			request.setTxMensajeFuncional(contratoAltaBean.getRepuestaService().getErrorDescription());
+						request.setTxMensajeTecnico(contratoAltaBean.getRepuestaService().getErrorCode());
 					}
-				  	request.setRtFiltroCliente(beanClasificacion.getTituloMostrar().toString());
+						
+				  
 				}else{//RECHAZADO COMPLETAR DATOS DEL RECHAZO PARA EL LOG
 					request.setRtFiltroCliente(beanClasificacion.getTituloMostrar());
 				  	request.setNbMotivoRechazo(beanClasificacion.getDsResultado()!=null?beanClasificacion.getDsResultado():null);
 					request.setTxMensajeFuncional(beanClasificacion.getTituloMostrar());
 				}
-			}else{//SUCEDIO UN ERROR EN LA EJECUCIÓN DEL FILTRO
+			}else{
+				//SUCEDIO UN ERROR EN LA EJECUCIÓN DEL FILTRO
 				request.setRtFiltroCliente(beanClasificacion.getTituloMostrar());
 				request.setTxCodigoError(ConstantResponseMessage.CODE_RPTA_ERROR);
 				request.setTxMensajeFuncional(beanClasificacion.getDescErrorServicio());
 				request.setTxMensajeTecnico(ConstantResponseMessage.MJS_ERROR_FILTRO);
 			}
-			//SETEAR REPUESTA CLIENTE
-			respuestaTDP.setMensajeFuncional(request.getTxMensajeFuncional());
-			respuestaTDP.setMensajeTecnico(request.getTxMensajeTecnico()!=null?request.getTxMensajeTecnico():null);
-			respuestaTDP.setIndicadorProceso(0);
-			respuestaTDP.setimporteCuota(importeCuota>0?new Float(importeCuota):0);
-			
-			logAltaContratoService.insert(request);
+		
 		  	
 	} catch (Exception ex) {
 			LOGGER.error(ex.getMessage(), ex);
-			
 			request.setTpIndicadorProceso(ConstantResponseMessage.CODE_RPTA_ERROR);
 			request.setTxMensajeFuncional(ConstantResponseMessage.MSJ_EXCEPTION);
 			request.setTxMensajeTecnico(ex.getMessage());
-			
 			respuestaTDP.setMensajeFuncional(request.getTxMensajeFuncional());
 			respuestaTDP.setMensajeTecnico(ex.getMessage());
 			respuestaTDP.setIndicadorProceso(0);
 			respuestaTDP.setimporteCuota((float) 0);
-
+			//logAltaContratoService.insert(request);
+			
+		}finally {
+			respuestaTDP.setMensajeFuncional(request.getTxMensajeFuncional());
+			respuestaTDP.setMensajeTecnico(request.getTxMensajeTecnico()!=null?request.getTxMensajeTecnico():null);
+			respuestaTDP.setIndicadorProceso(0);
+			respuestaTDP.setimporteCuota(importeCuota>0?new Float(importeCuota):0);
 			logAltaContratoService.insert(request);
 		}
 
 		long end = System.nanoTime();
 		long elapsedTime = TimeUnit.NANOSECONDS.toMillis(end - begin);
 		LOGGER.info("SOAP::>Final {} - Transaccion Finalizada en: {} ms", numeroDocIdentidad, elapsedTime);
-		
-		
 		return respuestaTDP;
+		
+		
 	}
 
 	private ContratoAltaBean transaccionAltaContrato(ContratoAltaBean contratoAltaBean, ClienteBean clienteAlta, String tarifa, EmpresaBean empresa)throws Exception {
