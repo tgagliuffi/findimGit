@@ -302,7 +302,7 @@ public class Inicio {
 						
 						String userType = (String) session.getAttribute("seguridad_usertype");
 						String seguridadUser = (String) session.getAttribute("seguridad_user");
-						clienteBean.setRutaServicioRest("");//lienteBean.setRutaServicioRest(rutaServicioRest);
+						clienteBean.setRutaServicioRest(prop.getString("sistema.uriservicio"));
 						clienteBean.setSeguridad_usertype(userType);
 						clienteBean.setSeguridad_user(seguridadUser);
 						

@@ -9,5 +9,7 @@ public interface OficinaDao {
 	
     List<OficinaBean> listarOficinasPorUbigeoHost(String ubigeoHost,  String distrito) throws Exception;
     UbigeoBean obtenerUbigeoHost(String dpto, String prov, String dist)throws Exception;
+    Boolean insert(OficinaBean input) throws Exception;;
+    Integer truncateOficinas() throws Exception;
 
 }

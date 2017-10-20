@@ -1,6 +1,5 @@
 package com.bbva.findim.sql.dao.impl;
 
-import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Repository;
 
 import com.bbva.findim.dom.AltaContratoRequest;
 import com.bbva.findim.dom.LogContratoBean;
-import com.bbva.findim.dom.ProcesoBatchLogBean;
 import com.bbva.findim.dom.RespuestaBean;
 import com.bbva.findim.sql.connection.DBConnection;
 import com.bbva.findim.sql.dao.LogAltaContratoDao;

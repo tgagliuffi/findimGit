@@ -1,6 +1,8 @@
 package com.bbva.findim.sql.dao.impl;
 
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Repository;
 
 import com.bbva.findim.dom.OficinaBean;
 import com.bbva.findim.dom.UbigeoBean;
+import com.bbva.findim.sql.connection.DBConnection;
 import com.bbva.findim.sql.dao.OficinaDao;
 @Repository
 public class OficinaDaoImpl implements OficinaDao {
@@ -64,6 +67,22 @@ public class OficinaDaoImpl implements OficinaDao {
 	
 	}
 	
+	public Integer truncateOficinas() throws Exception {
+		 Integer rptaDelete = 0;
+		 String deleteStatement = "DELETE FROM TFINDIM_OFICINA ";
+		    try
+		    {
+		    	jdbcTemplate.update(deleteStatement);
+		    }
+		    catch (RuntimeException runtimeException) 
+		    {
+		    	logger.info("***NagiosHostDao::deleteObject, RuntimeException occurred, message follows.");
+		    	logger.info(runtimeException);
+		        throw runtimeException;
+		    }
+	    	return rptaDelete;
+	}
+	
 	public List<OficinaBean> listarOficinasPorUbigeoHost(String ubigeoHost, String distrito)throws Exception {
 		List<OficinaBean> listaOficinaPorUbigeo = null;
 		try{
@@ -89,7 +108,41 @@ public class OficinaDaoImpl implements OficinaDao {
 			logger.error(e.getMessage(), e);
 		}	
 		return listaOficinaPorUbigeo;
-	
 	}
 
+	public Boolean insert(OficinaBean input) {
+		Connection con = null;
+		CallableStatement stmt = null;
+		String result="";
+		Boolean rptaInsertOficina= false;
+		try{
+			con = DBConnection.getConnection();
+			stmt = con.prepareCall("{call PKGFINDIM_UTIL.INSERTAR_OFICINA(?,?,?,?,?)}");
+			
+			stmt.setLong(1, input.getIdOficina());
+			stmt.setString(2, input.getCdOficina());
+			stmt.setString(3, input.getNbOficina());
+			stmt.setString(4, input.getCdUbigeoHost());
+			
+			stmt.registerOutParameter(5, java.sql.Types.NUMERIC);
+			stmt.executeUpdate();
+
+			result = stmt.getString(5);
+			if(Long.parseLong(result)>0){
+				rptaInsertOficina=true;
+			}
+		 
+		}catch(Exception e){
+			logger.info(e);
+				}finally{
+					try {
+						stmt.close();
+						con.close();
+					} catch (SQLException e) {
+						logger.info(e);
+					}
+				}
+	return rptaInsertOficina;		
+	
+	}
 }

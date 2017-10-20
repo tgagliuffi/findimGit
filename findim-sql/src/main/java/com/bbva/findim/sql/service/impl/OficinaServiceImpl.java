@@ -1,7 +1,11 @@
 package com.bbva.findim.sql.service.impl;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +20,7 @@ import com.bbva.findim.sql.service.OficinaService;
 @Service("oficinaService")
 public class OficinaServiceImpl  implements OficinaService{
 	
+	private static final Logger logger = LogManager.getLogger(OficinaServiceImpl.class);
 	@Autowired
 	private OficinaDao oficinaDAO;
 	
@@ -70,6 +75,31 @@ public class OficinaServiceImpl  implements OficinaService{
 		 }
 	       
 		 return codigoOficina;
+	 }
+	 
+	@SuppressWarnings("rawtypes")
+	public List<String>  cargarOficina(List<OficinaBean> lstOficinas) {
+		 List<String> lstLogCarga = null;
+			 try {
+				 //truncar tabla oficinas
+				 Integer rptaTruncateOficinas = oficinaDAO.truncateOficinas();
+				 if(rptaTruncateOficinas==1){
+					 lstLogCarga = new ArrayList<String>();
+					 for (Iterator iterator = lstOficinas.iterator(); iterator.hasNext();) {
+						OficinaBean oficinaBean = (OficinaBean) iterator.next();
+						if(oficinaDAO.insert(oficinaBean)==false) {
+							lstLogCarga.add("ERROR EN AL INSERTAR LA OFICINA = " + oficinaBean.getCdOficina());
+						}
+					}
+					 	
+					 
+				 }
+				
+			} catch (Exception e) {
+				logger.error(e);
+			}
+		 
+		 return lstLogCarga;
 	 }
 
 }
