@@ -137,7 +137,7 @@ public class LogAltaContratoDaoImpl implements LogAltaContratoDao {
 				listaClientes.add(logContratoBean);     
 		    }
 			logger.info("listaClientes.size():"+listaClientes.size()); 
-		} catch (Exception e) {
+		} catch (Exception e) { 
 			logger.error(e.getMessage(), e);
 		}	
 		return listaClientes;
