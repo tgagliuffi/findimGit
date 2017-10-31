@@ -1,7 +1,6 @@
 package com.bbva.findim.dom;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 public class ProcesoSubTareaBean {
 
