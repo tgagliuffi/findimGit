@@ -101,7 +101,7 @@ public class ProposalServiceImpl extends BaseServiceBackImpl  implements Proposa
 				
 				UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).queryParams(params).build();		
 				HttpEntity<Proposals> entity = new HttpEntity<Proposals>(proposals, headers);
-				responseEntity = restTemplate.exchange(uriComponents.toUri(), HttpMethod.POST, entity, String.class);
+				responseEntity = restTemplate.exchange(uriComponents.toUri(), HttpMethod.GET, entity, String.class);
 				
 				if(responseEntity!=null){
 					contratoBean.setRepuestaService(new RespuestaService());
