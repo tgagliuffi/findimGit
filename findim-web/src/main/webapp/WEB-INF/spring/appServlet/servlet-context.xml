@@ -38,5 +38,5 @@
 	<context:component-scan base-package="com.bbva.findim.bck.common" />
 
 	<beans:bean id="restTemplate" class="org.springframework.web.client.RestTemplate" />
-
+	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
 </beans:beans>
