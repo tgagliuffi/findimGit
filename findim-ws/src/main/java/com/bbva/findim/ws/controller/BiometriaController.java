@@ -1,13 +1,12 @@
 package com.bbva.findim.ws.controller;		
 		
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.MediaType;		
-import org.springframework.web.bind.annotation.PathVariable;		
-import org.springframework.web.bind.annotation.RequestBody;		
-import org.springframework.web.bind.annotation.RequestMapping;		
-import org.springframework.web.bind.annotation.RequestMethod;		
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.bbva.findim.dom.BiometriaBean;
 import com.bbva.findim.dom.BiometriaValidaMaxIntentosBean;
@@ -15,12 +14,13 @@ import com.bbva.findim.dom.ResultadoBiometriaBean;
 import com.bbva.findim.ws.service.BiometriaService;		
 	
 		
-@RestController		
-@RequestMapping("biometria")		
+//@RestController		
+//@RequestMapping("biometria")	
+@Controller
 public class BiometriaController {		
 		
 	@Autowired		
-	@Qualifier(value="biometriaService")
+//	@Qualifier(value="biometriaService")
 	BiometriaService biometriaService;		
 		
 	@RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)		

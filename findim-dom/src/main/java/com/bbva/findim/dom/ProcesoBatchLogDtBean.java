@@ -1,12 +1,10 @@
 package com.bbva.findim.dom;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 public class ProcesoBatchLogDtBean {
 
-	private static final long serialVersionUID = 1L;
-    private BigDecimal idProcesoDt;
+	private BigDecimal idProcesoDt;
     private String tarea;
     private String paso;
     private String idProceso;
