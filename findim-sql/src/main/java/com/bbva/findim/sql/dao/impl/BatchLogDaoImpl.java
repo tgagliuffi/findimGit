@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +16,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.bbva.findim.dom.ProcesoBatchLogBean;
-import com.bbva.findim.dom.ProcesoTareaBean;
 import com.bbva.findim.sql.dao.BatchLogDao;
 
 @Repository

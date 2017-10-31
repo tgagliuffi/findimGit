@@ -1,5 +1,7 @@
 package com.bbva.findim.sql.service.impl;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bbva.findim.dom.ContratoAltaBean;
+import com.bbva.findim.dom.File;
 import com.bbva.findim.dom.OficinaBean;
 import com.bbva.findim.dom.UbigeoBean;
 import com.bbva.findim.dom.common.Constantes;
@@ -76,22 +79,38 @@ public class OficinaServiceImpl  implements OficinaService{
 	       
 		 return codigoOficina;
 	 }
+	
 	 
-	@SuppressWarnings("rawtypes")
-	public List<String>  cargarOficina(List<OficinaBean> lstOficinas) {
+	@SuppressWarnings("resource") 
+	public List<String>  cargarOficina(File file) throws Exception {
 		 List<String> lstLogCarga = null;
 			 try {
-				 //truncar tabla oficinas
-				 Integer rptaTruncateOficinas = oficinaDAO.truncateOficinas();
-				 if(rptaTruncateOficinas==1){
-					 lstLogCarga = new ArrayList<String>();
-					 for (Iterator iterator = lstOficinas.iterator(); iterator.hasNext();) {
-						OficinaBean oficinaBean = (OficinaBean) iterator.next();
-						if(oficinaDAO.insert(oficinaBean)==false) {
-							lstLogCarga.add("ERROR EN AL INSERTAR LA OFICINA = " + oficinaBean.getCdOficina());
+				   List<OficinaBean> lstOficina = new ArrayList<OficinaBean>() ;
+				   FileReader fr = new FileReader(file.getRuta());
+				 
+				BufferedReader br = new BufferedReader(fr);
+				    
+				   String linea;
+				      while((linea = br.readLine()) != null) {
+						OficinaBean bean = new OficinaBean();
+			    		if (linea.length()==55) {
+			    			bean.setCdOficina(linea.substring(4, 8));
+			    			bean.setNbOficina(linea.substring(9, 48));
+			    			bean.setCdUbigeoHost(linea.substring(49, 55));
+			    			lstOficina.add(bean);
 						}
 					}
-					 	
+			
+					Integer rptaTruncateOficinas = oficinaDAO.truncateOficinas();
+						if(rptaTruncateOficinas==1){
+						 lstLogCarga = new ArrayList<String>();
+						 for (@SuppressWarnings("rawtypes")
+						Iterator iterator = lstOficina.iterator(); iterator.hasNext();) {
+							OficinaBean oficinaBean = (OficinaBean) iterator.next();
+							if(oficinaDAO.insert(oficinaBean)==false) {
+								lstLogCarga.add("ERROR EN AL INSERTAR LA OFICINA = " + oficinaBean.getCdOficina());
+							}
+					}
 					 
 				 }
 				
@@ -101,5 +120,7 @@ public class OficinaServiceImpl  implements OficinaService{
 		 
 		 return lstLogCarga;
 	 }
+	
+	
 
 }
