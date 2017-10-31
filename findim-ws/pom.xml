@@ -7,6 +7,14 @@
 	<name>findim-ws</name>
 	<packaging>war</packaging>
 	<version>1.0.0-BUILD-SNAPSHOT</version>
+	
+	<repositories>
+	   <repository>
+		  <id>JBoss repository</id>
+		  <url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+	   </repository>
+	</repositories>
+	
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
@@ -39,7 +47,12 @@
 		<junit.version>4.11</junit.version>
 	</properties>
 	<dependencies>
-
+		
+<!-- 		<dependency> -->
+<!--             <groupId>org.wildfly.swarm</groupId> -->
+<!--             <artifactId>jaxrs-multipart</artifactId> -->
+<!--         </dependency> -->
+		
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
@@ -167,6 +180,29 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+<!-- 		<dependency> -->
+<!-- 		    <groupId>org.apache.httpcomponents</groupId> -->
+<!-- 		    <artifactId>httpmime</artifactId> -->
+<!-- 		    <version>4.3.1</version> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.jboss.resteasy</groupId> -->
+<!-- 			<artifactId>resteasy-jaxrs</artifactId> -->
+<!-- 			<version>2.2.1.GA</version> -->
+<!-- 			 <scope>provided</scope> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 		    <groupId>org.jboss.resteasy</groupId> -->
+<!-- 		    <artifactId>resteasy-multipart-provider</artifactId> -->
+<!-- 		    <version>2.2.0.GA</version> -->
+<!-- 		    <scope>provided</scope> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 		    <groupId>commons-fileupload</groupId> -->
+<!-- 		    <artifactId>commons-fileupload</artifactId> -->
+<!-- 		    <version>1.2</version> -->
+<!-- 		</dependency> -->
+
 	</dependencies>
 	<build>
 		<finalName>${project.artifactId}</finalName>
