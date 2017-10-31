@@ -5,8 +5,8 @@
 	<groupId>com.bbva.findim</groupId>
 	<artifactId>findim-ws</artifactId>
 	<name>findim-ws</name>
-	<packaging>war</packaging>
-	<version>1.0.0-BUILD-SNAPSHOT</version>
+	<packaging>war</packaging> 
+	<version>1.0.0-BUILD-SNAPSHOT</version>   
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>

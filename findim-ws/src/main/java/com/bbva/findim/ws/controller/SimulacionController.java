@@ -1,6 +1,16 @@
 package com.bbva.findim.ws.controller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +36,7 @@ import com.bbva.findim.dom.ClienteBean;
 import com.bbva.findim.dom.ContratoBean;
 import com.bbva.findim.dom.DatosPdfBean;
 import com.bbva.findim.dom.EmpresaBean;
+import com.bbva.findim.dom.FileUnicoRest;
 import com.bbva.findim.dom.ParametroBean;
 import com.bbva.findim.dom.ReCronogramaRest;
 import com.bbva.findim.dom.RutasPdfBean;
@@ -69,6 +81,7 @@ public class SimulacionController {
 	ParametroService parametroService;
 	
 	private static final Logger logger = LogManager.getLogger(SimulacionController.class);
+	private static final Logger LOGGER = LogManager.getLogger(SimulacionController.class);
 	
 	@RequestMapping(value = "/regenerarCronograma", method = RequestMethod.POST,headers="Accept=application/json")
 	@ResponseBody
@@ -188,6 +201,5 @@ public class SimulacionController {
 		return simulacion;
 
 	}
-
 
 }
