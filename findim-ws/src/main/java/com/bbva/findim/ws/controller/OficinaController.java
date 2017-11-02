@@ -48,7 +48,8 @@ public class OficinaController {
 		List<String> lstlogCarga = null;
 		Map<String, Object> respuesta = new HashMap<String, Object>();
 		try {
-			lstlogCarga = oficinaService.cargarOficina(file);
+			if(file!=null)
+				lstlogCarga = oficinaService.cargarOficina(file);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
