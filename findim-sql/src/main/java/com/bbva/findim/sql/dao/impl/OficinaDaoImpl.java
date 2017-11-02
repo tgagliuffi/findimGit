@@ -119,12 +119,9 @@ public class OficinaDaoImpl implements OficinaDao {
 		try{
 			con = DBConnection.getConnection();
 			stmt = con.prepareCall("{call PKGFINDIM_UTIL.INSERTAR_OFICINA(?,?,?,?)}");
-			
-		//	stmt.setLong(1, input.getIdOficina());
 			stmt.setString(1, input.getCdOficina());
-			stmt.setString(2, input.getNbOficina());
+			stmt.setString(2, input.getNbOficina().trim());
 			stmt.setString(3, input.getCdUbigeoHost());
-			
 			stmt.registerOutParameter(4, java.sql.Types.NUMERIC);
 			stmt.executeUpdate();
 
