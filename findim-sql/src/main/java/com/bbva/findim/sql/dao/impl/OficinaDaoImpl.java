@@ -68,7 +68,7 @@ public class OficinaDaoImpl implements OficinaDao {
 	}
 	
 	public Integer truncateOficinas() throws Exception {
-		 Integer rptaDelete = 0;
+		 Integer rptaDelete = 1;
 		 String deleteStatement = "DELETE FROM TFINDIM_OFICINA ";
 		    try
 		    {
@@ -76,6 +76,7 @@ public class OficinaDaoImpl implements OficinaDao {
 		    }
 		    catch (RuntimeException runtimeException) 
 		    {
+		    	rptaDelete = 0;
 		    	logger.info("***NagiosHostDao::deleteObject, RuntimeException occurred, message follows.");
 		    	logger.info(runtimeException);
 		        throw runtimeException;
@@ -117,17 +118,17 @@ public class OficinaDaoImpl implements OficinaDao {
 		Boolean rptaInsertOficina= false;
 		try{
 			con = DBConnection.getConnection();
-			stmt = con.prepareCall("{call PKGFINDIM_UTIL.INSERTAR_OFICINA(?,?,?,?,?)}");
+			stmt = con.prepareCall("{call PKGFINDIM_UTIL.INSERTAR_OFICINA(?,?,?,?)}");
 			
-			stmt.setLong(1, input.getIdOficina());
-			stmt.setString(2, input.getCdOficina());
-			stmt.setString(3, input.getNbOficina());
-			stmt.setString(4, input.getCdUbigeoHost());
+		//	stmt.setLong(1, input.getIdOficina());
+			stmt.setString(1, input.getCdOficina());
+			stmt.setString(2, input.getNbOficina());
+			stmt.setString(3, input.getCdUbigeoHost());
 			
-			stmt.registerOutParameter(5, java.sql.Types.NUMERIC);
+			stmt.registerOutParameter(4, java.sql.Types.NUMERIC);
 			stmt.executeUpdate();
 
-			result = stmt.getString(5);
+			result = stmt.getString(4);
 			if(Long.parseLong(result)>0){
 				rptaInsertOficina=true;
 			}
